@@ -63,79 +63,32 @@
             }
 
             function existeProducto() {
-                var producto = {
-                    codproducto: $('#codigo').val(),
-                    idempresa: $('#select-empresa').val()
-                };
-
-                var datos = {
-                    tipo: 'existe-producto',
-                    producto: producto
-                };
-
-                $.ajax({
-                    type: 'post',
-                    url: 'ProductoController',
-                    data: {
-                        datos: JSON.stringify(datos)
-                    },
-                    success: function (res) {
-                        var obj = JSON.parse(res);
-                        if (obj.estado === 'ok') {
-                            if (parseInt(obj.cantidad) > 0) {
-                                alert('El producto de código: ' + producto.codigo + ' ya existe para la empresa seleccionada.');
-                                $('#btnInsert').attr("disabled", "disabled");
-                            } else {
-                                $('#btnInsert').removeAttr("disabled");
-                            }
-                        }
-                    },
-                    error: function (a, b, c) {
-                        console.log(a);
-                        console.log(b);
-                        console.log(c);
-                    }
-                });
-            }
-
-            function edit(boton) {
-                var fila = $(boton).parent().parent();
-                $('#codigo').val($(fila.children()[0]).html());
-                $('#descripcion').val($(fila.children()[1]).html());
-                $('#select-empresa').val($(fila.children()[3]).html().replaceAll("\\.", ""));
-                $('#codigo').attr("disabled", "disabled");
-                $('#edicion').removeClass('oculto');
-                $('#creacion').addClass('oculto');
-                $('#rut').attr("disabled", "disabled");
-            }
-
-            function save() {
-                if (validarCampos()) {
-                    var rutEmpresa = $('#select-empresa').val().replaceAll("-", "");
-                    var codProd = $('#codigo').val();
-                    var descProd = $('#descripcion').val();
-
-                    var datos = {
-                        tipo: 'upd-producto',
-                        rutEmpresa: rutEmpresa,
-                        codProd: codProd,
-                        descProd: descProd
+                if ($('#hidIdProducto').val() === '') {
+                    var producto = {
+                        codproducto: $('#codigo').val(),
+                        idempresa: $('#select-empresa').val()
                     };
 
-                    console.log(datos);
+                    var datos = {
+                        tipo: 'existe-producto',
+                        producto: producto
+                    };
 
                     $.ajax({
                         type: 'post',
-                        url: 'Dispatcher',
-                        cache: false,
+                        url: 'ProductoController',
                         data: {
                             datos: JSON.stringify(datos)
                         },
                         success: function (res) {
                             var obj = JSON.parse(res);
                             if (obj.estado === 'ok') {
-                                cargarTabla();
-                                cancelarEdicion();
+                                if (parseInt(obj.cantidad) > 0) {
+                                    alert('El producto de código: ' + producto.codigo + ' ya existe para la empresa seleccionada.');
+                                    $('#btnInsert').attr("disabled", "disabled");
+                                } else {
+                                    $('#btnInsert').removeAttr("disabled");
+                                }
                             }
                         },
                         error: function (a, b, c) {
@@ -145,20 +98,71 @@
                         }
                     });
                 }
+            }
 
+            function edit(boton) {
+                var fila = $(boton).parent().parent();
+                var codproducto = $($(fila.children()[0]).children()[2]).html();
+                var descproducto = $(fila.children()[1]).html();
+                var idproducto = $($(fila.children()[0]).children()[0]).val();
+                var idempresa = $($(fila.children()[0]).children()[1]).val();
+                $('#hidIdProducto').val(idproducto);
+                $('#hidIdEmpresa').val(idproducto);
+                $('#select-empresa').val(idempresa);
+                $('#nombre').val(descproducto);
+                $('#codigo').val(codproducto);
+                $('#descripcion').val(descproducto);
+                $('#edicion').removeClass('oculto');
+                $('#creacion').addClass('oculto');
+            }
+
+            function save() {
+                if (validarCampos()) {
+                    var producto = {
+                        idproducto: $('#hidIdProducto').val(),
+                        idempresa: $('#hidIdEmpresa').val(),
+                        codproducto: $('#codigo').val(),
+                        descproducto: $('#descripcion').val()
+                    };
+                    var datos = {
+                        tipo: 'upd-producto',
+                        producto: producto
+                    };
+
+                    var detalle = {
+                        url: "ProductoController",
+                        datos: datos
+                    };
+                    //console.log(detalle);
+                    guardar(detalle);
+                }
+                var det = {
+                    url: 'ProductoController',
+                    datos: {
+                        tipo: 'get-productos'
+                    },
+                    bodyDestino: 'cuerpo-tab-producto',
+                    tablaObjetivo: 'tabla-productos'
+                };
+                traerListado(det);
+                $('.dataTable').DataTable().destroy();
+                $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                limpiar();
             }
 
             function limpiar() {
                 $('#select-empresa option').removeAttr("selected");
                 $('#select-empresa').val('0');
                 $('#codigo').val('');
-                $('#codigo').removeAttr("disabled");
                 $('#descripcion').val('');
                 $('#btnInsert').attr("disabled", "disabled");
+                $('#hidIdProducto').val('');
+                $('#hidIdEmpresa').val('');
+                $('#edicion').addClass('oculto');
+                $('#creacion').removeClass('oculto');
             }
 
             function cancelarEdicion() {
-                $('#codigo').removeAttr("disabled");
                 $('#edicion').addClass('oculto');
                 $('#creacion').removeClass('oculto');
                 limpiar();
@@ -176,6 +180,33 @@
                 $('#btnInsert').removeAttr("disabled");
                 return true;
             }
+
+            function del(boton) {
+                var fila = $(boton).parent().parent();
+                var idproducto = $($(fila.children()[0]).children()[0]).val();
+
+                if (confirm('Está seguro que desea eliminar el producto seleccionado?')) {
+                    var detalle = {
+                        url: 'ProductoController',
+                        datos: {
+                            tipo: 'del-producto',
+                            idproducto: idproducto
+                        }
+                    };
+                    eliminar(detalle);
+                    var det = {
+                        url: 'ProductoController',
+                        datos: {
+                            tipo: 'get-productos'
+                        },
+                        bodyDestino: 'cuerpo-tab-producto',
+                        tablaObjetivo: 'tabla-productos'
+                    };
+                    traerListado(det);
+                    $('.dataTable').DataTable().destroy();
+                    $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                }
+            }
         </script>
         <div class="container-fluid">
             <br />
@@ -189,6 +220,8 @@
             <div class="row">
                 <div class="col-sm-4">
                     <form>
+                        <input type='hidden'id='hidIdProducto' value='' />
+                        <input type='hidden'id='hidIdEmpresa' value='' />
                         <div class="form-group small">
                             <label for="select-empresa">Empresa</label>
                             <select class="form-control form-control-sm" id="select-empresa">

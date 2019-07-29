@@ -19,7 +19,6 @@ public class ProductoController extends HttpServlet {
 	JSONObject entrada = new JSONObject(request.getParameter("datos"));
 	PrintWriter out = response.getWriter();
 	response.setContentType("text/html; charset=UTF-8");
-	
 	switch(entrada.getString("tipo")){
 	    case "get-productos":
 		out.print(getProductos());
@@ -29,6 +28,12 @@ public class ProductoController extends HttpServlet {
 		break;
 	    case "existe-producto":
 		out.print(existeProducto(entrada.getJSONObject("producto")));
+		break;
+	    case "upd-producto":
+		out.print(updProducto(entrada.getJSONObject("producto")));
+		break;
+	    case "del-producto":
+		out.print(delProducto(entrada.getInt("idproducto")));
 		break;
 	}
     }
@@ -43,11 +48,11 @@ public class ProductoController extends HttpServlet {
 	try{
 	    while(rs.next()){
 		filas += "<tr>";
-		filas += "<td><input type='hidden' value='" + rs.getInt("IDPRODUCTO") + "' /><span>" + rs.getString("CODPRODUCTO") + "</span></td>";
+		filas += "<td><input type='hidden' value='" + rs.getInt("IDPRODUCTO") + "' /><input type='hidden' value='" + rs.getInt("IDEMPRESA") + "' /><span>" + rs.getString("CODPRODUCTO") + "</span></td>";
 		filas += "<td>" + rs.getString("DESCPRODUCTO") + "</td>";
 		filas += "<td>" + rs.getString("NOMBRE") + "</td>";
 		filas += "<td>" + modelo.Util.formatRut(rs.getInt("RUTEMPRESA") + "-" + rs.getString("DVEMPRESA")) + "</td>";
-		filas += "<td><button type='button' class='btn btn-sm btn-warning' onclick='editar(this)'>Editar</button><button type='button' class='btn btn-sm btn-danger' onclick='del(this)'>Eliminar</button></td>";
+		filas += "<td><button type='button' class='btn btn-sm btn-warning' onclick='edit(this)'>Editar</button><button type='button' class='btn btn-sm btn-danger' onclick='del(this)'>Eliminar</button></td>";
 		filas += "</tr>";
 	    }
 	    salida.put("cuerpotabla", filas);
@@ -72,6 +77,7 @@ public class ProductoController extends HttpServlet {
 	c.abrir();
 	c.ejecutar(query);
 	c.cerrar();
+	salida.put("estado", "ok");
 	return salida;
     }
     
@@ -102,11 +108,23 @@ public class ProductoController extends HttpServlet {
     
     private JSONObject updProducto(JSONObject producto){
 	JSONObject salida = new JSONObject();
+	String query = "CALL SP_UPD_PRODUCTO(" + producto.getInt("idproducto") + ", " + producto.getInt("idempresa") + ", '" + producto.getString("codproducto") + "', '" + producto.getString("descproducto") + "')";
+	Conexion c = new Conexion();
+	c.abrir();
+	c.ejecutar(query);
+	c.cerrar();
+	salida.put("estado", "ok");
 	return salida;
     }
     
     private JSONObject delProducto(int idproducto){
 	JSONObject salida = new JSONObject();
+	String query = "CALL SP_DEL_PRODUCTO(" + idproducto + ")";
+	Conexion c = new Conexion();
+	c.abrir();
+	c.ejecutar(query);
+	c.cerrar();
+	salida.put("estado", "ok");
 	return salida;
     }
     

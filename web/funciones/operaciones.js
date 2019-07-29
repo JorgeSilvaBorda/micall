@@ -59,6 +59,11 @@ function guardar(detalle) {
             } else {
                 console.log(obj.mensaje);
             }
+        },
+        error: function(a, b, c){
+            console.log(a);
+            console.log(b);
+            console.log(c);
         }
     });
 }
