@@ -24,6 +24,18 @@ public class UsuarioController extends HttpServlet {
 	    case "login":
 		out.print(loginUsuario(entrada.getJSONObject("credenciales"), request));
 		break;
+	    case "get-usuarios":
+		out.print(getUsuarios());
+		break;
+	    case "carga-select-tipousuario":
+		out.print(getTipoUsuarios());
+		break;
+	    case "existe-usuario":
+		out.print(existeUsuario(entrada.getInt("rutusuario")));
+		break;
+	    case "ins-usuario":
+		out.print(insUsuario(entrada.getJSONObject("usuario")));
+		break;
 	}
     }
 
@@ -82,6 +94,93 @@ public class UsuarioController extends HttpServlet {
 	    salida.put("mensaje", ex);
 	}
 	c.cerrar();
+	return salida;
+    }
+
+    private JSONObject getUsuarios() {
+	JSONObject salida = new JSONObject();
+	//JSONArray usuarios = new JSONArray();
+	String query = "CALL SP_GET_USUARIOS()";
+	Conexion c = new Conexion();
+	c.abrir();
+	ResultSet rs = c.ejecutarQuery(query);
+	String filas = "";
+	try {
+	    while (rs.next()) {
+		filas += "<tr>";
+		filas += "<td><input type='hidden' value='" + rs.getInt("IDUSUARIO") + "' /><input type='hidden' value='" + rs.getInt("IDEMPRESA") + "' /><span>" + modelo.Util.formatRut(rs.getString("RUTUSUARIO") + "-" + rs.getString("DVUSUARIO")) + "</span></td>";
+		filas += "<td>" + rs.getString("NOMUSUARIO") + "</td>";
+		filas += "<td>" + rs.getString("APPATERNO") + "</td>";
+		filas += "<td>" + rs.getString("APMATERNO") + "</td>";
+		filas += "<td>" + modelo.Util.formatRut(rs.getString("RUTEMPRESA") + "-" + rs.getString("DVEMPRESA")) + "</td>";
+		filas += "<td>" + rs.getString("NOMBRE") + "</td>";
+		filas += "<td>" + rs.getString("DESCTIPOUSUARIO") + "</td>";
+		filas += "<td><button type='button' class='btn btn-sm btn-warning' onclick='edit(this)'>Editar</button><button type='button' class='btn btn-sm btn-danger' onclick='del(this)'>Eliminar</button></td>";
+		filas += "</tr>";
+	    }
+	    salida.put("cuerpotabla", filas);
+	    salida.put("estado", "ok");
+	} catch (JSONException | SQLException ex) {
+	    System.out.println("Problemas en controlador.UsuarioController.getUsuarios().");
+	    System.out.println(ex);
+	    salida.put("estado", "error");
+	    salida.put("error", ex);
+	}
+	c.cerrar();
+	return salida;
+    }
+    
+    private JSONObject getTipoUsuarios(){
+	JSONObject salida = new JSONObject();
+	String query = "CALL SP_GET_TIPOUSUARIOS()";
+	Conexion c = new Conexion();
+	c.abrir();
+	ResultSet rs = c.ejecutarQuery(query);
+	String options = modelo.Util.armarSelect(rs, "0", "Seleccione", "IDTIPOUSUARIO", "DESCTIPOUSUARIO");
+	salida.put("estado", "ok");
+	salida.put("options", options);
+	c.cerrar();
+	return salida;
+    }
+    
+    private JSONObject existeUsuario(int rutusuario){
+	JSONObject salida = new JSONObject();
+	String query = "CALL SP_EXISTE_USUARIO(" + rutusuario + ")";
+	Conexion c = new Conexion();
+	c.abrir();
+	int cant = 0;
+	try{
+	    ResultSet rs = c.ejecutarQuery(query);
+	    while(rs.next()){
+		cant = rs.getInt("CANTIDAD");
+	    }
+	    salida.put("estado", "ok");
+	    salida.put("cantidad", cant);
+	}catch (SQLException ex) {
+	    System.out.println("Problemas en modelo.UsuarioController.existeUsuario()");
+	    System.out.println(ex);
+	    salida.put("estado", "error");
+	    salida.put("mensaje", ex);
+	}
+	c.cerrar();
+	return salida;
+    }
+    
+    private JSONObject insUsuario(JSONObject usuario){
+	JSONObject salida = new JSONObject();
+	String query = "CALL SP_INS_USUARIO("
+		+ usuario.getInt("rutusuario") + ", "
+		+ "'" + usuario.getString("dvusuario") + "', "
+		+ "'" + usuario.getString("nombres") + "', "
+		+ "'" + usuario.getString("appaterno") + "', "
+		+ "'" + usuario.getString("apmaterno") + "', "
+		+ usuario.getInt("idempresa") + ", "
+		+ usuario.getInt("idtipousuario") + ")";
+	Conexion c = new Conexion();
+	c.abrir();
+	c.ejecutar(query);
+	c.cerrar();
+	salida.put("estado", "ok");
 	return salida;
     }
 }
