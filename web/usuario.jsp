@@ -8,9 +8,6 @@
     <body>
         <script type="text/javascript">
             $(document).ready(function () {
-                //cargarSelectTipoUsuario();
-                //cargarSelectEmpresa();
-                //cargarTabla();
                 var detalle = {
                     url: 'UsuarioController',
                     datos: {
@@ -135,7 +132,7 @@
                         apmaterno: $('#apmaterno').val()
                     };
                     var detalles = {
-                        
+
                         url: 'UsuarioController',
                         datos: {
                             tipo: 'ins-usuario',
@@ -171,63 +168,89 @@
 
             function edit(boton) {
                 var fila = $(boton).parent().parent();
-                $('#select-empresa option').removeAttr("selected");
-                $('#select-empresa').val($(fila.children()[4]).html().replaceAll("\\.", ""));
-                $('#rut').val($(fila.children()[0]).html());
-                $('#nombres').val($(fila.children()[1]).html());
-                $('#appaterno').val($(fila.children()[2]).html());
-                $('#apmaterno').val($(fila.children()[3]).html());
-                var textTipoUsuario = $(fila.children()[6]).html();
-                $('#select-tipo-usuario option').removeAttr("selected");
-                $('#select-tipo-usuario option').filter(function () {
-                    return this.text === textTipoUsuario;
-                }).attr('selected', 'selected');
+                var idusuario = $($(fila.children()[0]).children()[0]).val();
+                var idempresa = $($(fila.children()[0]).children()[1]).val();
+                var rutfullusuario = $($(fila.children()[0]).children()[2]).html();
+                var rutusuario = rutfullusuario.split("-")[0].replaceAll("\\.", "");
+                var dvusuario = rutfullusuario.split("-")[1];
+                var nombres = $(fila.children()[1]).html();
+                var appaterno = $(fila.children()[2]).html();
+                var apmaterno = $(fila.children()[3]).html();
+                var idtipousuario = $($(fila.children()[6]).children()[0]).val();
+                var usuario = {
+                    idusuario: parseInt(idusuario),
+                    idempresa: parseInt(idempresa),
+                    rutusuario: parseInt(rutusuario),
+                    dvusuario: dvusuario,
+                    nombres: nombres,
+                    appaterno: appaterno,
+                    apmaterno: apmaterno,
+                    idtipousuario: parseInt(idtipousuario)
+                };
+                //console.log(usuario);
 
+                $('#select-empresa option').removeAttr("selected");
+                $('#select-empresa').val(usuario.idempresa);
+                $('#rut').val($.formatRut(usuario.rutusuario + "-" + usuario.dvusuario));
+                $('#nombres').val(usuario.nombres);
+                $('#appaterno').val(usuario.appaterno);
+                $('#apmaterno').val(usuario.apmaterno);
+                $('#select-tipo-usuario option').removeAttr("selected");
+                $('#select-tipo-usuario').val(usuario.idtipousuario);
+                $('#hidIdUsuario').val(usuario.idusuario);
                 $('#edicion').removeClass('oculto');
                 $('#creacion').addClass('oculto');
-                $('#rut').attr("disabled", "disabled");
-
             }
 
             function save() {
                 if (validarCampos()) {
                     var usuario = {
-                        rut: $('#rut').val().replaceAll("\\.", "").replaceAll("-", ""),
+                        idusuario: $('#hidIdUsuario').val(),
+                        rutusuario: $('#rut').val().split("-")[0].replaceAll("\\.", ""),
+                        dvusuario: $('#rut').val().split("-")[1],
                         nombres: $('#nombres').val(),
                         appaterno: $('#appaterno').val(),
                         apmaterno: $('#apmaterno').val(),
-                        rutEmpresa: $('#select-empresa').val().replaceAll("\\.", "").replaceAll("-", ""),
-                        codTipoUsuario: $('#select-tipo-usuario').val()
+                        idempresa: $('#select-empresa').val(),
+                        idtipousuario: $('#select-tipo-usuario').val()
                     };
                     var datos = {
                         tipo: 'upd-usuario',
                         usuario: usuario
                     };
 
-                    console.log(datos);
+                    var detalle = {
+                        url: 'UsuarioController',
+                        datos: datos
+                    };
 
-                    $.ajax({
-                        type: 'post',
-                        url: 'Dispatcher',
-                        cache: false,
-                        data: {
-                            datos: JSON.stringify(datos)
-                        },
-                        success: function (res) {
-                            var obj = JSON.parse(res);
-                            if (obj.estado === 'ok') {
-                                cargarTabla();
-                                cancelarEdicion();
-                            }
-                        },
-                        error: function (a, b, c) {
-                            console.log(a);
-                            console.log(b);
-                            console.log(c);
-                        }
-                    });
+                    guardar(detalle);
                 }
+                var det = {
+                    url: 'UsuarioController',
+                    datos: {
+                        tipo: 'get-usuarios'
+                    },
+                    bodyDestino: 'cuerpo-tab-usuario',
+                    tablaObjetivo: 'tabla-usuarios'
+                };
+                traerListado(det);
+                var dets = {
+                    tipo: 'carga-select-empresa',
+                    url: 'EmpresaController',
+                    objetivo: 'select-empresa'
+                };
+                cargarSelect(dets);
+                det = {
+                    tipo: 'carga-select-tipousuario',
+                    url: 'UsuarioController',
+                    objetivo: 'select-tipo-usuario'
+                };
+                cargarSelect(det);
+                $('.dataTable').DataTable().destroy();
+                $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
 
+                cancelarEdicion();
             }
 
             function limpiar() {
@@ -278,8 +301,47 @@
                 $('#alerta').html('');
             }
 
-            function del() {
+            function del(boton) {
+                if (confirm("Está seguro de que desea eliminar el usuario seleccionado?")) {
+                    var fila = $(boton).parent().parent();
 
+                    var idusuario = $($(fila.children()[0]).children()[0]).val();
+
+                    var datos = {
+                        tipo: 'del-usuario',
+                        idusuario: idusuario
+                    };
+                    var detalle = {
+                        url: 'UsuarioController',
+                        datos: datos
+                    };
+
+                    eliminar(detalle);
+                }
+                var det = {
+                    url: 'UsuarioController',
+                    datos: {
+                        tipo: 'get-usuarios'
+                    },
+                    bodyDestino: 'cuerpo-tab-usuario',
+                    tablaObjetivo: 'tabla-usuarios'
+                };
+                traerListado(det);
+                var dets = {
+                    tipo: 'carga-select-empresa',
+                    url: 'EmpresaController',
+                    objetivo: 'select-empresa'
+                };
+                cargarSelect(dets);
+                det = {
+                    tipo: 'carga-select-tipousuario',
+                    url: 'UsuarioController',
+                    objetivo: 'select-tipo-usuario'
+                };
+                cargarSelect(det);
+                $('.dataTable').DataTable().destroy();
+                $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                limpiar();
             }
 
         </script>
@@ -338,6 +400,7 @@
             <div class="row">
                 <div class="col-sm-3">
                     <form>
+                        <input type="hidden" id="hidIdUsuario" value="" />
                         <div class="form-group small">
                             <label for="select-empresa">Empresa</label>
                             <select class="form-control form-control-sm" id="select-empresa">

@@ -36,6 +36,12 @@ public class UsuarioController extends HttpServlet {
 	    case "ins-usuario":
 		out.print(insUsuario(entrada.getJSONObject("usuario")));
 		break;
+	    case "upd-usuario":
+		out.print(updUsuario(entrada.getJSONObject("usuario")));
+		break;
+	    case "del-usuario":
+		out.print(delUsuario(entrada.getInt("idusuario")));
+		break;
 	}
     }
 
@@ -114,7 +120,7 @@ public class UsuarioController extends HttpServlet {
 		filas += "<td>" + rs.getString("APMATERNO") + "</td>";
 		filas += "<td>" + modelo.Util.formatRut(rs.getString("RUTEMPRESA") + "-" + rs.getString("DVEMPRESA")) + "</td>";
 		filas += "<td>" + rs.getString("NOMBRE") + "</td>";
-		filas += "<td>" + rs.getString("DESCTIPOUSUARIO") + "</td>";
+		filas += "<td><input type='hidden' value='" + rs.getInt("IDTIPOUSUARIO") + "' />" + rs.getString("DESCTIPOUSUARIO") + "</td>";
 		filas += "<td><button type='button' class='btn btn-sm btn-warning' onclick='edit(this)'>Editar</button><button type='button' class='btn btn-sm btn-danger' onclick='del(this)'>Eliminar</button></td>";
 		filas += "</tr>";
 	    }
@@ -176,6 +182,36 @@ public class UsuarioController extends HttpServlet {
 		+ "'" + usuario.getString("apmaterno") + "', "
 		+ usuario.getInt("idempresa") + ", "
 		+ usuario.getInt("idtipousuario") + ")";
+	Conexion c = new Conexion();
+	c.abrir();
+	c.ejecutar(query);
+	c.cerrar();
+	salida.put("estado", "ok");
+	return salida;
+    }
+    
+    private JSONObject updUsuario(JSONObject usuario){
+	JSONObject salida = new JSONObject();
+	String query = "CALL SP_UPD_USUARIO("
+		+ usuario.getInt("idusuario") + ","
+		+ usuario.getInt("rutusuario") + ","
+		+ "'" + usuario.getString("dvusuario") + "',"
+		+ "'" + usuario.getString("nombres") + "',"
+		+ "'" + usuario.getString("appaterno") + "',"
+		+ "'" + usuario.getString("apmaterno") + "',"
+		+ usuario.getInt("idempresa") + ", "
+		+ usuario.getInt("idtipousuario") + ")";
+	Conexion c = new Conexion();
+	c.abrir();
+	c.ejecutar(query);
+	c.cerrar();
+	salida.put("estado", "ok");
+	return salida;
+    }
+    
+    private JSONObject delUsuario(int idusuario){
+	JSONObject salida = new JSONObject();
+	String query = "CALL SP_DEL_USUARIO(" + idusuario + ")";
 	Conexion c = new Conexion();
 	c.abrir();
 	c.ejecutar(query);
