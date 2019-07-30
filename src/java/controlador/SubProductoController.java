@@ -35,6 +35,9 @@ public class SubProductoController extends HttpServlet {
 	    case "del-subproducto":
 		out.print(delSubProducto(entrada.getInt("idsubproducto")));
 		break;
+	    case "get-subproductos-readonly":
+		out.print(getSubProductosReadOnly(entrada.getInt("idempresa")));
+		break;
 	}
     }
 
@@ -54,6 +57,35 @@ public class SubProductoController extends HttpServlet {
 		filas += "<td>" + modelo.Util.formatRut(rs.getInt("RUTEMPRESA") + "-" + rs.getString("DVEMPRESA")) + "</td>";
 		filas += "<td>" + rs.getString("PRIMA") + "</td>";
 		filas += "<td><button type='button' class='btn btn-sm btn-warning' onclick='edit(this)'>Editar</button><button type='button' class='btn btn-sm btn-danger' onclick='del(this)'>Eliminar</button></td>";
+		filas += "</tr>";
+	    }
+	    salida.put("cuerpotabla", filas);
+	    salida.put("estado", "ok");
+	} catch (JSONException | SQLException ex) {
+	    System.out.println("Problemas en controlador.SubProductoController.getSubProductos()");
+	    System.out.println(ex);
+	    salida.put("estado", "error");
+	    salida.put("mensaje", ex);
+	}
+	c.cerrar();
+	return salida;
+    }
+    
+    private JSONObject getSubProductosReadOnly(int idempresa) {
+	JSONObject salida = new JSONObject();
+	String query = "CALL SP_GET_SUBPRODUCTOS_EMPRESA(" + idempresa + ")";
+	Conexion c = new Conexion();
+	c.abrir();
+	ResultSet rs = c.ejecutarQuery(query);
+	String filas = "";
+	try {
+	    while (rs.next()) {
+		filas += "<tr>";
+		filas += "<td><input type='hidden' value='" + rs.getInt("IDSUBPRODUCTO") + "' /><span>" + rs.getString("CODSUBPRODUCTO") + "</span></td>";
+		filas += "<td>" + rs.getString("DESCSUBPRODUCTO") + "</td>";
+		filas += "<td>" + rs.getString("PRIMA") + "</td>";
+		//filas += "<td><button type='button' class='btn btn-sm btn-success' onclick='agregar(this)'>Agregar</button></td>";
+		filas += "<td><input type='checkbox' value='" + rs.getInt("IDSUBPRODUCTO") + "'/></td>";
 		filas += "</tr>";
 	    }
 	    salida.put("cuerpotabla", filas);

@@ -3,17 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/jsilvab/Documents/NetBeansProjects/MiCall/src/java/modelo/Campana.java</file>
-            <file>file:/C:/Users/jsilvab/Documents/NetBeansProjects/MiCall/src/java/modelo/Rutero.java</file>
-            <file>file:/C:/Users/jsilvab/Documents/NetBeansProjects/MiCall/src/java/modelo/Producto.java</file>
-            <file>file:/C:/Users/jsilvab/Documents/NetBeansProjects/MiCall/src/java/modelo/Conexion.java</file>
-            <file>file:/C:/Users/jsilvab/Documents/NetBeansProjects/MiCall/web/index.jsp</file>
-            <file>file:/C:/Users/jsilvab/Documents/NetBeansProjects/MiCall/src/java/modelo/Empresa.java</file>
-            <file>file:/C:/Users/jsilvab/Documents/NetBeansProjects/MiCall/src/java/controlador/EmpresaController.java</file>
-            <file>file:/C:/Users/jsilvab/Documents/NetBeansProjects/MiCall/src/java/modelo/TipoUsuario.java</file>
-            <file>file:/C:/Users/jsilvab/Documents/NetBeansProjects/MiCall/web/funciones/modelo.js</file>
-            <file>file:/C:/Users/jsilvab/Documents/NetBeansProjects/MiCall/src/java/modelo/SubProducto.java</file>
-            <file>file:/C:/Users/jsilvab/Documents/NetBeansProjects/MiCall/src/java/modelo/Usuario.java</file>
+            <file>file:/E:/micall/web/funciones/operaciones.js</file>
+            <file>file:/E:/micall/src/java/controlador/ProductoController.java</file>
+            <file>file:/E:/micall/src/java/controlador/UsuarioController.java</file>
+            <file>file:/E:/micall/web/producto.jsp</file>
+            <file>file:/E:/micall/web/campana.jsp</file>
         </group>
     </open-files>
 </project-private>

@@ -90,12 +90,39 @@ function cargarSelect(detalle) {
     var datos = {
         tipo: detalle.tipo
     };
+    
+    //var datos = detalle.datos;
     $.ajax({
         type: 'post',
         url: detalle.url,
         cache: false,
         data: {
             datos: JSON.stringify(datos)
+        },
+        success: function (res) {
+            var obj = JSON.parse(res);
+            if (obj.estado === 'ok') {
+                $('#' + detalle.objetivo).html('');
+                $('#' + detalle.objetivo).html(obj.options);
+            }
+        },
+        error: function (a, b, c) {
+            console.log(a);
+            console.log(b);
+            console.log(c);
+        }
+    });
+}
+
+function cargarSelectParams(detalle) {
+    console.log("Detalle de entrada: ");
+    console.log(detalle);
+    $.ajax({
+        type: 'post',
+        url: detalle.url,
+        cache: false,
+        data: {
+            datos: JSON.stringify(detalle.datos)
         },
         success: function (res) {
             var obj = JSON.parse(res);

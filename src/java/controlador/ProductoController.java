@@ -35,6 +35,9 @@ public class ProductoController extends HttpServlet {
 	    case "del-producto":
 		out.print(delProducto(entrada.getInt("idproducto")));
 		break;
+	    case "carga-datos-producto":
+		out.print(getSelectProductos(Integer.parseInt(entrada.getString("idempresa"))));
+		break;
 	}
     }
     
@@ -128,4 +131,17 @@ public class ProductoController extends HttpServlet {
 	return salida;
     }
     
+    private JSONObject getSelectProductos(int idempresa){
+	System.out.println("Entra");
+	JSONObject salida = new JSONObject();
+	String query = "CALL SP_GET_SELECT_PRODUCTOS(" + idempresa + ")";
+	Conexion c = new Conexion();
+	c.abrir();
+	ResultSet rs = c.ejecutarQuery(query);
+	String options = modelo.Util.armarSelect(rs, "0", "Seleccione", "IDPRODUCTO", "DESCPRODUCTO");
+	salida.put("options", options);
+	salida.put("estado", "ok");
+	c.cerrar();
+	return salida;
+    }
 }
