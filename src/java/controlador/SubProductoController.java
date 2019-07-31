@@ -38,6 +38,9 @@ public class SubProductoController extends HttpServlet {
 	    case "get-subproductos-readonly":
 		out.print(getSubProductosReadOnly(entrada.getInt("idempresa")));
 		break;
+	    case "get-subproductos-select":
+		out.print(getSubProductosSelect(entrada.getInt("idempresa")));
+		break;
 	}
     }
 
@@ -84,8 +87,9 @@ public class SubProductoController extends HttpServlet {
 		filas += "<td><input type='hidden' value='" + rs.getInt("IDSUBPRODUCTO") + "' /><span>" + rs.getString("CODSUBPRODUCTO") + "</span></td>";
 		filas += "<td>" + rs.getString("DESCSUBPRODUCTO") + "</td>";
 		filas += "<td>" + rs.getString("PRIMA") + "</td>";
-		//filas += "<td><button type='button' class='btn btn-sm btn-success' onclick='agregar(this)'>Agregar</button></td>";
-		filas += "<td><input type='checkbox' value='" + rs.getInt("IDSUBPRODUCTO") + "'/></td>";
+		filas += "<td><input class='oculto' type='number' value='' /></td>";
+		filas += "<td><input class='oculto' type='number' value=''/></td>";
+		filas += "<td><input type='checkbox' value='" + rs.getInt("IDSUBPRODUCTO") + "' onclick='checkCampos(this);'/></td>";
 		filas += "</tr>";
 	    }
 	    salida.put("cuerpotabla", filas);
@@ -96,6 +100,19 @@ public class SubProductoController extends HttpServlet {
 	    salida.put("estado", "error");
 	    salida.put("mensaje", ex);
 	}
+	c.cerrar();
+	return salida;
+    }
+    
+    private JSONObject getSubProductosSelect(int idempresa){
+	JSONObject salida = new JSONObject();
+	String query = "CALL SP_GET_SUBPRODUCTOS_EMPRESA(" + idempresa + ")";
+	Conexion c = new Conexion();
+	c.abrir();
+	ResultSet rs = c.ejecutarQuery(query);
+	String options = modelo.Util.armarSelect(rs, "0", "Seleccione", "IDSUBPRODUCTO", "DESCSUBPRODUCTO");
+	salida.put("estado", "ok");
+	salida.put("options", options);
 	c.cerrar();
 	return salida;
     }

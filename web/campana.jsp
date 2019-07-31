@@ -7,15 +7,24 @@
     </head>
     <body>
         <script type="text/javascript">
-            var CAMPANA_ANTERIOR = null;
             $(document).ready(function () {
+                //cargar select empresa
+                llenarSelectEmpresa()
+            });
+
+            function traerCampanas() {
+
+            }
+
+            function llenarSelectEmpresa() {
+
                 var det = {
                     tipo: 'carga-select-empresa',
                     url: 'EmpresaController',
                     objetivo: 'select-empresa'
                 };
                 cargarSelect(det);
-            });
+            }
 
             function cargaSelectProducto() {
                 if ($('#select-empresa').val() !== '0') {
@@ -31,7 +40,7 @@
 
                     cargarSelectParams(detalle);
                     //Meter acá la carga de subproductos
-                    
+
                     var detSubs = {
                         url: 'SubProductoController',
                         bodyDestino: 'cuerpo-tab-subproducto',
@@ -76,49 +85,42 @@
             }
 
             function insert() {
-                if (validarCampos()) {
-                    var codprod = $('#select-producto').val();
-                    var fechaini = $('#desde').val();
-                    var fechafin = $('#hasta').val();
-                    var meta = $('#meta').val();
-                    //var codcampana = $('#codCampana').val();
-                    //var nomcampana = $('#nomCampana').val();
-                    //var rutfullempresa = $('#select-empresa').val().replaceAll("-", "");
-                    meta = meta.replaceAll("\\.", ""); //Quitar los puntos del formateador de miles en la meta.
-                    var datos = {
-                        tipo: 'ins-campana',
-                        codprod: codprod,
-                        fechaini: fechaini,
-                        fechafin: fechafin,
-                        meta: meta
-                                //codcampana: codcampana,
-                                //nomcampana: nomcampana,
-                                //rutfullempresa: rutfullempresa
+                var codcampana = $('#codcampana').val();
+                var nomcampana = $('#nomcampana').val();
+                var idempresa = $('#select-empresa').val(); //solo efectos de validación
+                var idproducto = $('#select-producto').val();
+                var desde = $('#desde').val();
+                var hasta = $('#hasta').val();
+                var meta = $('#meta').val();
+
+                var campana = {
+                    codcampana: codcampana,
+                    nomcampana: nomcampana,
+                    idproducto: parseInt(idproducto),
+                    fechaini: desde,
+                    fechafin: hasta,
+                    meta: parseInt(meta),
+                    subproductos: []
+                };
+
+                //recorrer tabla subproductos
+                var tabla = $('#tabla-subproductos');
+                $('#cuerpo-tab-subproducto tr').each(function (i) {
+                    var celdas = $(this).children();
+                    var idsubproducto = $($(this).children()[0]).children(0).val();
+                    var montometa = $($(this).children()[3]).children(0).val();
+                    var cantmeta = $($(this).children()[3]).children(0).val();
+
+                    var subproducto = {
+                        idsubproducto: idsubproducto,
+                        montometa: montometa,
+                        cantmeta: cantmeta
                     };
 
-                    $.ajax({
-                        type: 'post',
-                        url: 'Dispatcher',
-                        cache: false,
-                        data: {
-                            datos: JSON.stringify(datos)
-                        },
-                        success: function (res) {
-                            var obj = JSON.parse(res);
-                            if (obj.estado === 'ok') {
-                                cargarTabla();
-                                limpiar();
-                            } else if (obj.estado === 'existe') {
-                                alert("La campaña que está intentando ingresar ya existe");
-                            }
-                        },
-                        error: function (a, b, c) {
-                            console.log(a);
-                            console.log(b);
-                            console.log(c);
-                        }
-                    });
-                }
+                    campana.subproductos.push(subproducto);
+                });
+
+                console.log(campana);
             }
 
             function save() {
@@ -223,6 +225,16 @@
                 return true;
             }
 
+            function checkCampos(check) {
+                var fila = $(check).parent().parent();
+                if (check.checked) {
+                    $($(fila).children()[3]).children(0).removeClass("oculto");
+                    $($(fila).children()[4]).children(0).removeClass("oculto");
+                }else{
+                    $($(fila).children()[3]).children(0).addClass("oculto");
+                    $($(fila).children()[4]).children(0).addClass("oculto");
+                }
+            }
         </script>
         <div class="container-fluid">
             <br />
@@ -237,12 +249,12 @@
                 <div class="col-sm-4">
                     <form>
                         <div class="form-group small">
-                            <label for="codCampana">Código</label>
-                            <input id="codCampana" type="text" class="form-control form-control-sm" />
+                            <label for="codcampana">Código</label>
+                            <input id="codcampana" type="text" class="form-control form-control-sm" />
                         </div>
                         <div class="form-group small">
-                            <label for="nomCampana">Nombre</label>
-                            <input id="nomCampana" type="text" class="form-control form-control-sm" />
+                            <label for="nomcampana">Nombre</label>
+                            <input id="nomcampana" type="text" class="form-control form-control-sm" />
                         </div>
                         <div class="form-group small">
                             <label for="select-empresa">Empresa</label>
@@ -250,7 +262,7 @@
                             </select>
                         </div>
                         <div class="form-group small">
-                            <label for="select-producto">Productos</label>
+                            <label for="select-producto">Producto</label>
                             <select class="form-control form-control-sm" id="select-producto">
 
                             </select>
@@ -292,11 +304,13 @@
                                 <th>Código</th>
                                 <th>Descripción</th>
                                 <th>Prima</th>
+                                <th>Monto Meta</th>
+                                <th>Cant. Meta</th>
                                 <th>Seleccionar</th>
                             </tr>
                         </thead>
                         <tbody id="cuerpo-tab-subproducto">
-                            
+
                         </tbody>
                     </table>
                 </div>

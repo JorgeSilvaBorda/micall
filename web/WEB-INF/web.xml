@@ -16,6 +16,10 @@
         <servlet-name>SubProductoController</servlet-name>
         <servlet-class>controlador.SubProductoController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>CampanaController</servlet-name>
+        <servlet-class>controlador.CampanaController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>EmpresaController</servlet-name>
         <url-pattern>/EmpresaController</url-pattern>
@@ -31,6 +35,10 @@
     <servlet-mapping>
         <servlet-name>SubProductoController</servlet-name>
         <url-pattern>/SubProductoController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CampanaController</servlet-name>
+        <url-pattern>/CampanaController</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

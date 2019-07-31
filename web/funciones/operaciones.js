@@ -114,9 +114,50 @@ function cargarSelect(detalle) {
     });
 }
 
+/**
+ * 
+ * @param {type} detalle
+ * @param {type} paramSelect
+ * @returns {undefined}
+ */
+function cargarSelectUnParam(detalle){
+    /**
+     * var detalle debe contener el parámetro "paramselect".
+     * Cuyo tipo y valor debe ser incluido en la raiz del arreglo y, 
+     * que además debe ser parseado y validado también por el controlador.
+     * Ej:
+     * var detalle = {
+     *      tipo: 'carga-select-objeto',
+     *      url: ObjetoController,
+     *      objetivo: select-objeto,
+     *      paramselect: [parámetro] //!Important
+     * };
+     * 
+     * Donde [parámetro] será utilizado por la consulta a BD en Controlador.
+     */
+    $.ajax({
+        type: 'post',
+        url: detalle.url,
+        cache: false,
+        data: {
+            datos: JSON.stringify(detalle.datos, paramSelect)
+        },
+        success: function (res) {
+            var obj = JSON.parse(res);
+            if (obj.estado === 'ok') {
+                $('#' + detalle.objetivo).html('');
+                $('#' + detalle.objetivo).html(obj.options);
+            }
+        },
+        error: function (a, b, c) {
+            console.log(a);
+            console.log(b);
+            console.log(c);
+        }
+    });
+}
+
 function cargarSelectParams(detalle) {
-    console.log("Detalle de entrada: ");
-    console.log(detalle);
     $.ajax({
         type: 'post',
         url: detalle.url,
