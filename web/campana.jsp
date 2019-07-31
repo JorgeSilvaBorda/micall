@@ -9,11 +9,19 @@
         <script type="text/javascript">
             $(document).ready(function () {
                 //cargar select empresa
-                llenarSelectEmpresa()
+                llenarSelectEmpresa();
+                traerCampanas();
             });
 
             function traerCampanas() {
-
+                var detalle = {
+                    url: 'CampanaController',
+                    bodyDestino: 'cuerpo-tab-campanas',
+                    datos: {
+                        tipo: 'get-campanas'
+                    }
+                };
+                traerListado(detalle);
             }
 
             function llenarSelectEmpresa() {
@@ -56,34 +64,6 @@
                 }
             }
 
-            function cargarTabla() {
-                var datos = {
-                    tipo: 'carga-tabla-campana'
-                };
-                $.ajax({
-                    type: 'post',
-                    url: 'Dispatcher',
-                    cache: false,
-                    data: {
-                        datos: JSON.stringify(datos)
-                    },
-                    success: function (res) {
-                        var obj = JSON.parse(res);
-                        if (obj.estado === 'ok') {
-                            $('.dataTable').DataTable().destroy();
-                            $('#cuerpo-tab-campanas').html(armarTabla(obj.campanas));
-                            $('#tabla-campanas').DataTable(OPCIONES_DATATABLES);
-                        }
-
-                    },
-                    error: function (a, b, c) {
-                        console.log(a);
-                        console.log(b);
-                        console.log(c);
-                    }
-                });
-            }
-
             function insert() {
                 var codcampana = $('#codcampana').val();
                 var nomcampana = $('#nomcampana').val();
@@ -99,94 +79,89 @@
                     idproducto: parseInt(idproducto),
                     fechaini: desde,
                     fechafin: hasta,
-                    meta: parseInt(meta),
+                    meta: parseInt(meta.replaceAll("\\.", "")),
                     subproductos: []
                 };
 
                 //recorrer tabla subproductos
-                var tabla = $('#tabla-subproductos');
                 $('#cuerpo-tab-subproducto tr').each(function (i) {
-                    var celdas = $(this).children();
                     var idsubproducto = $($(this).children()[0]).children(0).val();
                     var montometa = $($(this).children()[3]).children(0).val();
-                    var cantmeta = $($(this).children()[3]).children(0).val();
-
-                    var subproducto = {
-                        idsubproducto: idsubproducto,
-                        montometa: montometa,
-                        cantmeta: cantmeta
-                    };
-
-                    campana.subproductos.push(subproducto);
+                    var cantmeta = $($(this).children()[4]).children(0).val();
+                    var check = $($(this).children()[5]).children()[0];
+                    if (check.checked) {
+                        var subproducto = {
+                            idsubproducto: parseInt(idsubproducto),
+                            montometa: parseInt(montometa.replaceAll("\\.", "")),
+                            cantmeta: parseInt(cantmeta.replaceAll("\\.", ""))
+                        };
+                        campana.subproductos.push(subproducto);
+                    }
                 });
 
-                console.log(campana);
+
+                if (validar(campana)) {
+                    var detalle = {
+                        url: 'CampanaController',
+                        datos: {
+                            tipo: 'ins-campana',
+                            campana: campana
+                        }
+                    };
+                    
+                    insertar(detalle);
+                }
+                limpiar();
+                traerCampanas();
             }
 
-            function save() {
-                if (validarCampos()) {
-                    var codprod = $('#select-producto').val();
-                    var fechaini = $('#desde').val();
-                    var fechafin = $('#hasta').val();
-                    var meta = $('#meta').val();
-                    meta = meta.replaceAll("\\.", ""); //Quitar los puntos del formateador de miles en la meta.
-                    CAMPANA_ANTERIOR.meta = CAMPANA_ANTERIOR.meta.replaceAll("\\.", "");
-                    var datos = {
-                        tipo: 'guardar-campana',
-                        codprod: codprod,
-                        fechaini: fechaini,
-                        fechafin: fechafin,
-                        meta: meta,
-                        codprodAnterior: CAMPANA_ANTERIOR.codigo,
-                        fechainiAnterior: CAMPANA_ANTERIOR.desde,
-                        fechafinAnterior: CAMPANA_ANTERIOR.hasta,
-                        metaAnterior: CAMPANA_ANTERIOR.meta
-                    };
-
-                    $.ajax({
-                        type: 'post',
-                        url: 'Dispatcher',
-                        cache: false,
-                        data: {
-                            datos: JSON.stringify(datos)
-                        },
-                        success: function (res) {
-                            var obj = JSON.parse(res);
-                            if (obj.estado === 'ok') {
-                                cargarTabla();
-                                cancelarEdicion();
-                            }
-                        },
-                        error: function (a, b, c) {
-                            console.log(a);
-                            console.log(b);
-                            console.log(c);
+            function validar(campana) {
+                if (campana.codcampana === '' || campana.codcampana === null || campana.codcampana === undefined) {
+                    alert('Debe ingresar el código de la campaña.');
+                    return false;
+                }
+                if (campana.nomcampana === '' || campana.nomcampana === null || campana.nomcampana === undefined) {
+                    alert('Debe ingresar el nombre de la campaña.');
+                    return false;
+                }
+                if (campana.idproducto === '' || campana.idproducto === null || campana.idproducto === undefined || campana.idproducto === 0 || campana.idproducto === '0' || isNaN(campana.idproducto)) {
+                    alert('Debe seleccionar el producto para la campaña.');
+                    return false;
+                }
+                if (campana.fechaini === '' || campana.fechaini === null || campana.fechaini === undefined) {
+                    alert('Debe ingresar la fecha de inicio para la campaña.');
+                    return false;
+                }
+                var fecIni = new Date(campana.fechaini);
+                var fecFin = new Date(campana.fechafin);
+                
+                if(fecFin <= fecIni){
+                    alert('La fecha de inicio de la campaña no puede ser posterior a la fecha de término.');
+                    return false;
+                }
+                if (campana.fechafin === '' || campana.fechafin === null || campana.fechafin === undefined) {
+                    alert('Debe ingresar la fecha de término para la campaña.');
+                    return false;
+                }
+                if (campana.meta === '' || campana.meta === null || campana.meta === undefined || campana.meta === 0 || campana.meta === '0' || isNaN(campana.meta)) {
+                    alert('Debe indicar el monto de la meta para la campaña.');
+                    return false;
+                }
+                if (campana.subproductos.length > 0) {
+                    $(campana.subproductos).each(function (i) {
+                        var montometa = $(this)[0].montometa;
+                        var cantmeta = $(this)[0].cantmeta;
+                        if(montometa === '' || montometa === 0 || montometa === null || montometa === undefined || isNaN(montometa) || montometa <= 2){
+                            alert('Debe ingresar un monto de meta para los subproductos seleccionados.');
+                            return false;
+                        }
+                        if(cantmeta === '' || cantmeta === 0 || cantmeta === null || cantmeta === undefined || isNaN(cantmeta) || cantmeta <= 2){
+                            alert('Debe ingresar una cantidad de meta para los subproductos seleccionados.');
+                            return false;
                         }
                     });
                 }
-
-            }
-
-            function edit(boton) {
-                var fila = $(boton).parent().parent();
-                $('#select-empresa').val($(fila.children()[0]).html().replaceAll("\\.", ""));
-                cargaSelectProducto($(fila.children()[2]).html());
-
-                $('#desde').val($(fila.children()[4]).html());
-                $('#hasta').val($(fila.children()[5]).html());
-                $('#meta').val($(fila.children()[6]).html());
-                $('#meta').keyup(); //Para aplicar el formateo de miles...
-                //$('#select-producto').val($(fila.children()[2]).html());
-                $('#creacion').addClass('oculto');
-                $('#edicion').removeClass('oculto');
-
-                //Ajustar datos anteriores fijos
-                CAMPANA_ANTERIOR = {
-                    codigo: $(fila.children()[2]).html(),
-                    desde: $(fila.children()[4]).html(),
-                    hasta: $(fila.children()[5]).html(),
-                    meta: $(fila.children()[6]).html()
-                };
+                return true;
             }
 
             function limpiar() {
@@ -197,32 +172,8 @@
                 $('#desde').val('');
                 $('#hasta').val('');
                 $('#meta').val('');
-                //$('#codCampana').val('');
-                //$('#nomCampana').val('');
-                CAMPANA_ANTERIOR = null;
-            }
-
-            function cancelarEdicion() {
-                $('#edicion').addClass('oculto');
-                $('#creacion').removeClass('oculto');
-                limpiar();
-            }
-
-            function validarCampos() {
-                var rutEmpresa = $('#select-empresa').val();
-                var codProd = $('#select-producto').val();
-                //var codCampana = $('#codCampana').val();
-                //var nomCampana = $('#nomCampana').val();
-                var desde = $('#desde').val();
-                var hasta = $('#hasta').val();
-                var meta = $('#meta').val();
-                meta = meta.replaceAll("\\.", ""); //Quitar los puntos del formateador de miles
-
-                if (rutEmpresa === '0' || codProd < 1 || desde.length < 2 || hasta.length < 2 || meta.length < 2) {
-                    alert('Debe ingresar todos los campos.');
-                    return false;
-                }
-                return true;
+                $('#codcampana').val('');
+                $('#nomcampana').val('');
             }
 
             function checkCampos(check) {
@@ -230,10 +181,24 @@
                 if (check.checked) {
                     $($(fila).children()[3]).children(0).removeClass("oculto");
                     $($(fila).children()[4]).children(0).removeClass("oculto");
-                }else{
+                } else {
                     $($(fila).children()[3]).children(0).addClass("oculto");
                     $($(fila).children()[4]).children(0).addClass("oculto");
                 }
+            }
+            
+            function del(idcampana){
+                if(confirm("Está seguro que desea eliminar la campaña seleccionada?")){
+                    var detalle = {
+                        url: 'CampanaController',
+                        datos: {
+                            tipo: 'del-campana',
+                            idcampana: idcampana
+                        }
+                    };
+                    eliminar(detalle);
+                }
+                traerCampanas();
             }
         </script>
         <div class="container-fluid">
@@ -291,10 +256,6 @@
                         <button onclick="insert();" type="button" class="btn btn-primary btn-sm">Insertar</button>
                         <button onclick='limpiar();' type="button" class="btn btn-default btn-sm float-right">Limpiar</button>
                     </div>
-                    <div id='edicion' class="form-group oculto small">
-                        <button onclick="save();" type="button" class="btn btn-success btn-sm">Guardar</button>
-                        <button onclick='cancelarEdicion();' type="button" class="btn btn-default btn-sm">Cancelar</button>
-                    </div>
                 </div>
                 <div class="col-sm-8">
                     <h3>Subproductos</h3>
@@ -316,7 +277,9 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-8">
+                <br />
+                <h3>Campañas registradas</h3>
+                <div class="col-sm-12">
                     <table id="tabla-campanas" class="table table-sm small table-borderless table-hover table-striped">
                         <thead>
                             <tr>
@@ -324,6 +287,7 @@
                                 <th>Empresa</th>
                                 <th>Código</th>
                                 <th>Nombre</th>
+                                <th>Producto</th>
                                 <th>Desde</th>
                                 <th>Hasta</th>
                                 <th>Meta</th>
