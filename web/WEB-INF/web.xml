@@ -20,6 +20,10 @@
         <servlet-name>CampanaController</servlet-name>
         <servlet-class>controlador.CampanaController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>RuteroController</servlet-name>
+        <servlet-class>controlador.RuteroController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>EmpresaController</servlet-name>
         <url-pattern>/EmpresaController</url-pattern>
@@ -39,6 +43,10 @@
     <servlet-mapping>
         <servlet-name>CampanaController</servlet-name>
         <url-pattern>/CampanaController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RuteroController</servlet-name>
+        <url-pattern>/RuteroController</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

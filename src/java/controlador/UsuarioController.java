@@ -92,6 +92,7 @@ public class UsuarioController extends HttpServlet {
 		session.setAttribute("rutempresa", usuario.getInt("rutempresa"));
 		session.setAttribute("dvempresa", usuario.getString("dvempresa"));
 		session.setAttribute("empresa", usuario.getString("empresa"));
+		session.setAttribute("idempresa", usuario.getInt("idempresa"));
 	    }
 	} catch (JSONException | SQLException ex) {
 	    System.out.println("Problemas en  controlador.UsuarioControler.loginUsuario()");

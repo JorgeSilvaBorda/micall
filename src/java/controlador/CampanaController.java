@@ -31,6 +31,12 @@ public class CampanaController extends HttpServlet {
 	    case "del-campana":
 		out.print(delCampana(entrada.getInt("idcampana")));
 		break;
+	    case "select-campanas":
+		out.print(selectCampana(entrada.getInt("idempresa")));
+		break;
+	    case "detalle-subproducto":
+		out.print(getDetalle(entrada.getInt("idcampana")));
+		break;
 	    default:
 		break;
 	}
@@ -43,8 +49,8 @@ public class CampanaController extends HttpServlet {
 	Conexion c = new Conexion();
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
-	try{
-	    while(rs.next()){
+	try {
+	    while (rs.next()) {
 		filas += "<tr>";
 		filas += "<td><input type='hidden' value='" + rs.getInt("IDCAMPANA") + "'>" + modelo.Util.formatRut(rs.getInt("RUTEMPRESA") + "-" + rs.getString("DVEMPRESA")) + "</td>";
 		filas += "<td>" + rs.getString("NOMBRE") + "</td>";
@@ -55,9 +61,9 @@ public class CampanaController extends HttpServlet {
 		filas += "<td>" + rs.getString("FECHAFIN") + "</td>";
 		filas += "<td>" + rs.getInt("META") + "</td>";
 		String filaButton = "";
-		if(rs.getInt("SUBPRODUCTOS") < 1){
+		if (rs.getInt("SUBPRODUCTOS") < 1) {
 		    filaButton = "<td>0</td>";
-		}else{
+		} else {
 		    filaButton = "<td>" + rs.getInt("SUBPRODUCTOS") + " <button type='button' class='btn btn-sm btn-success' onclick='verSubs(" + rs.getInt("IDCAMPANA") + ");' >Ver</button></td>";
 		}
 		filas += filaButton;
@@ -66,7 +72,7 @@ public class CampanaController extends HttpServlet {
 	    }
 	    salida.put("estado", "ok");
 	    salida.put("cuerpotabla", filas);
-	}catch (JSONException | SQLException ex) {
+	} catch (JSONException | SQLException ex) {
 	    System.out.println("Problemas en modelo.CampanaController.getCampanas()");
 	    System.out.println(ex);
 	    salida.put("estado", "error");
@@ -134,13 +140,57 @@ public class CampanaController extends HttpServlet {
 	c.abrir();
 	c.ejecutar(query);
 	c.cerrar();
-	
+
 	query = "CALL SP_DEL_CAMPANA(" + idcampana + ")";
 	c = new Conexion();
 	c.abrir();
 	c.ejecutar(query);
 	c.cerrar();
 	salida.put("estado", "ok");
+	return salida;
+    }
+
+    private JSONObject selectCampana(int idempresa) {
+	JSONObject salida = new JSONObject();
+	String query = "CALL SP_SEL_SELECT_CAMPANAS_FECHA(" + idempresa + ")";
+	Conexion c = new Conexion();
+	c.abrir();
+	ResultSet rs = c.ejecutarQuery(query);
+	String options = modelo.Util.armarSelect(rs, "0", "Seleccione", "IDCAMPANA", "TEXTO");
+	c.cerrar();
+	salida.put("estado", "ok");
+	salida.put("options", options);
+	return salida;
+    }
+
+    private JSONObject getDetalle(int idcampana) {
+	JSONObject salida = new JSONObject();
+	String query = "CALL SP_GET_DETALLE_SUBPRODUCTOS(" + idcampana + ")";
+	Conexion c = new Conexion();
+	c.abrir();
+	ResultSet rs = c.ejecutarQuery(query);
+	String cuerpotabla = "";
+	try {
+	    while (rs.next()) {
+		cuerpotabla += "<tr>";
+
+		cuerpotabla += "<td>" + rs.getString("CODSUBPRODUCTO") + "</td>";
+		cuerpotabla += "<td>" + rs.getString("DESCSUBPRODUCTO") + "</td>";
+		cuerpotabla += "<td>" + rs.getBigDecimal("PRIMA") + "</td>";
+		cuerpotabla += "<td>" + rs.getString("MONTOMETA") + "</td>";
+		cuerpotabla += "<td>" + rs.getString("CANTIDADMETA") + "</td>";
+
+		cuerpotabla += "</tr>";
+	    }
+	    salida.put("estado", "ok");
+	    salida.put("cuerpotabla", cuerpotabla);
+	} catch (JSONException | SQLException ex) {
+	    System.out.println("Problemas en modelo.CampanaController.getDetalle()");
+	    System.out.println(ex);
+	    salida.put("estado", "error");
+	    salida.put("mensaje", ex);
+	}
+	c.cerrar();
 	return salida;
     }
 }
