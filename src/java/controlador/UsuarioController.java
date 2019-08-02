@@ -92,6 +92,7 @@ public class UsuarioController extends HttpServlet {
 		session.setAttribute("rutempresa", usuario.getInt("rutempresa"));
 		session.setAttribute("dvempresa", usuario.getString("dvempresa"));
 		session.setAttribute("empresa", usuario.getString("empresa"));
+		session.setAttribute("idempresa", usuario.getInt("idempresa"));
 	    }
 	} catch (JSONException | SQLException ex) {
 	    System.out.println("Problemas en  controlador.UsuarioControler.loginUsuario()");
@@ -135,8 +136,8 @@ public class UsuarioController extends HttpServlet {
 	c.cerrar();
 	return salida;
     }
-    
-    private JSONObject getTipoUsuarios(){
+
+    private JSONObject getTipoUsuarios() {
 	JSONObject salida = new JSONObject();
 	String query = "CALL SP_GET_TIPOUSUARIOS()";
 	Conexion c = new Conexion();
@@ -148,21 +149,21 @@ public class UsuarioController extends HttpServlet {
 	c.cerrar();
 	return salida;
     }
-    
-    private JSONObject existeUsuario(int rutusuario){
+
+    private JSONObject existeUsuario(int rutusuario) {
 	JSONObject salida = new JSONObject();
 	String query = "CALL SP_EXISTE_USUARIO(" + rutusuario + ")";
 	Conexion c = new Conexion();
 	c.abrir();
 	int cant = 0;
-	try{
+	try {
 	    ResultSet rs = c.ejecutarQuery(query);
-	    while(rs.next()){
+	    while (rs.next()) {
 		cant = rs.getInt("CANTIDAD");
 	    }
 	    salida.put("estado", "ok");
 	    salida.put("cantidad", cant);
-	}catch (SQLException ex) {
+	} catch (SQLException ex) {
 	    System.out.println("Problemas en modelo.UsuarioController.existeUsuario()");
 	    System.out.println(ex);
 	    salida.put("estado", "error");
@@ -171,8 +172,8 @@ public class UsuarioController extends HttpServlet {
 	c.cerrar();
 	return salida;
     }
-    
-    private JSONObject insUsuario(JSONObject usuario){
+
+    private JSONObject insUsuario(JSONObject usuario) {
 	JSONObject salida = new JSONObject();
 	String query = "CALL SP_INS_USUARIO("
 		+ usuario.getInt("rutusuario") + ", "
@@ -189,8 +190,8 @@ public class UsuarioController extends HttpServlet {
 	salida.put("estado", "ok");
 	return salida;
     }
-    
-    private JSONObject updUsuario(JSONObject usuario){
+
+    private JSONObject updUsuario(JSONObject usuario) {
 	JSONObject salida = new JSONObject();
 	String query = "CALL SP_UPD_USUARIO("
 		+ usuario.getInt("idusuario") + ","
@@ -208,8 +209,8 @@ public class UsuarioController extends HttpServlet {
 	salida.put("estado", "ok");
 	return salida;
     }
-    
-    private JSONObject delUsuario(int idusuario){
+
+    private JSONObject delUsuario(int idusuario) {
 	JSONObject salida = new JSONObject();
 	String query = "CALL SP_DEL_USUARIO(" + idusuario + ")";
 	Conexion c = new Conexion();
@@ -217,6 +218,11 @@ public class UsuarioController extends HttpServlet {
 	c.ejecutar(query);
 	c.cerrar();
 	salida.put("estado", "ok");
+	return salida;
+    }
+
+    private JSONObject cambioPass() {
+	JSONObject salida = new JSONObject();
 	return salida;
     }
 }

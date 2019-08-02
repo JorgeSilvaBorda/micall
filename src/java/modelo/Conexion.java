@@ -101,7 +101,7 @@ public class Conexion {
 	    Statement st = this.con.createStatement();
 	    st.executeUpdate(query);
 	} catch (SQLException ex) {
-	    System.out.println("Problemas al ejecutar");
+	    System.out.println("Problemas al ejecutar: " + query);
 	    System.out.println(ex);
 	}
     }
@@ -118,10 +118,9 @@ public class Conexion {
 	    ResultSet rs = st.executeQuery(query);
 	    return rs;
 	} catch (SQLException ex) {
-	    System.out.println("Problemas al ejecutar query.");
+	    System.out.println("Problemas al ejecutar query: " + query);
 	    System.out.println(ex);
 	    return null;
 	}
     }
-
 }

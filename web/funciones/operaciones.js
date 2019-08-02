@@ -36,11 +36,6 @@ function insertar(detalle) {
             if (obj.estado === 'ok') {
                 
             }
-        },
-        error: function (a, b, c) {
-            console.log(a);
-            console.log(b);
-            console.log(c);
         }
     });
 }
@@ -178,4 +173,25 @@ function cargarSelectParams(detalle) {
             console.log(c);
         }
     });
+}
+
+function traerJson(detalle){
+    var salida;
+    $.ajax({
+        url: detalle.url,
+        type: 'post',
+        async: false,
+        data: {
+            datos: JSON.stringify(detalle.datos)
+        },
+        success: function(res){
+            var obj = JSON.parse(res);
+            if(obj.estado === 'ok'){
+                console.log(obj.json);
+                salida = obj.json;
+            }
+        }
+        
+    });
+    return salida;
 }

@@ -108,11 +108,12 @@
                             campana: campana
                         }
                     };
-                    
+
                     insertar(detalle);
+                    limpiar();
+                    traerCampanas();
                 }
-                limpiar();
-                traerCampanas();
+
             }
 
             function validar(campana) {
@@ -134,8 +135,8 @@
                 }
                 var fecIni = new Date(campana.fechaini);
                 var fecFin = new Date(campana.fechafin);
-                
-                if(fecFin <= fecIni){
+
+                if (fecFin <= fecIni) {
                     alert('La fecha de inicio de la campaña no puede ser posterior a la fecha de término.');
                     return false;
                 }
@@ -151,11 +152,11 @@
                     $(campana.subproductos).each(function (i) {
                         var montometa = $(this)[0].montometa;
                         var cantmeta = $(this)[0].cantmeta;
-                        if(montometa === '' || montometa === 0 || montometa === null || montometa === undefined || isNaN(montometa) || montometa <= 2){
+                        if (montometa === '' || montometa === 0 || montometa === null || montometa === undefined || isNaN(montometa) || montometa <= 2) {
                             alert('Debe ingresar un monto de meta para los subproductos seleccionados.');
                             return false;
                         }
-                        if(cantmeta === '' || cantmeta === 0 || cantmeta === null || cantmeta === undefined || isNaN(cantmeta) || cantmeta <= 2){
+                        if (cantmeta === '' || cantmeta === 0 || cantmeta === null || cantmeta === undefined || isNaN(cantmeta) || cantmeta <= 2) {
                             alert('Debe ingresar una cantidad de meta para los subproductos seleccionados.');
                             return false;
                         }
@@ -169,6 +170,7 @@
                 $('#select-producto option').removeAttr('selected');
                 $('#select-empresa').val('0');
                 $('#select-producto').html('');
+                $('#cuerpo-tab-subproducto').html('');
                 $('#desde').val('');
                 $('#hasta').val('');
                 $('#meta').val('');
@@ -186,9 +188,9 @@
                     $($(fila).children()[4]).children(0).addClass("oculto");
                 }
             }
-            
-            function del(idcampana){
-                if(confirm("Está seguro que desea eliminar la campaña seleccionada?")){
+
+            function del(idcampana) {
+                if (confirm("Está seguro que desea eliminar la campaña seleccionada?")) {
                     var detalle = {
                         url: 'CampanaController',
                         datos: {
@@ -200,7 +202,65 @@
                 }
                 traerCampanas();
             }
+            
+            function verSubs(idcampana){
+                var detalle = {
+                    url: 'CampanaController',
+                    bodyDestino: 'cuerpo-detalle-subproducto',
+                    datos: {
+                        tipo: 'detalle-subproducto',
+                        idcampana: idcampana
+                    }
+                };
+                traerListado(detalle);
+                $('#modal-detalle').modal();
+            }
         </script>
+        
+        <!-- Modal detalle -->
+        <div class="modal fade" id="modal-detalle">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Detalle Subproductos:</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h5>Subproductos empresa</h5>
+                                <br />
+                                <table id='tab-detalle-subproductos' class="table table-sm small table-striped table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <td>Código</td>
+                                            <td>Descripción</td>
+                                            <td>Prima</td>
+                                            <td>Monto Meta</td>
+                                            <td>Cant. Meta</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id='cuerpo-detalle-subproducto'>
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" id="btnCerrarModal" class="btn btn-danger btn-sm" data-dismiss="modal">Cerrar</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        
         <div class="container-fluid">
             <br />
             <br />
@@ -258,7 +318,7 @@
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <h3>Subproductos</h3>
+                    <h3>Subproductos empresa seleccionada</h3>
                     <table id="tabla-subproductos" class="table table-sm small table-borderless table-hover table-striped">
                         <thead>
                             <tr>
