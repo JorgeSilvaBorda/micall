@@ -21,66 +21,40 @@
                     for (var i = 1; i < lineas.length; i++) { //Comienza en 1. La primera línea es cabecera
                         if (lineas[i].length > 10) {
                             var linea = lineas[i].split(";");
-                            var folio = linea[0];
-                            var rutcliente = linea[1];
-                            var dvcliente = linea[2];
-                            var nombres = linea[3];
+
+                            var rutcliente = linea[0];
+                            var dvcliente = linea[1];
+                            var nombres = linea[2];
+                            var apellidos = linea[3];
                             var genero = linea[4];
-                            var rangoetario = linea[5];
-                            var dispavanve = linea[6];
-                            var ultaefecha = linea[7];
-                            var ultaemonto = linea[8];
-                            var ultaecuotas = linea[9];
-                            var areafono1 = linea[10];
-                            var areafono2 = linea[11];
-                            var areafono3 = linea[12];
-                            var areafono4 = linea[13];
-                            var grupo = linea[14];
-                            var callcenter = linea[15];
-                            var fecenvio = linea[16];
-                            var filler1 = linea[17];
-                            var filler2 = linea[18];
-                            var filler3 = linea[19];
-                            var filler4 = linea[20];
-                            var filler5 = linea[21];
-                            var filler6 = linea[22];
-                            var color = linea[23];
-                            var fechavencnexus = linea[24];
-                            var afinidad = linea[25];
+                            var fechaNacInt = linea[5].toString();
+                            var fechanac = fechaNacInt;
+                            var direccion = linea[6];
+                            var comuna = linea[7];
+                            var region = linea[8];
+                            var codigopostal = linea[9];
+                            var email = linea[10];
+                            var montoaprobado = linea[11];
+                            var fono1 = parseInt(linea[12]);
+                            var fono2 = parseInt(linea[13]);
+                            var fono3 = parseInt(linea[14]);
 
                             var filaRutero = {
-                                folio: folio,
-                                rutcliente: rutcliente,
+                                rutcliente: parseInt(rutcliente),
                                 dvcliente: dvcliente,
                                 nombres: nombres,
+                                apellidos: apellidos,
                                 genero: genero,
-                                rangoetario: rangoetario,
-                                dispavance: dispavanve,
-                                ultaefecha: ultaefecha,
-                                ultaemonto: ultaemonto,
-                                ultaecuotas: ultaecuotas,
-                                areafono1: (areafono1 === '' ? 0 : areafono1),
-                                areafono2: (areafono2 === '' ? 0 : areafono2),
-                                areafono3: (areafono3 === '' ? 0 : areafono3),
-                                areafono4: (areafono4 === '' ? 0 : areafono4),
-                                grupo: grupo,
-                                callcenter: callcenter,
-                                fecenvio: fecenvio,
-                                filler1: filler1,
-                                filler2: filler2,
-                                filler3: filler3,
-                                filler4: filler4,
-                                filler5: filler5,
-                                filler6: filler6,
-                                color: color,
-                                fechavencnexus: fechavencnexus,
-                                afinidad: afinidad,
-                                fechanac: '',
-                                direccion: '',
-                                comuna: '',
-                                region: '',
-                                codigopostal: 0,
-                                email: ''
+                                fechanac: fechanac,
+                                direccion: direccion.replaceAll("'", "''"),
+                                comuna: comuna,
+                                region: region,
+                                codigopostal: parseInt(codigopostal),
+                                email: email,
+                                montoaprobado: montoaprobado,
+                                fono1: fono1,
+                                fono2: fono2,
+                                fono3: fono3
                             };
                             rutero.filas.push(filaRutero);
                             rutero.registros ++;
@@ -89,57 +63,47 @@
                     RUTERO = rutero;
                     armarTablaRutero(rutero);
                 };
-                reader.readAsText(file, 'utf8');
+                reader.readAsText(file, 'UTF-8');
             };
 
             function armarTablaRutero(rutero) {
                 var tab = "<table id='tab-rutero' class='table table-sm small table-striped table-condensed table-hover'><thead>";
                 tab += "<tr>";
-                tab += "<th>FOLIO</th>";
                 tab += "<th>RUTCLIENTE</th>";
                 tab += "<th>DVCLIENTE</th>";
-                tab += "<th>NOMBRE</th>";
+                tab += "<th>NOMBRES</th>";
+                tab += "<th>APELLIDOS</th>";
                 tab += "<th>GENERO</th>";
-                tab += "<th>RANGOETARIO</th>";
-                tab += "<th>DISPAVANCE</th>";
-                tab += "<th>ULT AE FECHA</th>";
-                tab += "<th>ULT AE MONTO</th>";
-                tab += "<th>ULT AE CUOTAS</th>";
-                tab += "<th>AREAFONO1</th>";
-                tab += "<th>AREAFONO2</th>";
-                tab += "<th>AREAFONO3</th>";
-                tab += "<th>AREAFONO4</th>";
-                tab += "<th>GRUPO</th>";
-                tab += "<th>CALLCENTER</th>";
-                tab += "<th>FECENVIO</th>";
-                tab += "<th>COLOR</th>";
-                tab += "<th>FECHA VENC NEXUS</th>";
-                tab += "<th>AFINIDAD</th>";
+                tab += "<th>FECHANAC</th>";
+                tab += "<th>DIRECCION</th>";
+                tab += "<th>COMUNA</th>";
+                tab += "<th>REGION</th>";
+                tab += "<th>COD. POSTAL</th>";
+                tab += "<th>EMAIL</th>";
+                tab += "<th>MONTOAPROBADO</th>";
+                tab += "<th>FONO1</th>";
+                tab += "<th>FONO2</th>";
+                tab += "<th>FONO3</th>";
                 tab += "</tr>";
                 tab += "</thead>";
                 tab += "<tbody>";
                 $(rutero.filas).each(function (i) {
                     tab += "<tr>";
-                    tab += "<td>" + $(this)[0].folio + "</td>";
                     tab += "<td>" + $(this)[0].rutcliente + "</td>";
                     tab += "<td>" + $(this)[0].dvcliente + "</td>";
                     tab += "<td>" + $(this)[0].nombres + "</td>";
+                    tab += "<td>" + $(this)[0].apellidos + "</td>";
                     tab += "<td>" + $(this)[0].genero + "</td>";
-                    tab += "<td>" + $(this)[0].rangoetario + "</td>";
-                    tab += "<td>" + $(this)[0].dispavance + "</td>";
-                    tab += "<td>" + $(this)[0].ultaefecha + "</td>";
-                    tab += "<td>" + $(this)[0].ultaemonto + "</td>";
-                    tab += "<td>" + $(this)[0].ultaecuotas + "</td>";
-                    tab += "<td>" + $(this)[0].areafono1 + "</td>";
-                    tab += "<td>" + $(this)[0].areafono2 + "</td>";
-                    tab += "<td>" + $(this)[0].areafono3 + "</td>";
-                    tab += "<td>" + $(this)[0].areafono4 + "</td>";
-                    tab += "<td>" + $(this)[0].grupo + "</td>";
-                    tab += "<td>" + $(this)[0].callcenter + "</td>";
-                    tab += "<td>" + $(this)[0].fecenvio + "</td>";
-                    tab += "<td>" + $(this)[0].color + "</td>";
-                    tab += "<td>" + $(this)[0].fechavencnexus + "</td>";
-                    tab += "<td>" + $(this)[0].afinidad + "</td>";
+                    tab += "<td>" + fechaIntToString($(this)[0].fechanac) + "</td>";
+                    tab += "<td>" + $(this)[0].direccion + "</td>";
+                    tab += "<td>" + $(this)[0].comuna + "</td>";
+                    tab += "<td>" + $(this)[0].region + "</td>";
+                    tab += "<td>" + $(this)[0].codigopostal + "</td>";
+                    tab += "<td>" + $(this)[0].email + "</td>";
+                    tab += "<td>$ " + formatMiles($(this)[0].montoaprobado) + "</td>";
+                    tab += "<td>" + $(this)[0].fono1 + "</td>";
+                    tab += "<td>" + $(this)[0].fono2 + "</td>";
+                    tab += "<td>" + $(this)[0].fono3 + "</td>";
                     tab += "</tr>";
                 });
                 tab += "</tbody></table>";
@@ -227,7 +191,7 @@
                         </div>
                         <br />
                         <div id='creacion' class="form-group small">
-                            <button id="btnInsert" onclick="insert();" type="button" class="btn btn-primary btn-sm">Analizar</button>
+                            <button id="btnInsert" onclick="insert();" type="button" class="btn btn-primary btn-sm">Ingresar</button>
                             <button onclick='limpiar();' type="button" class="btn btn-default btn-sm float-right">Limpiar</button>
                         </div>
                     </form>

@@ -64,3 +64,15 @@ function diffFechas(fechaini, fechafin){
     
     return diffDays+1;
 }
+
+function fechaIntToString(fecha){
+    if (fecha.length < 6){
+        return "0000-00-00";
+    }
+    var anio = fecha.substring(0, 4);
+    var mes = fecha.substring(4, 6);
+    var dia = fecha.substring(6, 8);
+    
+    return (anio + "-" + mes + "-" + dia);
+    
+}

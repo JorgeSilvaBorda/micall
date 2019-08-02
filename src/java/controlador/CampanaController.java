@@ -11,7 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Iterator;
+import java.util.Locale;
 import modelo.Conexion;
 
 public class CampanaController extends HttpServlet {
@@ -177,8 +180,8 @@ public class CampanaController extends HttpServlet {
 		cuerpotabla += "<td>" + rs.getString("CODSUBPRODUCTO") + "</td>";
 		cuerpotabla += "<td>" + rs.getString("DESCSUBPRODUCTO") + "</td>";
 		cuerpotabla += "<td>" + rs.getBigDecimal("PRIMA") + "</td>";
-		cuerpotabla += "<td>" + rs.getString("MONTOMETA") + "</td>";
-		cuerpotabla += "<td>" + rs.getString("CANTIDADMETA") + "</td>";
+		cuerpotabla += "<td>" + rs.getInt("MONTOMETA") + "</td>";
+		cuerpotabla += "<td>" + rs.getInt("CANTIDADMETA") + "</td>";
 
 		cuerpotabla += "</tr>";
 	    }

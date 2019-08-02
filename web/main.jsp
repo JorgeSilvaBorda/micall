@@ -38,8 +38,8 @@
                                 out.print(MENU_ADMINISTRADOR);
                                 break;
                             case 2:
-                                //out.print(MENU_EMPRESA);
-                                out.print(MENU_EMPRESA_BETA);
+                                out.print(MENU_EMPRESA);
+                                //out.print(MENU_EMPRESA_BETA);
                                 break;
                             case 3:
                                 out.print(MENU_VENDEDOR);

@@ -27,33 +27,28 @@ public class RuteroController extends HttpServlet {
     }
 
     private JSONObject insRutero(JSONObject rutero) {
-	System.out.println("Entra a guardar rutero");
 	JSONObject salida = new JSONObject();
 	int idcampana = rutero.getInt("idcampana");
 	Iterator i = rutero.getJSONArray("filas").iterator();
 	while(i.hasNext()){
 	    JSONObject fila = (JSONObject) i.next();
-	    String[] nombres = fila.getString("nombres").split(" ");
-	    String nombre = nombres[nombres.length - 2] + " " + nombres[nombres.length - 1];
-	    String apellidos = fila.getString("nombres").replace(" " + nombre, "");
-	    String genero = (fila.getInt("genero") == 1 ? "M":"F");
 	    String query = "CALL SP_INS_FILA_RUTERO("
 		    + idcampana + ","
 		    + fila.getInt("rutcliente") + ","
 		    + "'" + fila.getString("dvcliente") + "',"
-		    + "'" + nombre + "',"
-		    + "'" + apellidos + "',"
-		    + "'" + genero + "',"
-		    + "'" + (fila.getString("fechanac").equals("") ? "1900-01-01" : fila.getString("fechanac")) + "',"
+		    + "'" + fila.getString("nombres") + "',"
+		    + "'" + fila.getString("apellidos") + "',"
+		    + "'" + fila.getString("genero") + "',"
+		    + "'" + fila.getString("fechanac") + "',"
 		    + "'" + fila.getString("direccion") + "',"
 		    + "'" + fila.getString("comuna") + "',"
 		    + "'" + fila.getString("region") + "',"
 		    + fila.getInt("codigopostal") + ","
 		    + "'" + fila.getString("email") + "',"
-		    + fila.getInt("dispavance") + ","
-		    + fila.getInt("areafono1") + ","
-		    + fila.getInt("areafono2") + ","
-		    + fila.getInt("areafono3") + ")";
+		    + fila.getInt("montoaprobado") + ","
+		    + fila.getInt("fono1") + ","
+		    + fila.getInt("fono2") + ","
+		    + fila.getInt("fono3") + ")";
 	    Conexion c = new Conexion();
 	    c.abrir();
 	    c.ejecutar(query);
