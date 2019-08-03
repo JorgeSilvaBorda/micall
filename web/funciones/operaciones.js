@@ -34,7 +34,7 @@ function insertar(detalle) {
         success: function (res) {
             var obj = JSON.parse(res);
             if (obj.estado === 'ok') {
-                
+                alert('Registros ingresados correctamente.');
             }
         }
     });

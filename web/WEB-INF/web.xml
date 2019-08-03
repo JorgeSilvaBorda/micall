@@ -24,6 +24,10 @@
         <servlet-name>RuteroController</servlet-name>
         <servlet-class>controlador.RuteroController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>SimulacionController</servlet-name>
+        <servlet-class>controlador.SimulacionController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>EmpresaController</servlet-name>
         <url-pattern>/EmpresaController</url-pattern>
@@ -47,6 +51,10 @@
     <servlet-mapping>
         <servlet-name>RuteroController</servlet-name>
         <url-pattern>/RuteroController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SimulacionController</servlet-name>
+        <url-pattern>/SimulacionController</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
