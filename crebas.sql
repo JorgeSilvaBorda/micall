@@ -1,0 +1,954 @@
+-- phpMyAdmin SQL Dump
+-- version 4.7.9
+-- https://www.phpmyadmin.net/
+--
+-- Servidor: 127.0.0.1:3306
+-- Tiempo de generación: 03-08-2019 a las 16:42:12
+-- Versión del servidor: 5.7.21
+-- Versión de PHP: 5.6.35
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+--
+-- Base de datos: `micall`
+--
+
+DELIMITER $$
+--
+-- Procedimientos
+--
+DROP PROCEDURE IF EXISTS `SP_DEL_CAMPANA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DEL_CAMPANA` (IN `_IDCAMPANA` INT)  BEGIN
+	DELETE FROM
+		CAMPANA
+	WHERE
+		IDCAMPANA = _IDCAMPANA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_DEL_CAMPANASUBPRODUCTO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DEL_CAMPANASUBPRODUCTO` (IN `_IDCAMPANA` INT)  BEGIN
+	DELETE FROM
+		CAMPANASUBPRODUCTO
+	WHERE
+		IDCAMPANA = _IDCAMPANA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_DEL_EMPRESA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DEL_EMPRESA` (IN `_IDEMPRESA` INT)  BEGIN
+	DELETE FROM EMPRESA WHERE IDEMPRESA = _IDEMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_DEL_PRODUCTO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DEL_PRODUCTO` (IN `_IDPRODUCTO` INT)  BEGIN
+	DELETE FROM
+		PRODUCTO
+	WHERE
+		IDPRODUCTO = _IDPRODUCTO;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_DEL_SUBPRODUCTO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DEL_SUBPRODUCTO` (IN `_IDSUBPRODUCTO` INT)  BEGIN
+	DELETE FROM 
+		SUBPRODUCTO
+	WHERE
+		IDSUBPRODUCTO = _IDSUBPRODUCTO;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_DEL_USUARIO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DEL_USUARIO` (IN `_IDUSUARIO` INT)  BEGIN
+	DELETE FROM
+		USUARIO
+	WHERE
+		IDUSUARIO = _IDUSUARIO;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_EXISTE_EMPRESA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_EXISTE_EMPRESA` (IN `_RUTEMPRESA` INT)  BEGIN
+	SELECT
+		COUNT(IDEMPRESA) CANTIDAD
+	FROM
+		EMPRESA
+	WHERE
+		RUTEMPRESA = _RUTEMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_EXISTE_PRODUCTO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_EXISTE_PRODUCTO` (IN `_CODPRODUCTO` VARCHAR(50), IN `_IDEMPRESA` INT)  BEGIN
+	SELECT
+		COUNT(IDPRODUCTO) CANTIDAD
+	FROM
+		PRODUCTO
+	WHERE
+		CODPRODUCTO = _CODPRODUCTO
+        AND IDEMPRESA = _IDEMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_EXISTE_RUT_EMPRESA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_EXISTE_RUT_EMPRESA` (IN `_RUT` INT)  BEGIN
+	SELECT
+		COUNT(RUTEMPRESA)
+	FROM
+		EMPRESA
+	WHERE
+		RUTEMPRESA = _RUT;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_EXISTE_SUBPRODUCTO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_EXISTE_SUBPRODUCTO` (IN `_CODSUBPRODUCTO` VARCHAR(50), IN `_IDEMPRESA` INT)  BEGIN
+	SELECT
+		COUNT(IDSUBPRODUCTO) CANTIDAD
+	FROM
+		SUBPRODUCTO
+	WHERE
+		CODSUBPRODUCTO = _CODSUBPRODUCTO
+        AND IDEMPRESA = _IDEMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_EXISTE_USUARIO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_EXISTE_USUARIO` (IN `_RUTUSUARIO` INT)  BEGIN
+	SELECT
+		COUNT(IDUSUARIO) CANTIDAD
+	FROM
+		USUARIO
+	WHERE
+		RUTUSUARIO = _RUTUSUARIO;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_GET_CAMPANAS`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_CAMPANAS` ()  BEGIN
+
+	SELECT
+		A.IDCAMPANA,
+        A.IDPRODUCTO,
+        B.CODPRODUCTO,
+        B.DESCPRODUCTO,
+        B.IDEMPRESA,
+        C.NOMBRE,
+        C.RUTEMPRESA,
+        C.DVEMPRESA,
+        A.NOMCAMPANA,
+        A.CODCAMPANA,
+        A.FECHAINI,
+        A.FECHAFIN,
+        A.META,
+        COUNT(D.IDCAMPANA) SUBPRODUCTOS
+	FROM
+		CAMPANA A INNER JOIN PRODUCTO B
+        ON A.IDPRODUCTO = B.IDPRODUCTO INNER JOIN EMPRESA C
+        ON B.IDEMPRESA = C.IDEMPRESA LEFT JOIN CAMPANASUBPRODUCTO D
+        ON A.IDCAMPANA = D.IDCAMPANA
+	GROUP BY
+		A.IDCAMPANA,
+        A.IDPRODUCTO,
+        B.CODPRODUCTO,
+        B.DESCPRODUCTO,
+        B.IDEMPRESA,
+        C.NOMBRE,
+        C.RUTEMPRESA,
+        C.DVEMPRESA,
+        A.NOMCAMPANA,
+        A.CODCAMPANA,
+        A.FECHAINI,
+        A.FECHAFIN,
+        A.META;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_GET_CAMPANA_EMPRESA_RUTCLIETE`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_CAMPANA_EMPRESA_RUTCLIETE` (IN `_RUT` INT, IN `_IDEMPRESA` INT)  BEGIN
+
+SELECT 
+	B.IDCAMPANA,
+    C.IDPRODUCTO,
+    D.IDEMPRESA,
+    A.RUT,
+    A.DV,
+	A.NOMBRES,
+    A.APELLIDOS,
+    A.GENERO,
+    A.FECHANAC,
+    A.DIRECCION,
+    A.COMUNA,
+    A.REGION,
+    A.CODIGOPOSTAL,
+    A.EMAIL,
+    A.FONO1,
+    A.FONO2,
+    A.FONO3,
+    B.NOMCAMPANA,
+    B.CODCAMPANA,
+    B.FECHAINI,
+    B.FECHAFIN,
+    B.META,
+    C.CODPRODUCTO,
+    C.DESCPRODUCTO,
+    D.NOMBRE,
+    D.RUTEMPRESA,
+    A.MONTOAPROBADO
+FROM 
+	RUTERO A INNER JOIN CAMPANA B
+    ON A.IDCAMPANA = B.IDCAMPANA INNER JOIN PRODUCTO C
+    ON B.IDPRODUCTO = C.IDPRODUCTO INNER JOIN EMPRESA D
+    ON C.IDEMPRESA = D.IDEMPRESA
+WHERE
+	DATE(NOW()) BETWEEN B.FECHAINI AND B.FECHAFIN
+    AND A.RUT = _RUT
+    AND D.IDEMPRESA = _IDEMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_GET_DETALLE_SUBPRODUCTOS`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_DETALLE_SUBPRODUCTOS` (IN `_IDCAMPANA` INT)  BEGIN
+SELECT
+	A.IDCAMPANA,
+    A.IDSUBPRODUCTO,
+    A.MONTOMETA,
+    A.CANTIDADMETA,
+    B.IDEMPRESA,
+    B.CODSUBPRODUCTO,
+    B.DESCSUBPRODUCTO,
+    B.PRIMA
+FROM
+	CAMPANASUBPRODUCTO A INNER JOIN SUBPRODUCTO B
+    ON A.IDSUBPRODUCTO = B.IDSUBPRODUCTO
+WHERE
+	A.IDCAMPANA = _IDCAMPANA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_GET_EMPRESAS`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_EMPRESAS` ()  BEGIN
+	SELECT
+		IDEMPRESA,
+        RUTEMPRESA,
+        DVEMPRESA,
+        NOMBRE,
+        DIRECCION,
+        CREACION,
+        ULTMODIFICACION
+	FROM
+		EMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_GET_EMPRESA_BY_ID`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_EMPRESA_BY_ID` (IN `_IDEMPRESA` INT)  BEGIN
+	SELECT
+		IDEMPRESA,
+        RUTEMPRESA,
+        DVEMPRESA,
+        NOMBRE,
+        DIRECCION,
+        CREACION,
+        ULTMODIFICACION
+	FROM
+		EMPRESA
+	WHERE
+		IDEMPRESA = _IDEMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_GET_EMPRESA_BY_RUT`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_EMPRESA_BY_RUT` (IN `_RUTEMPRESA` INT)  BEGIN
+	SELECT
+		IDEMPRESA,
+        RUTEMPRESA,
+        DVEMPRESA,
+        NOMBRE,
+        DIRECCION,
+        CREACION,
+        ULTMODIFICACION
+	FROM
+		EMPRESA
+	WHERE
+		RUTEMPRESA = _RUTEMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_GET_PRODUCTOS`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_PRODUCTOS` ()  BEGIN
+	SELECT
+		A.IDPRODUCTO,
+        A.IDEMPRESA,
+        A.CODPRODUCTO,
+        A.DESCPRODUCTO,
+        B.RUTEMPRESA,
+        B.DVEMPRESA,
+        B.NOMBRE
+	FROM
+		PRODUCTO A INNER JOIN EMPRESA B
+        ON A.IDEMPRESA = B.IDEMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_GET_SELECT_PRODUCTOS`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_SELECT_PRODUCTOS` (IN `_IDEMPRESA` INT)  BEGIN
+	SELECT
+		IDPRODUCTO,
+        DESCPRODUCTO
+	FROM
+		PRODUCTO
+	WHERE
+		IDEMPRESA = _IDEMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_GET_SUBPRODUCTOS`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_SUBPRODUCTOS` ()  BEGIN
+	SELECT
+		A.IDSUBPRODUCTO,
+        A.CODSUBPRODUCTO,
+        A.DESCSUBPRODUCTO,
+        B.IDEMPRESA,
+        B.RUTEMPRESA,
+        B.DVEMPRESA,
+        B.NOMBRE,
+        A.PRIMA
+	FROM
+		SUBPRODUCTO A INNER JOIN EMPRESA B
+        ON A.IDEMPRESA = B.IDEMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_GET_SUBPRODUCTOS_EMPRESA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_SUBPRODUCTOS_EMPRESA` (IN `_IDEMPRESA` INT)  BEGIN
+	SELECT
+		A.IDSUBPRODUCTO,
+        A.CODSUBPRODUCTO,
+        A.DESCSUBPRODUCTO,
+        B.IDEMPRESA,
+        B.RUTEMPRESA,
+        B.DVEMPRESA,
+        B.NOMBRE,
+        A.PRIMA
+	FROM
+		SUBPRODUCTO A INNER JOIN EMPRESA B
+        ON A.IDEMPRESA = B.IDEMPRESA
+	WHERE
+		A.IDEMPRESA = _IDEMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_GET_TIPOUSUARIOS`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_TIPOUSUARIOS` ()  BEGIN
+	SELECT
+		IDTIPOUSUARIO,
+        DESCTIPOUSUARIO
+	FROM
+		TIPOUSUARIO;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_GET_USUARIOS`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_USUARIOS` ()  BEGIN
+SELECT
+	A.IDUSUARIO,
+    A.IDEMPRESA,
+    B.RUTEMPRESA,
+    B.DVEMPRESA,
+    B.NOMBRE,
+    A.IDTIPOUSUARIO,
+    C.DESCTIPOUSUARIO,
+    A.RUTUSUARIO,
+    A.DVUSUARIO,
+    A.NOMUSUARIO,
+    A.APPATERNO,
+    A.APMATERNO,
+    A.ESTADO
+FROM
+	USUARIO A INNER JOIN EMPRESA B
+    ON A.IDEMPRESA = B.IDEMPRESA INNER JOIN TIPOUSUARIO C
+    ON A.IDTIPOUSUARIO = C.IDTIPOUSUARIO;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_INS_CAMPANA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_INS_CAMPANA` (IN `_IDPRODUCTO` INT, IN `_NOMCAMPANA` VARCHAR(100), IN `_CODCAMPANA` VARCHAR(50), IN `_FECHAINI` DATE, IN `_FECHAFIN` DATE, IN `_META` INT)  BEGIN
+	INSERT INTO
+		CAMPANA(
+			IDPRODUCTO,
+            NOMCAMPANA,
+            CODCAMPANA,
+            FECHAINI,
+            FECHAFIN,
+            META
+		)VALUES(
+			_IDPRODUCTO,
+            _NOMCAMPANA,
+            _CODCAMPANA,
+            _FECHAINI,
+            _FECHAFIN,
+            _META
+		);
+        
+		SELECT LAST_INSERT_ID() LIID; -- LAST INSERT ID
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_INS_CAMPANA_SUBPRODUCTO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_INS_CAMPANA_SUBPRODUCTO` (IN `_IDCAMPANA` INT, IN `_IDSUBPRODUCTO` INT, IN `_MONTOMETA` INT, IN `_CANTMETA` INT)  BEGIN
+	INSERT INTO
+		CAMPANASUBPRODUCTO(
+			IDCAMPANA,
+            IDSUBPRODUCTO,
+            MONTOMETA,
+            CANTIDADMETA
+		)VALUES(
+			_IDCAMPANA,
+            _IDSUBPRODUCTO,
+            _MONTOMETA,
+            _CANTMETA
+		);
+        
+	SELECT MAX(IDCAMPANA) LIID FROM CAMPANASUBPRODUCTO; -- LAST INSERT EN CRUCE PARA CORROBORAR
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_INS_EMPRESA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_INS_EMPRESA` (IN `_RUT` INT, IN `_DV` VARCHAR(1), IN `_NOMBRE` VARCHAR(60), IN `_DIRECCION` VARCHAR(100))  BEGIN
+	INSERT INTO
+		EMPRESA(
+			RUTEMPRESA,
+            DVEMPRESA,
+            NOMBRE,
+            DIRECCION,
+            CREACION,
+            ULTMODIFICACION)
+		VALUES(
+			_RUT,
+            _DV,
+            _NOMBRE,
+            _DIRECCION,
+            NOW(),
+            NOW());
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_INS_FILA_RUTERO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_INS_FILA_RUTERO` (IN `_IDCAMPANA` INT, IN `_RUTCLIENTE` INT, IN `_DVCLIENTE` VARCHAR(1), IN `_NOMBRES` VARCHAR(30), IN `_APELLIDOS` VARCHAR(30), IN `_GENERO` VARCHAR(1), IN `_FECHANAC` DATE, IN `_DIRECCION` VARCHAR(100), IN `_COMUNA` VARCHAR(50), IN `_REGION` VARCHAR(50), IN `_CODIGOPOSTAL` INT, IN `_EMAIL` VARCHAR(70), IN `_MONTOAPROBADO` INT, IN `_FONO1` INT, IN `_FONO2` INT, IN `_FONO3` INT)  BEGIN
+	INSERT INTO
+		RUTERO(
+			IDCAMPANA,
+            RUT,
+            DV,
+            NOMBRES,
+            APELLIDOS,
+            GENERO,
+            FECHANAC,
+            DIRECCION,
+            COMUNA,
+            REGION,
+            CODIGOPOSTAL,
+            EMAIL,
+            MONTOAPROBADO,
+            FONO1,
+            FONO2,
+            FONO3
+		)VALUES(
+			_IDCAMPANA,
+            _RUTCLIENTE,
+            _DVCLIENTE,
+            _NOMBRES,
+            _APELLIDOS,
+            _GENERO,
+            _FECHANAC,
+            _DIRECCION,
+            _COMUNA,
+            _REGION,
+            _CODIGOPOSTAL,
+            _EMAIL,
+            _MONTOAPROBADO,
+            _FONO1,
+            _FONO2,
+            _FONO3
+		);
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_INS_PRODUCTO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_INS_PRODUCTO` (IN `_IDEMPRESA` INT, IN `_CODPRODUCTO` VARCHAR(50), IN `_DESCPRODUCTO` VARCHAR(100))  BEGIN
+	INSERT INTO 
+		PRODUCTO(
+            IDEMPRESA, 
+            CODPRODUCTO, 
+            DESCPRODUCTO) 
+		VALUES(
+			_IDEMPRESA, 
+            _CODPRODUCTO, 
+            _DESCPRODUCTO);
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_INS_SUBPRODUCTO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_INS_SUBPRODUCTO` (IN `_IDEMPRESA` INT, IN `_CODSUBPRODUCTO` VARCHAR(50), IN `_DESCSUBPRODUCTO` VARCHAR(100), IN `_PRIMA` DECIMAL(5,2))  BEGIN
+	INSERT INTO
+		SUBPRODUCTO(
+			IDEMPRESA,
+            CODSUBPRODUCTO,
+            DESCSUBPRODUCTO,
+            PRIMA)
+		VALUES(
+			_IDEMPRESA,
+            _CODSUBPRODUCTO,
+            _DESCSUBPRODUCTO,
+            _PRIMA);
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_INS_USUARIO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_INS_USUARIO` (IN `_RUTUSUARIO` INT, IN `_DVUSUARIO` VARCHAR(1), IN `_NOMUSUARIO` VARCHAR(60), IN `_APPATERNO` VARCHAR(50), IN `_APMATERNO` VARCHAR(50), IN `_IDEMPRESA` INT, IN `_IDTIPOUSUARIO` INT)  BEGIN
+	INSERT INTO
+		USUARIO(
+			RUTUSUARIO,
+            DVUSUARIO,
+            NOMUSUARIO,
+            APPATERNO,
+            APMATERNO,
+            IDEMPRESA,
+            IDTIPOUSUARIO,
+            ESTADO,
+            ULTMODIFICACION,
+            PASSWORD)
+		VALUES(
+			_RUTUSUARIO,
+            _DVUSUARIO,
+            _NOMUSUARIO,
+            _APPATERNO,
+            _APMATERNO,
+            _IDEMPRESA,
+            _IDTIPOUSUARIO,
+            1,
+            NOW(),
+            MD5('password'));
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_SEL_SELECT_CAMPANAS`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_SEL_SELECT_CAMPANAS` (IN `_IDEMPRESA` INT)  BEGIN
+	SELECT
+		IDCAMPANA,
+        CODCAMPANA,
+        NOMCAMPANA,
+        CONCAT('[', CODCAMPANA, '] ', NOMCAMPANA) TEXTO
+	FROM
+		CAMPANA A INNER JOIN PRODUCTO B
+        ON A.IDPRODUCTO = B.IDPRODUCTO INNER JOIN EMPRESA C
+        ON B.IDEMPRESA = C.IDEMPRESA
+	WHERE
+		B.IDEMPRESA = _IDEMPRESA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_SEL_SELECT_CAMPANAS_FECHA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_SEL_SELECT_CAMPANAS_FECHA` (IN `_IDEMPRESA` INT)  BEGIN
+	SELECT
+		IDCAMPANA,
+        CODCAMPANA,
+        NOMCAMPANA,
+        CONCAT('[', CODCAMPANA, '] ', NOMCAMPANA) TEXTO
+	FROM
+		CAMPANA A INNER JOIN PRODUCTO B
+        ON A.IDPRODUCTO = B.IDPRODUCTO INNER JOIN EMPRESA C
+        ON B.IDEMPRESA = C.IDEMPRESA
+	WHERE
+		B.IDEMPRESA = _IDEMPRESA
+        AND DATE(NOW()) BETWEEN A.FECHAINI AND A.FECHAFIN -- USADO PARA CARGAR CAMPAÑAS EN FECHA
+        ;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_UPD_CAMPANA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_UPD_CAMPANA` (IN `_IDCAMPANA` INT, IN `_IDPRODUCTO` INT, IN `_NOMCAMPANA` VARCHAR(100), IN `_CODCAMPANA` VARCHAR(50), IN `_FECHAINI` DATE, IN `_FECHAFIN` DATE, IN `_META` INT)  BEGIN
+	UPDATE 
+		CAMPANA
+	SET
+		IDPRODUCTO = _IDPRODUCTO,
+        NOMCAMPANA = _NOMCAMPANA,
+        CODCAMPANA = _CODCAMPANA,
+        FECHAINI = _FECHAINI,
+        FECHAFIN = _FECHAFIN,
+        META = _META
+	WHERE
+		IDCAMPANA = _IDCAMPANA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_UPD_EMPRESA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_UPD_EMPRESA` (IN `_IDEMPRESAORIGEN` INT, IN `_RUTEMPRESA` INT, IN `_DVEMPRESA` VARCHAR(1), IN `_NOMBRE` VARCHAR(60), IN `_DIRECCION` VARCHAR(100))  BEGIN
+	UPDATE EMPRESA
+    SET
+		RUTEMPRESA = _RUTEMPRESA,
+        DVEMPRESA = _DVEMPRESA,
+        NOMBRE = _NOMBRE,
+        DIRECCION = _DIRECCION,
+        ULTMODIFICACION = NOW()
+	WHERE
+		IDEMPRESA = _IDEMPRESAORIGEN;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_UPD_PASSWORD`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_UPD_PASSWORD` (IN `_IDUSUARIO` INT, IN `_PASSWORD` VARCHAR(64))  BEGIN
+	UPDATE 
+		USUARIO
+    SET PASSWORD = _PASSWORD
+    WHERE
+		IDUSUARIO = _IDUSUARIO;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_UPD_PRODUCTO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_UPD_PRODUCTO` (IN `_IDPRODUCTO` INT, IN `_IDEMPRESA` INT, IN `_CODPRODUCTO` VARCHAR(50), IN `_DESCPRODUCTO` VARCHAR(100))  BEGIN
+	UPDATE PRODUCTO
+		SET
+			IDEMPRESA = _IDEMPRESA,
+            DESCPRODUCTO = _DESCPRODUCTO,
+            CODPRODUCTO = _CODPRODUCTO
+		WHERE
+			IDPRODUCTO = _IDPRODUCTO;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_UPD_SUBPRODUCTO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_UPD_SUBPRODUCTO` (IN `_IDSUBPRODUCTO` INT, IN `_IDEMPRESA` INT, IN `_CODSUBPRODUCTO` VARCHAR(50), IN `_DESCSUBPRODUCTO` VARCHAR(100), IN `_PRIMA` DECIMAL(5,2))  BEGIN
+	UPDATE SUBPRODUCTO
+		SET
+			CODSUBPRODUCTO = _CODSUBPRODUCTO,
+            DESCSUBPRODUCTO = _DESCSUBPRODUCTO,
+            IDEMPRESA = _IDEMPRESA,
+            PRIMA = _PRIMA
+		WHERE
+			IDSUBPRODUCTO = _IDSUBPRODUCTO;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_UPD_USUARIO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_UPD_USUARIO` (IN `_IDUSUARIO` INT, IN `_RUTUSUARIO` INT, IN `_DVUSUARIO` VARCHAR(1), IN `_NOMBRES` VARCHAR(60), IN `_APPATERNO` VARCHAR(50), IN `_APMATERNO` VARCHAR(50), IN `_IDEMPRESA` INT, IN `_IDTIPOUSUARIO` INT)  BEGIN
+	UPDATE
+		USUARIO
+	SET
+		RUTUSUARIO = _RUTUSUARIO,
+        DVUSUARIO = _DVUSUARIO,
+        NOMUSUARIO = _NOMBRES,
+        APPATERNO = _APPATERNO,
+        APMATERNO = APMATERNO,
+        ULTMODIFICACION = NOW(),
+        IDEMPRESA = _IDEMPRESA,
+        IDTIPOUSUARIO = _IDTIPOUSUARIO
+	WHERE
+		IDUSUARIO = _IDUSUARIO;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_VALIDA_USUARIO`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_VALIDA_USUARIO` (IN `_RUT` INT, IN `_PASSWORD` VARCHAR(64))  BEGIN
+	SELECT
+		A.IDUSUARIO,
+        A.IDEMPRESA,
+        B.RUTEMPRESA,
+        B.DVEMPRESA,
+        B.NOMBRE EMPRESA,
+        A.IDTIPOUSUARIO,
+        C.DESCTIPOUSUARIO,
+        A.RUTUSUARIO,
+        A.DVUSUARIO,
+        A.NOMUSUARIO,
+        A.APPATERNO,
+        A.APMATERNO,
+        A.ESTADO,
+        A.ULTMODIFICACION
+	FROM
+		USUARIO A INNER JOIN EMPRESA B
+        ON A.IDEMPRESA = B.IDEMPRESA INNER JOIN TIPOUSUARIO C
+        ON A.IDTIPOUSUARIO = C.IDTIPOUSUARIO
+	WHERE
+		A.RUTUSUARIO = _RUT
+        AND A.PASSWORD = _PASSWORD;
+END$$
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `campana`
+--
+
+DROP TABLE IF EXISTS `campana`;
+CREATE TABLE IF NOT EXISTS `campana` (
+  `IDCAMPANA` int(11) NOT NULL AUTO_INCREMENT,
+  `IDPRODUCTO` int(11) NOT NULL,
+  `NOMCAMPANA` varchar(100) NOT NULL,
+  `CODCAMPANA` varchar(50) NOT NULL,
+  `FECHAINI` date NOT NULL,
+  `FECHAFIN` date NOT NULL,
+  `META` int(11) NOT NULL,
+  PRIMARY KEY (`IDCAMPANA`),
+  KEY `FK_RELATIONSHIP_6` (`IDPRODUCTO`)
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `campana`
+--
+
+INSERT INTO `campana` (`IDCAMPANA`, `IDPRODUCTO`, `NOMCAMPANA`, `CODCAMPANA`, `FECHAINI`, `FECHAFIN`, `META`) VALUES
+(10, 5, 'Crédito en cuotas con Seguro Desgravamen + Vida', 'CC-SEG-DES-001', '2019-07-01', '2019-11-30', 1000000000),
+(9, 8, 'Crédito en cuotas con Seguro de vida', 'CC-SEG-001', '2019-07-01', '2019-09-30', 500000000),
+(7, 5, 'Campaña de pruebas', 'CP', '2019-07-01', '2019-07-28', 100000000);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `campanasubproducto`
+--
+
+DROP TABLE IF EXISTS `campanasubproducto`;
+CREATE TABLE IF NOT EXISTS `campanasubproducto` (
+  `IDCAMPANA` int(11) NOT NULL,
+  `IDSUBPRODUCTO` int(11) NOT NULL,
+  `MONTOMETA` int(11) DEFAULT NULL,
+  `CANTIDADMETA` int(11) DEFAULT NULL,
+  KEY `FK_RELATIONSHIP_7` (`IDCAMPANA`),
+  KEY `FK_RELATIONSHIP_8` (`IDSUBPRODUCTO`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `campanasubproducto`
+--
+
+INSERT INTO `campanasubproducto` (`IDCAMPANA`, `IDSUBPRODUCTO`, `MONTOMETA`, `CANTIDADMETA`) VALUES
+(9, 5, 2000000, 420),
+(7, 3, 1000000, 50),
+(10, 5, 7000000, 230),
+(10, 6, 3500000, 125);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `empresa`
+--
+
+DROP TABLE IF EXISTS `empresa`;
+CREATE TABLE IF NOT EXISTS `empresa` (
+  `IDEMPRESA` int(11) NOT NULL AUTO_INCREMENT,
+  `RUTEMPRESA` int(11) NOT NULL,
+  `DVEMPRESA` varchar(1) NOT NULL,
+  `NOMBRE` varchar(60) NOT NULL,
+  `DIRECCION` varchar(100) NOT NULL,
+  `CREACION` datetime NOT NULL,
+  `ULTMODIFICACION` datetime NOT NULL,
+  PRIMARY KEY (`IDEMPRESA`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `empresa`
+--
+
+INSERT INTO `empresa` (`IDEMPRESA`, `RUTEMPRESA`, `DVEMPRESA`, `NOMBRE`, `DIRECCION`, `CREACION`, `ULTMODIFICACION`) VALUES
+(1, 11111111, '1', 'Administración interna', 'Sin dirección', '2019-07-25 10:25:20', '2019-07-25 10:25:20'),
+(3, 22222222, '2', 'Empresa 2', 'Dirección empresa 2', '2019-07-25 16:15:40', '2019-07-29 11:56:47'),
+(4, 33333333, '3', 'Empresa 3', 'Dirección empresa 3', '2019-07-25 16:16:59', '2019-07-25 16:16:59'),
+(5, 44444444, '4', 'Empresa 4', 'Dirección empresa 4', '2019-07-25 16:17:10', '2019-07-25 16:17:10');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `producto`
+--
+
+DROP TABLE IF EXISTS `producto`;
+CREATE TABLE IF NOT EXISTS `producto` (
+  `IDPRODUCTO` int(11) NOT NULL AUTO_INCREMENT,
+  `CODPRODUCTO` varchar(50) NOT NULL,
+  `IDEMPRESA` int(11) NOT NULL,
+  `DESCPRODUCTO` varchar(100) NOT NULL,
+  PRIMARY KEY (`IDPRODUCTO`),
+  KEY `FK_RELATIONSHIP_5` (`IDEMPRESA`)
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `producto`
+--
+
+INSERT INTO `producto` (`IDPRODUCTO`, `CODPRODUCTO`, `IDEMPRESA`, `DESCPRODUCTO`) VALUES
+(1, 'SAV', 1, 'Super Avance'),
+(8, 'CCONS', 3, 'Crédito de consumo'),
+(3, 'SAV', 4, 'Super Avance'),
+(4, 'AVE', 4, 'Avance Efectivo'),
+(5, 'CCC', 3, 'Crédito en cuantas cuotas'),
+(6, 'CC', 4, 'Crédito en cuotas'),
+(7, 'SAV2', 3, 'Super avance 2');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `rutero`
+--
+
+DROP TABLE IF EXISTS `rutero`;
+CREATE TABLE IF NOT EXISTS `rutero` (
+  `IDCAMPANA` int(11) NOT NULL,
+  `RUT` int(11) NOT NULL,
+  `DV` varchar(1) NOT NULL,
+  `NOMBRES` varchar(30) NOT NULL,
+  `APELLIDOS` varchar(30) NOT NULL,
+  `GENERO` varchar(1) DEFAULT NULL,
+  `FECHANAC` date DEFAULT NULL,
+  `DIRECCION` varchar(100) DEFAULT NULL,
+  `COMUNA` varchar(50) DEFAULT NULL,
+  `REGION` varchar(50) DEFAULT NULL,
+  `CODIGOPOSTAL` int(11) DEFAULT NULL,
+  `EMAIL` varchar(70) DEFAULT NULL,
+  `MONTOAPROBADO` int(11) NOT NULL,
+  `FONO1` int(11) NOT NULL,
+  `FONO2` int(11) DEFAULT NULL,
+  `FONO3` int(11) DEFAULT NULL,
+  KEY `FK_RELATIONSHIP_12` (`IDCAMPANA`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `rutero`
+--
+
+INSERT INTO `rutero` (`IDCAMPANA`, `RUT`, `DV`, `NOMBRES`, `APELLIDOS`, `GENERO`, `FECHANAC`, `DIRECCION`, `COMUNA`, `REGION`, `CODIGOPOSTAL`, `EMAIL`, `MONTOAPROBADO`, `FONO1`, `FONO2`, `FONO3`) VALUES
+(9, 11948618, '1', 'Owen Booker', 'Bonner Mann', 'M', '1991-12-21', 'Apdo.:900-2789 Cras Av.', 'Empedrado', 'Maule', 283212, 'id.ante.Nunc@lobortisquama.edu', 8250523, 973585349, 247112892, 260823789),
+(9, 40641475, '2', 'Hilel Oliver', 'Carpenter Macdonald', 'F', '1987-01-26', 'Apdo.:867-3307 Consectetuer Carretera', 'Providencia', 'RM', 47907, 'ultrices.mauris@mollis.net', 9350291, 346485264, 806508611, 253775172),
+(9, 5269251, '2', 'Lucius Newton', 'Fox Romero', 'M', '1999-09-15', '647-2866 Lacinia Avda.', 'Talca', 'VII', 728388, 'Morbi.vehicula@venenatisvel.co.uk', 6190967, 584121763, 433292597, 713189803),
+(9, 46606752, '0', 'Darius Mckee', 'Langley Figueroa', 'F', '1989-01-06', 'Apdo.:252-9252 Eget Ctra.', 'Yumbel', 'VII', 530595, 'at.augue.id@laciniaatiaculis.org', 2925106, 917903153, 203549876, 249128546),
+(9, 21024502, '2', 'Raphael Stone', 'Blanchard Neal', 'M', '1997-10-05', '2585 Praesent Carretera', 'Ovalle', 'Coquimbo', 487316, 'Quisque@Seddiam.co.uk', 9198866, 295090801, 692903138, 438764178),
+(9, 31316968, '5', 'Lance Parker', 'Barnes Valencia', 'F', '1993-05-13', '609-7512 Orci, Carretera', 'Paine', 'Metropolitana de Santiago', 210328, 'elementum.lorem@enimconsequatpurus.com', 4503061, 123889543, 999148155, 154329839),
+(9, 12741790, '3', 'Adrian Tyler', 'Shepherd Abbott', 'F', '1986-06-26', '807-3759 Mauris Avenida', 'San Bernardo', 'Metropolitana de Santiago', 913786, 'ac@habitant.com', 4878060, 381953968, 258857499, 223225576),
+(9, 7532039, '6', 'Kamal Stafford', 'Hickman Rios', 'F', '1992-01-05', '332-1514 Dignissim Avenida', 'Paiguano', 'IV', 211954, 'ultrices@nectempus.co.uk', 2757253, 826961204, 883300522, 492274100),
+(9, 46298247, 'K', 'Kennedy Maynard', 'Ferrell Doyle', 'F', '1986-03-27', '769-9163 Malesuada Av.', 'Talagante', 'Metropolitana de Santiago', 516811, 'lacus@Aliquam.net', 1356880, 510333388, 296607020, 122748151),
+(9, 24850673, '3', 'Marshall Britt', 'Merrill Good', 'F', '1988-11-08', '251 Arcu. Ctra.', 'Cerro Navia', 'RM', 767820, 'pede.et.risus@metusInlorem.ca', 2900523, 523635565, 470838571, 656607309),
+(9, 19475304, '7', 'Aristotle Heath', 'Bishop Stevens', 'M', '2000-01-02', '860-1326 Sit ', 'Coquimbo', 'IV', 771325, 'sapien.molestie.orci@dolordapibus.com', 1126448, 571350999, 511119881, 255533629),
+(9, 36426421, '6', 'Cullen Alvarez', 'Clemons Carrillo', 'M', '1989-11-14', '436 A, Avda.', 'Nancagua', 'VI', 581442, 'gravida@Nullamlobortis.ca', 2292001, 616960171, 208302545, 745982762),
+(9, 18074302, '2', 'Aristotle Cooley', 'Nelson Wilson', 'M', '1991-02-25', '2095 Facilisis Avenida', 'San Bernardo', 'RM', 15797, 'est.ac@Nunc.edu', 8340921, 669838441, 928282311, 375265257),
+(9, 27814958, '7', 'Nathan Hubbard', 'Cox Yates', 'F', '1987-03-24', '2056 Amet, Avenida', 'Lo Espejo', 'Metropolitana de Santiago', 307925, 'vel.mauris.Integer@turpisIn.co.uk', 3036149, 501968758, 240043421, 315047448),
+(9, 12037714, '0', 'Zeph Edwards', 'Bartlett Meyer', 'F', '1991-09-18', '385-4001 Consectetuer Ctra.', 'Cerro Navia', 'RM', 386210, 'sed.orci@volutpatNulla.co.uk', 7326797, 230251943, 925666906, 272045428),
+(9, 42851097, '6', 'Dante Wilder', 'Rasmussen Rosa', 'F', '1993-01-10', '3121 Vestibulum Calle', 'San Bernardo', 'Metropolitana de Santiago', 2167, 'Nulla.facilisi.Sed@egestas.edu', 5006776, 354178819, 379036809, 792576956),
+(9, 19617135, '5', 'Donovan Cherry', 'Pickett Matthews', 'F', '1991-08-30', '149-334 Amet Ctra.', 'Illapel', 'Coquimbo', 330624, 'ultrices@sed.org', 5597853, 687672498, 603043391, 889049109),
+(9, 9530317, 'K', 'Tyrone Blevins', 'Bonner Carter', 'F', '1990-01-23', 'Apdo.:205-5783 Orci. Avenida', 'Pirque', 'Metropolitana de Santiago', 182727, 'convallis.ante@ipsumcursus.edu', 2244853, 347460463, 691173493, 647717423),
+(9, 9346659, '4', 'Connor Morris', 'Owens Pollard', 'F', '2000-08-25', '6181 Fermentum Avda.', 'Dalcahue', 'Los Lagos', 69110, 'posuere.cubilia@neque.edu', 5410613, 442002110, 913863680, 118624000),
+(9, 50122764, '1', 'Perry Cooke', 'Hopper Nunez', 'M', '2000-05-09', '7632 Varius C/', 'La Reina', 'RM', 178667, 'tincidunt.congue.turpis@viverraMaecenasiaculis.edu', 8573464, 829080892, 551166133, 450616924),
+(9, 21577240, '3', 'Conan Bell', 'Schmidt Keith', 'M', '1997-02-26', '4165 Eu Avda.', 'Villa Alegre', 'VII', 497391, 'Quisque@tellus.com', 8852779, 257706685, 317186448, 194422135),
+(9, 32478200, '1', 'Sawyer Faulkner', 'Golden Burris', 'M', '1986-10-11', '5084 Lacinia. C/', 'Isla de Maipo', 'Metropolitana de Santiago', 802772, 'gravida@neque.net', 1732503, 549814424, 160690247, 859548397),
+(9, 17323637, '9', 'Yuli Watson', 'Kline Norton', 'M', '2000-05-03', '196-6875 Non Carretera', 'Quilicura', 'RM', 825373, 'dolor.Fusce.feugiat@ametconsectetuer.ca', 6237595, 898432075, 346924221, 289513184),
+(9, 29781886, '4', 'Hamilton Jackson', 'Serrano Crosby', 'F', '1989-08-06', '745 Sociosqu ', 'Padre Hurtado', 'RM', 899534, 'eros@Duis.edu', 5129734, 488389967, 615971809, 773564880),
+(9, 37496235, '3', 'Burton Whitney', 'Hughes Sanders', 'F', '1994-10-28', '2322 Dis ', 'San Felipe', 'V', 184659, 'lobortis.quam.a@egetipsumSuspendisse.org', 1318927, 510084248, 851231608, 758018864),
+(9, 32105668, '7', 'Hakeem Hansen', 'Townsend Villarreal', 'F', '1989-04-30', '397-1571 Purus. Ctra.', 'Curarrehue', 'IX', 745518, 'Sed.congue@velitinaliquet.com', 7403903, 537281731, 647055105, 444515976),
+(9, 12319901, '4', 'Walker Mckenzie', 'Carrillo Clements', 'F', '1997-09-29', '724-303 Phasellus Avda.', 'Cerrillos', 'RM', 643232, 'ligula.tortor.dictum@famesac.co.uk', 8448373, 777678537, 485014077, 717380763),
+(9, 13387419, '4', 'Wang Fulton', 'Larson Gilbert', 'M', '2000-11-27', '533 Purus ', 'Parral', 'VII', 206077, 'sapien@Nullaeuneque.co.uk', 4697347, 133139553, 984402245, 837819058),
+(9, 13797589, '0', 'John Tillman', 'Bender Holland', 'M', '1999-05-25', '4656 Pede, Carretera', 'Lo Espejo', 'RM', 712694, 'condimentum.eget.volutpat@Nullam.ca', 4486013, 255714723, 661868222, 672859090),
+(9, 41747453, '6', 'Edward Alvarez', 'Lyons Sosa', 'M', '1992-12-03', '771 Mi, Carretera', 'Huechuraba', 'Metropolitana de Santiago', 471594, 'nisl.sem@dictumultriciesligula.edu', 6791205, 113935669, 671281288, 554046172),
+(9, 49853940, '8', 'Xavier Schwartz', 'Stout Willis', 'M', '1997-10-08', '984-1918 Nisi C.', 'Colchane', 'I', 898520, 'dictum@ac.ca', 4204270, 858942650, 975800779, 606958818),
+(9, 44085353, '6', 'Kennan Chandler', 'Sawyer Lowery', 'F', '1986-10-05', '691-9345 Arcu. Carretera', 'Sierra Gorda', 'Antofagasta', 260450, 'nec.cursus@ornarelectusjusto.co.uk', 8590927, 737817813, 938620621, 474315208),
+(9, 41924203, '9', 'Kaseem Hurst', 'Ayers Mayer', 'F', '1990-12-17', '4035 Sed Calle', 'Pelluhue', 'VII', 109293, 'magnis@ridiculusmusProin.org', 8662100, 125306572, 538019535, 639777633),
+(9, 26585164, '9', 'Lawrence Vaughan', 'Allen Moore', 'F', '1989-12-18', '622-2763 Urna. C.', 'Las Condes', 'Metropolitana de Santiago', 440443, 'Vivamus.euismod@feugiatnec.com', 5162788, 854772553, 186605551, 538025293),
+(9, 12566210, '2', 'Ivan Spence', 'Vance Blackwell', 'F', '1986-04-30', '229-4422 Nibh. Ctra.', 'Maipú', 'Metropolitana de Santiago', 182953, 'consequat.dolor@Donecconsectetuermauris.com', 6173326, 377928463, 199801682, 661024137),
+(9, 28083441, '6', 'Jerome Vincent', 'Drake Dotson', 'F', '1988-09-20', '2005 Placerat, Av.', 'Mejillones', 'Antofagasta', 260002, 'ipsum.dolor.sit@iaculisquispede.org', 5758586, 665611988, 126375836, 287590738),
+(9, 31542065, '2', 'Elijah Garza', 'Atkinson Turner', 'M', '1996-03-29', '9168 Lacinia Avda.', 'Punta Arenas', 'XII', 704919, 'amet.consectetuer.adipiscing@mi.org', 3603436, 656269571, 994339650, 328996152),
+(9, 11356819, '4', 'Walker Burch', 'Patterson Walters', 'M', '1992-09-27', '6747 Ullamcorper, Avenida', 'La Cisterna', 'RM', 301828, 'varius@elit.ca', 7959229, 111464560, 756043384, 774194491),
+(9, 39025580, '2', 'Brenden Clark', 'Carlson Owens', 'M', '1986-02-26', '533-7814 Eu, Carretera', 'Isla de Maipo', 'RM', 853211, 'natoque.penatibus@neque.co.uk', 6739477, 626220995, 407188041, 571695489);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `simulacion`
+--
+
+DROP TABLE IF EXISTS `simulacion`;
+CREATE TABLE IF NOT EXISTS `simulacion` (
+  `IDSIMULACION` int(11) NOT NULL AUTO_INCREMENT,
+  `IDCAMPANA` int(11) NOT NULL,
+  `FECHASIMULACION` datetime NOT NULL,
+  `RUTVENDEDOR` int(11) NOT NULL,
+  `DVVENDEDOR` varchar(1) NOT NULL,
+  `RUTCLIENTE` int(11) NOT NULL,
+  `DVCLIENTE` varchar(1) NOT NULL,
+  `MONTO` int(11) NOT NULL,
+  `CUOTAS` int(11) NOT NULL,
+  `VALORCUOTA` int(11) NOT NULL,
+  `TASAINTERES` decimal(5,2) NOT NULL,
+  `TASAANUAL` decimal(5,2) NOT NULL,
+  `CAE` decimal(5,2) NOT NULL,
+  `VENCIMIENTO` date NOT NULL,
+  `COSTOTOTAL` int(11) NOT NULL,
+  `COMISION` int(11) NOT NULL,
+  PRIMARY KEY (`IDSIMULACION`),
+  KEY `FK_RELATIONSHIP_9` (`IDCAMPANA`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `simulacionsubproducto`
+--
+
+DROP TABLE IF EXISTS `simulacionsubproducto`;
+CREATE TABLE IF NOT EXISTS `simulacionsubproducto` (
+  `IDSIMULACION` int(11) NOT NULL,
+  `IDSUBPRODUCTO` int(11) NOT NULL,
+  KEY `FK_RELATIONSHIP_10` (`IDSIMULACION`),
+  KEY `FK_RELATIONSHIP_11` (`IDSUBPRODUCTO`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `subproducto`
+--
+
+DROP TABLE IF EXISTS `subproducto`;
+CREATE TABLE IF NOT EXISTS `subproducto` (
+  `IDSUBPRODUCTO` int(11) NOT NULL AUTO_INCREMENT,
+  `IDEMPRESA` int(11) NOT NULL,
+  `CODSUBPRODUCTO` varchar(50) NOT NULL,
+  `DESCSUBPRODUCTO` varchar(100) NOT NULL,
+  `PRIMA` decimal(5,2) NOT NULL,
+  PRIMARY KEY (`IDSUBPRODUCTO`),
+  KEY `FK_RELATIONSHIP_4` (`IDEMPRESA`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `subproducto`
+--
+
+INSERT INTO `subproducto` (`IDSUBPRODUCTO`, `IDEMPRESA`, `CODSUBPRODUCTO`, `DESCSUBPRODUCTO`, `PRIMA`) VALUES
+(2, 2, 'SEG-CES-2', 'Seguro Cesantía 2', '0.20'),
+(3, 3, 'SEG-CES-1-EMP-2', 'Seguro Cesantía 1', '0.60'),
+(4, 3, 'asda', 'Crédito de emergencia', '0.20'),
+(5, 3, 'SEG-VID-001', 'Seguro de Vida Full', '0.00'),
+(6, 3, 'SEG-DES-001', 'Seguro Desgravamen', '0.20');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipousuario`
+--
+
+DROP TABLE IF EXISTS `tipousuario`;
+CREATE TABLE IF NOT EXISTS `tipousuario` (
+  `IDTIPOUSUARIO` int(11) NOT NULL AUTO_INCREMENT,
+  `DESCTIPOUSUARIO` varchar(50) NOT NULL,
+  PRIMARY KEY (`IDTIPOUSUARIO`)
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `tipousuario`
+--
+
+INSERT INTO `tipousuario` (`IDTIPOUSUARIO`, `DESCTIPOUSUARIO`) VALUES
+(1, 'Administrador'),
+(2, 'Cliente Empresa'),
+(3, 'Ejecutivo Ventas');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuario`
+--
+
+DROP TABLE IF EXISTS `usuario`;
+CREATE TABLE IF NOT EXISTS `usuario` (
+  `IDUSUARIO` int(11) NOT NULL AUTO_INCREMENT,
+  `IDEMPRESA` int(11) NOT NULL,
+  `IDTIPOUSUARIO` int(11) NOT NULL,
+  `RUTUSUARIO` int(11) NOT NULL,
+  `DVUSUARIO` varchar(1) NOT NULL,
+  `NOMUSUARIO` varchar(60) NOT NULL,
+  `APPATERNO` varchar(50) NOT NULL,
+  `APMATERNO` varchar(50) NOT NULL,
+  `ESTADO` int(11) NOT NULL,
+  `ULTMODIFICACION` datetime NOT NULL,
+  `PASSWORD` varchar(64) NOT NULL,
+  PRIMARY KEY (`IDUSUARIO`),
+  KEY `FK_RELATIONSHIP_1` (`IDTIPOUSUARIO`),
+  KEY `FK_RELATIONSHIP_2` (`IDEMPRESA`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `usuario`
+--
+
+INSERT INTO `usuario` (`IDUSUARIO`, `IDEMPRESA`, `IDTIPOUSUARIO`, `RUTUSUARIO`, `DVUSUARIO`, `NOMUSUARIO`, `APPATERNO`, `APMATERNO`, `ESTADO`, `ULTMODIFICACION`, `PASSWORD`) VALUES
+(1, 1, 1, 16355662, '6', 'Jorge', 'Silva', 'Borda', 1, '2019-07-25 10:27:50', '06e35faa71f61cbabf8b65bace7b1a38'),
+(3, 3, 3, 11111111, '1', 'Usuario', 'Ventas', 'Empresa2', 1, '2019-07-31 13:03:44', '5f4dcc3b5aa765d61d8327deb882cf99'),
+(4, 3, 2, 22222222, '2', 'Cliente', 'Empresa', 'Empresa2', 1, '2019-07-31 13:07:14', '5f4dcc3b5aa765d61d8327deb882cf99');
+COMMIT;
