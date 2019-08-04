@@ -647,11 +647,11 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `campana`
+-- Estructura de tabla para la tabla `CAMPANA`
 --
 
-DROP TABLE IF EXISTS `campana`;
-CREATE TABLE IF NOT EXISTS `campana` (
+DROP TABLE IF EXISTS `CAMPANA`;
+CREATE TABLE IF NOT EXISTS `CAMPANA` (
   `IDCAMPANA` int(11) NOT NULL AUTO_INCREMENT,
   `IDPRODUCTO` int(11) NOT NULL,
   `NOMCAMPANA` varchar(100) NOT NULL,
@@ -664,10 +664,10 @@ CREATE TABLE IF NOT EXISTS `campana` (
 ) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `campana`
+-- Volcado de datos para la tabla `CAMPANA`
 --
 
-INSERT INTO `campana` (`IDCAMPANA`, `IDPRODUCTO`, `NOMCAMPANA`, `CODCAMPANA`, `FECHAINI`, `FECHAFIN`, `META`) VALUES
+INSERT INTO `CAMPANA` (`IDCAMPANA`, `IDPRODUCTO`, `NOMCAMPANA`, `CODCAMPANA`, `FECHAINI`, `FECHAFIN`, `META`) VALUES
 (10, 5, 'Crédito en cuotas con Seguro Desgravamen + Vida', 'CC-SEG-DES-001', '2019-07-01', '2019-11-30', 1000000000),
 (9, 8, 'Crédito en cuotas con Seguro de vida', 'CC-SEG-001', '2019-07-01', '2019-09-30', 500000000),
 (7, 5, 'Campaña de pruebas', 'CP', '2019-07-01', '2019-07-28', 100000000);
@@ -675,11 +675,11 @@ INSERT INTO `campana` (`IDCAMPANA`, `IDPRODUCTO`, `NOMCAMPANA`, `CODCAMPANA`, `F
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `campanasubproducto`
+-- Estructura de tabla para la tabla `CAMPANASUBPRODUCTO`
 --
 
-DROP TABLE IF EXISTS `campanasubproducto`;
-CREATE TABLE IF NOT EXISTS `campanasubproducto` (
+DROP TABLE IF EXISTS `CAMPANASUBPRODUCTO`;
+CREATE TABLE IF NOT EXISTS `CAMPANASUBPRODUCTO` (
   `IDCAMPANA` int(11) NOT NULL,
   `IDSUBPRODUCTO` int(11) NOT NULL,
   `MONTOMETA` int(11) DEFAULT NULL,
@@ -689,10 +689,10 @@ CREATE TABLE IF NOT EXISTS `campanasubproducto` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `campanasubproducto`
+-- Volcado de datos para la tabla `CAMPANASUBPRODUCTO`
 --
 
-INSERT INTO `campanasubproducto` (`IDCAMPANA`, `IDSUBPRODUCTO`, `MONTOMETA`, `CANTIDADMETA`) VALUES
+INSERT INTO `CAMPANASUBPRODUCTO` (`IDCAMPANA`, `IDSUBPRODUCTO`, `MONTOMETA`, `CANTIDADMETA`) VALUES
 (9, 5, 2000000, 420),
 (7, 3, 1000000, 50),
 (10, 5, 7000000, 230),
@@ -701,11 +701,11 @@ INSERT INTO `campanasubproducto` (`IDCAMPANA`, `IDSUBPRODUCTO`, `MONTOMETA`, `CA
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `empresa`
+-- Estructura de tabla para la tabla `EMPRESA`
 --
 
-DROP TABLE IF EXISTS `empresa`;
-CREATE TABLE IF NOT EXISTS `empresa` (
+DROP TABLE IF EXISTS `EMPRESA`;
+CREATE TABLE IF NOT EXISTS `EMPRESA` (
   `IDEMPRESA` int(11) NOT NULL AUTO_INCREMENT,
   `RUTEMPRESA` int(11) NOT NULL,
   `DVEMPRESA` varchar(1) NOT NULL,
@@ -717,10 +717,10 @@ CREATE TABLE IF NOT EXISTS `empresa` (
 ) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `empresa`
+-- Volcado de datos para la tabla `EMPRESA`
 --
 
-INSERT INTO `empresa` (`IDEMPRESA`, `RUTEMPRESA`, `DVEMPRESA`, `NOMBRE`, `DIRECCION`, `CREACION`, `ULTMODIFICACION`) VALUES
+INSERT INTO `EMPRESA` (`IDEMPRESA`, `RUTEMPRESA`, `DVEMPRESA`, `NOMBRE`, `DIRECCION`, `CREACION`, `ULTMODIFICACION`) VALUES
 (1, 11111111, '1', 'Administración interna', 'Sin dirección', '2019-07-25 10:25:20', '2019-07-25 10:25:20'),
 (3, 22222222, '2', 'Empresa 2', 'Dirección empresa 2', '2019-07-25 16:15:40', '2019-07-29 11:56:47'),
 (4, 33333333, '3', 'Empresa 3', 'Dirección empresa 3', '2019-07-25 16:16:59', '2019-07-25 16:16:59'),
@@ -729,11 +729,11 @@ INSERT INTO `empresa` (`IDEMPRESA`, `RUTEMPRESA`, `DVEMPRESA`, `NOMBRE`, `DIRECC
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `producto`
+-- Estructura de tabla para la tabla `PRODUCTO`
 --
 
-DROP TABLE IF EXISTS `producto`;
-CREATE TABLE IF NOT EXISTS `producto` (
+DROP TABLE IF EXISTS `PRODUCTO`;
+CREATE TABLE IF NOT EXISTS `PRODUCTO` (
   `IDPRODUCTO` int(11) NOT NULL AUTO_INCREMENT,
   `CODPRODUCTO` varchar(50) NOT NULL,
   `IDEMPRESA` int(11) NOT NULL,
@@ -743,10 +743,10 @@ CREATE TABLE IF NOT EXISTS `producto` (
 ) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `producto`
+-- Volcado de datos para la tabla `PRODUCTO`
 --
 
-INSERT INTO `producto` (`IDPRODUCTO`, `CODPRODUCTO`, `IDEMPRESA`, `DESCPRODUCTO`) VALUES
+INSERT INTO `PRODUCTO` (`IDPRODUCTO`, `CODPRODUCTO`, `IDEMPRESA`, `DESCPRODUCTO`) VALUES
 (1, 'SAV', 1, 'Super Avance'),
 (8, 'CCONS', 3, 'Crédito de consumo'),
 (3, 'SAV', 4, 'Super Avance'),
@@ -758,11 +758,11 @@ INSERT INTO `producto` (`IDPRODUCTO`, `CODPRODUCTO`, `IDEMPRESA`, `DESCPRODUCTO`
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `rutero`
+-- Estructura de tabla para la tabla `RUTERO`
 --
 
-DROP TABLE IF EXISTS `rutero`;
-CREATE TABLE IF NOT EXISTS `rutero` (
+DROP TABLE IF EXISTS `RUTERO`;
+CREATE TABLE IF NOT EXISTS `RUTERO` (
   `IDCAMPANA` int(11) NOT NULL,
   `RUT` int(11) NOT NULL,
   `DV` varchar(1) NOT NULL,
@@ -783,10 +783,10 @@ CREATE TABLE IF NOT EXISTS `rutero` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `rutero`
+-- Volcado de datos para la tabla `RUTERO`
 --
 
-INSERT INTO `rutero` (`IDCAMPANA`, `RUT`, `DV`, `NOMBRES`, `APELLIDOS`, `GENERO`, `FECHANAC`, `DIRECCION`, `COMUNA`, `REGION`, `CODIGOPOSTAL`, `EMAIL`, `MONTOAPROBADO`, `FONO1`, `FONO2`, `FONO3`) VALUES
+INSERT INTO `RUTERO` (`IDCAMPANA`, `RUT`, `DV`, `NOMBRES`, `APELLIDOS`, `GENERO`, `FECHANAC`, `DIRECCION`, `COMUNA`, `REGION`, `CODIGOPOSTAL`, `EMAIL`, `MONTOAPROBADO`, `FONO1`, `FONO2`, `FONO3`) VALUES
 (9, 11948618, '1', 'Owen Booker', 'Bonner Mann', 'M', '1991-12-21', 'Apdo.:900-2789 Cras Av.', 'Empedrado', 'Maule', 283212, 'id.ante.Nunc@lobortisquama.edu', 8250523, 973585349, 247112892, 260823789),
 (9, 40641475, '2', 'Hilel Oliver', 'Carpenter Macdonald', 'F', '1987-01-26', 'Apdo.:867-3307 Consectetuer Carretera', 'Providencia', 'RM', 47907, 'ultrices.mauris@mollis.net', 9350291, 346485264, 806508611, 253775172),
 (9, 5269251, '2', 'Lucius Newton', 'Fox Romero', 'M', '1999-09-15', '647-2866 Lacinia Avda.', 'Talca', 'VII', 728388, 'Morbi.vehicula@venenatisvel.co.uk', 6190967, 584121763, 433292597, 713189803),
@@ -830,11 +830,11 @@ INSERT INTO `rutero` (`IDCAMPANA`, `RUT`, `DV`, `NOMBRES`, `APELLIDOS`, `GENERO`
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `simulacion`
+-- Estructura de tabla para la tabla `SIMULACION`
 --
 
-DROP TABLE IF EXISTS `simulacion`;
-CREATE TABLE IF NOT EXISTS `simulacion` (
+DROP TABLE IF EXISTS `SIMULACION`;
+CREATE TABLE IF NOT EXISTS `SIMULACION` (
   `IDSIMULACION` int(11) NOT NULL AUTO_INCREMENT,
   `IDCAMPANA` int(11) NOT NULL,
   `FECHASIMULACION` datetime NOT NULL,
@@ -858,11 +858,11 @@ CREATE TABLE IF NOT EXISTS `simulacion` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `simulacionsubproducto`
+-- Estructura de tabla para la tabla `SIMULACIONSUBPRODUCTO`
 --
 
-DROP TABLE IF EXISTS `simulacionsubproducto`;
-CREATE TABLE IF NOT EXISTS `simulacionsubproducto` (
+DROP TABLE IF EXISTS `SIMULACIONSUBPRODUCTO`;
+CREATE TABLE IF NOT EXISTS `SIMULACIONSUBPRODUCTO` (
   `IDSIMULACION` int(11) NOT NULL,
   `IDSUBPRODUCTO` int(11) NOT NULL,
   KEY `FK_RELATIONSHIP_10` (`IDSIMULACION`),
@@ -872,11 +872,11 @@ CREATE TABLE IF NOT EXISTS `simulacionsubproducto` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `subproducto`
+-- Estructura de tabla para la tabla `SUBPRODUCTO`
 --
 
-DROP TABLE IF EXISTS `subproducto`;
-CREATE TABLE IF NOT EXISTS `subproducto` (
+DROP TABLE IF EXISTS `SUBPRODUCTO`;
+CREATE TABLE IF NOT EXISTS `SUBPRODUCTO` (
   `IDSUBPRODUCTO` int(11) NOT NULL AUTO_INCREMENT,
   `IDEMPRESA` int(11) NOT NULL,
   `CODSUBPRODUCTO` varchar(50) NOT NULL,
@@ -887,10 +887,10 @@ CREATE TABLE IF NOT EXISTS `subproducto` (
 ) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `subproducto`
+-- Volcado de datos para la tabla `SUBPRODUCTO`
 --
 
-INSERT INTO `subproducto` (`IDSUBPRODUCTO`, `IDEMPRESA`, `CODSUBPRODUCTO`, `DESCSUBPRODUCTO`, `PRIMA`) VALUES
+INSERT INTO `SUBPRODUCTO` (`IDSUBPRODUCTO`, `IDEMPRESA`, `CODSUBPRODUCTO`, `DESCSUBPRODUCTO`, `PRIMA`) VALUES
 (2, 2, 'SEG-CES-2', 'Seguro Cesantía 2', '0.20'),
 (3, 3, 'SEG-CES-1-EMP-2', 'Seguro Cesantía 1', '0.60'),
 (4, 3, 'asda', 'Crédito de emergencia', '0.20'),
@@ -900,21 +900,21 @@ INSERT INTO `subproducto` (`IDSUBPRODUCTO`, `IDEMPRESA`, `CODSUBPRODUCTO`, `DESC
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `tipousuario`
+-- Estructura de tabla para la tabla `TIPOUSUARIO`
 --
 
-DROP TABLE IF EXISTS `tipousuario`;
-CREATE TABLE IF NOT EXISTS `tipousuario` (
+DROP TABLE IF EXISTS `TIPOUSUARIO`;
+CREATE TABLE IF NOT EXISTS `TIPOUSUARIO` (
   `IDTIPOUSUARIO` int(11) NOT NULL AUTO_INCREMENT,
   `DESCTIPOUSUARIO` varchar(50) NOT NULL,
   PRIMARY KEY (`IDTIPOUSUARIO`)
 ) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `tipousuario`
+-- Volcado de datos para la tabla `TIPOUSUARIO`
 --
 
-INSERT INTO `tipousuario` (`IDTIPOUSUARIO`, `DESCTIPOUSUARIO`) VALUES
+INSERT INTO `TIPOUSUARIO` (`IDTIPOUSUARIO`, `DESCTIPOUSUARIO`) VALUES
 (1, 'Administrador'),
 (2, 'Cliente Empresa'),
 (3, 'Ejecutivo Ventas');
@@ -922,11 +922,11 @@ INSERT INTO `tipousuario` (`IDTIPOUSUARIO`, `DESCTIPOUSUARIO`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuario`
+-- Estructura de tabla para la tabla `USUARIO`
 --
 
-DROP TABLE IF EXISTS `usuario`;
-CREATE TABLE IF NOT EXISTS `usuario` (
+DROP TABLE IF EXISTS `USUARIO`;
+CREATE TABLE IF NOT EXISTS `USUARIO` (
   `IDUSUARIO` int(11) NOT NULL AUTO_INCREMENT,
   `IDEMPRESA` int(11) NOT NULL,
   `IDTIPOUSUARIO` int(11) NOT NULL,
@@ -944,10 +944,10 @@ CREATE TABLE IF NOT EXISTS `usuario` (
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `usuario`
+-- Volcado de datos para la tabla `USUARIO`
 --
 
-INSERT INTO `usuario` (`IDUSUARIO`, `IDEMPRESA`, `IDTIPOUSUARIO`, `RUTUSUARIO`, `DVUSUARIO`, `NOMUSUARIO`, `APPATERNO`, `APMATERNO`, `ESTADO`, `ULTMODIFICACION`, `PASSWORD`) VALUES
+INSERT INTO `USUARIO` (`IDUSUARIO`, `IDEMPRESA`, `IDTIPOUSUARIO`, `RUTUSUARIO`, `DVUSUARIO`, `NOMUSUARIO`, `APPATERNO`, `APMATERNO`, `ESTADO`, `ULTMODIFICACION`, `PASSWORD`) VALUES
 (1, 1, 1, 16355662, '6', 'Jorge', 'Silva', 'Borda', 1, '2019-07-25 10:27:50', '06e35faa71f61cbabf8b65bace7b1a38'),
 (3, 3, 3, 11111111, '1', 'Usuario', 'Ventas', 'Empresa2', 1, '2019-07-31 13:03:44', '5f4dcc3b5aa765d61d8327deb882cf99'),
 (4, 3, 2, 22222222, '2', 'Cliente', 'Empresa', 'Empresa2', 1, '2019-07-31 13:07:14', '5f4dcc3b5aa765d61d8327deb882cf99');
