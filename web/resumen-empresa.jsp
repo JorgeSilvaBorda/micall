@@ -37,17 +37,20 @@
         var ventasMes = 0;
         $.each(arr, function () {
             tab += "<tr>";
-            tab += "<td>" + $(this)[0].codigo + "</td>";
-            tab += "<td>" + $(this)[0].producto + "</td>";
-            tab += "<td>" + formatMiles($(this)[0].meta) + "</td>";
-            tab += "<td>" + formatMiles($(this)[0].acumdia) + "</td>";
-            tab += "<td>" + formatMiles($(this)[0].acummes) + "</td>";
-            tab += "<td>" + $(this)[0].porccumpmes + "%</td>";
-            tab += "<td>" + $(this)[0].trxmes + "</td>";
+            tab += "<td>" + $(this)[0].codcampana + "</td>";
+            tab += "<td>" + $(this)[0].nomcampana + "</td>";
+            tab += "<td>" + $(this)[0].codproducto + "</td>";
+            tab += "<td>" + $(this)[0].descproducto + "</td>";
+            tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
+            tab += "<td>$" + formatMiles($(this)[0].montoacum) + "</td>";
+            tab += "<td>" + $(this)[0].porcacum + "%</td>";
+            tab += "<td>" + $(this)[0].cantidad + "%</td>";
             tab += "</tr>";
             ventasDia += parseInt($(this)[0].acumdia);
-            ventasMes += parseInt($(this)[0].acummes);
+            ventasMes += parseInt($(this)[0].montoacum);
         });
+        console.log(ventasDia);
+        console.log(ventasMes);
         pintarResumen(ventasDia, ventasMes);
         return tab;
     }
@@ -63,10 +66,11 @@
         <table id="tabla-resumen-empresa" class="table table-sm small table-borderless table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Código</th>
+                    <th>Cod. Campaña</th>
+                    <th>campaña</th>
+                    <th>Cod. Producto</th>
                     <th>Producto</th>
                     <th>Meta</th>
-                    <th>Acumulado<br/>Día</th>
                     <th>Acumulado<br />Mes</th>                         
                     <th>% Cumplimiento<br />Meta Mes</th>
                     <th>TRX Acumuladas<br />Mes</th>

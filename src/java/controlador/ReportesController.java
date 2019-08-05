@@ -121,14 +121,18 @@ public class ReportesController extends HttpServlet {
 	try{
 	    while(rs.next()){
 		JSONObject registro = new JSONObject();
-		registro.put("codigo", rs.getString("CODIGO"));
-		registro.put("producto", rs.getString("PRODUCTO"));
-		registro.put("rutfullempresa", rs.getString("RUTFULLEMPRESA"));
+		registro.put("codproducto", rs.getString("CODPRODUCTO"));
+		registro.put("descproducto", rs.getString("DESCPRODUCTO"));
+		registro.put("codcampana", rs.getString("CODCAMPANA"));
+		registro.put("nomcampana", rs.getString("NOMCAMPANA"));
+		//registro.put("rutfullempresa", rs.getString("RUTFULLEMPRESA"));
 		registro.put("meta", rs.getInt("META"));
+		registro.put("montoacum", rs.getInt("MONTOACUM"));
+		registro.put("porcacum", rs.getInt("PORCACUM"));
+		registro.put("cantidad", rs.getInt("CANTIDAD"));
 		registro.put("acumdia", rs.getInt("ACUMDIA"));
-		registro.put("acummes", rs.getInt("ACUMMES"));
-		registro.put("porccumpmes", Util.redondear(rs.getFloat("PORCCUMPMES"), 2));
-		registro.put("trxmes", rs.getInt("TRX"));
+		//registro.put("cantidad", Util.redondear(rs.getFloat("PORCCUMPMES"), 2));
+		//registro.put("trxmes", rs.getInt("TRX"));
 		registros.put(registro);
 	    }
 	    salida.put("registros", registros);
