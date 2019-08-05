@@ -26,7 +26,7 @@
     <div class="row">
         <div class="col-sm-12">
             <nav class="navbar small navbar-expand-sm navbar-light bg-light fixed-top">
-                <a class="navbar-brand" href="#">Mi Call</a>
+                <a class="navbar-brand" href="#">Mi Call <% out.print(session.getAttribute("empresa")); %></a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#contenidoNavbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
