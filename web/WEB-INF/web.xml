@@ -28,6 +28,10 @@
         <servlet-name>SimulacionController</servlet-name>
         <servlet-class>controlador.SimulacionController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ReportesController</servlet-name>
+        <servlet-class>controlador.ReportesController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>EmpresaController</servlet-name>
         <url-pattern>/EmpresaController</url-pattern>
@@ -55,6 +59,10 @@
     <servlet-mapping>
         <servlet-name>SimulacionController</servlet-name>
         <url-pattern>/SimulacionController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ReportesController</servlet-name>
+        <url-pattern>/ReportesController</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
