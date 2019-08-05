@@ -1,0 +1,11 @@
+OBSE
+
+Fecha ini campaña >= hoy
+
+Al lado de logo MiCall cuando es usuario empresa
+
+Crear usuario no refresca tabla listado
+
+insert de rutero debe tener capacidad de filtrar por empresa
+Desplegar empresas a las que se ha ingresado el rutero.
+Desplegar campañas a las que se ha ingresado el rutero

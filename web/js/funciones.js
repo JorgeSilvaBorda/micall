@@ -42,37 +42,36 @@ function formatMilesInput(input) {
     }
 }
 
-function formatMiles(valor){
+function formatMiles(valor) {
     valor = valor.toString();
     var num = valor.replace(/\./g, "");
-    if(!isNaN(num)){
+    if (!isNaN(num)) {
         num = num.toString().split("").reverse().join("").replace(/(?=\d*\.?)(\d{3})/g, '$1.');
         num = num.split("").reverse().join("").replace(/^[\.]/, "");
         return num;
-    }else{
+    } else {
         console.log("No se puede formatear.");
         valor = valor.replace(/[^\d\.]*/g, "");
         return valor;
     }
 }
 
-function diffFechas(fechaini, fechafin){
+function diffFechas(fechaini, fechafin) {
     var fecIni = new Date(fechaini);
     var fecFin = new Date(fechafin);
     var diffTime = Math.abs(fecFin.getTime() - fecIni.getTime());
     var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    return diffDays+1;
+
+    return diffDays + 1;
 }
 
-function fechaIntToString(fecha){
-    if (fecha.length < 6){
+function fechaIntToString(fecha) {
+    if (fecha.length < 6) {
         return "0000-00-00";
     }
     var anio = fecha.substring(0, 4);
     var mes = fecha.substring(4, 6);
     var dia = fecha.substring(6, 8);
-    
+
     return (anio + "-" + mes + "-" + dia);
-    
 }

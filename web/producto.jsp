@@ -204,8 +204,22 @@
                     };
                     traerListado(det);
                     $('.dataTable').DataTable().destroy();
-                    $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                    $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
                 }
+            }
+
+            function traerProductos() {
+                var det = {
+                    url: 'ProductoController',
+                    datos: {
+                        tipo: 'get-productos'
+                    },
+                    bodyDestino: 'cuerpo-tab-producto',
+                    tablaObjetivo: 'tabla-productos'
+                };
+                traerListado(det);
+                $('.dataTable').DataTable().destroy();
+                $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
             }
         </script>
         <div class="container-fluid">
@@ -224,7 +238,7 @@
                         <input type='hidden'id='hidIdEmpresa' value='' />
                         <div class="form-group small">
                             <label for="select-empresa">Empresa</label>
-                            <select class="form-control form-control-sm" id="select-empresa">
+                            <select onchange="traerProductos();" class="form-control form-control-sm" id="select-empresa">
 
                             </select>
                         </div>

@@ -11,10 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.Iterator;
-import java.util.Locale;
 import modelo.Conexion;
 
 public class CampanaController extends HttpServlet {
@@ -238,6 +235,7 @@ public class CampanaController extends HttpServlet {
 		campana.put("nomempresa", rs.getString("NOMBRE"));
 		campana.put("rutempresa", rs.getInt("RUTEMPRESA"));
 		campana.put("montoaprobado", rs.getInt("MONTOAPROBADO"));
+                campana.put("meta", rs.getInt("META"));
 	    }
 	    salida.put("campana", campana);
 	} catch (JSONException | SQLException ex) {

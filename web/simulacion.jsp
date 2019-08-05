@@ -14,16 +14,30 @@
     <body>
         <script type="text/javascript">
             $(document).ready(function () {
+                cargarSimulaciones();
                 $('#rutcliente').rut(
                         {
                             formatOn: 'keyup',
                             validateOn: 'blur'
                         }).on('rutInvalido', function () {
-                    mostrarAlert('alert-danger', "El rut ingresado no es válido");
+                    mostrarAlert('alert-danger', "Rut no válido");
                 }).on('rutValido', function () {
                     ocultarAlert();
                 });
             });
+            
+            function cargarSimulaciones(){
+                var detalle = {
+                    url: 'SimulacionController',
+                    bodyDestino: 'cuerpo-tab-simulacion',
+                    datos: {
+                        tipo: 'get-simulaciones-rutvendedor',
+                        rutvendedor: parseInt('<% out.print(session.getAttribute("rutusuario")); %>')
+                    }
+                };
+                
+                traerListado(detalle);
+            }
 
             function buscar() {
                 var idempresa = '<% out.print(session.getAttribute("idempresa"));%>';
@@ -44,6 +58,7 @@
                         var obj = JSON.parse(res);
                         if (obj.estado === 'ok') {
                             pintarDatos(obj.campana, obj.cuerpotabla);
+                            $('#montoaprobado').focus();
                         } else {
                             alert(obj.mensaje);
                         }
@@ -51,7 +66,116 @@
                 });
             }
 
+            function validarCampos() {
+                var simulacion = {
+                    idcampana: $('#hidIdCampana').val(),
+                    rutvendedor: '<% out.print(session.getAttribute("rutusuario")); %>',
+                    dvvendedor: '<% out.print(session.getAttribute("dvusuario"));%>',
+                    rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", ""),
+                    dvcliente: $('#rutcliente').val().split("-")[1],
+                    monto: $('#montoaprobado').val().replaceAll("\\.", ""),
+                    cuotas: $('#cuotas').val().replaceAll("\\.", ""),
+                    valorcuota: $('#valorcuota').val().replaceAll("\\.", ""),
+                    tasainteres: $('#tasainteres').val(),
+                    tasaanual: $('#tasaanual').val(),
+                    cae: $('#cae').val(),
+                    vencimiento: $('#vencimiento').val(),
+                    costototal: $('#costototal').val().replaceAll("\\.", ""),
+                    comision: $('#comision').val().replaceAll("\\.", ""),
+                    subproductos: []
+                };
+                $('#tab-subproductos tbody tr').each(function (t) {
+                    var fila = $(this)[0];
+                    var celdas = $(fila.cells);
+                    var celda_0 = $(celdas[0]);
+                    var check = $(celda_0).children('input');
+                    if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
+                        var celda_1 = $(celdas[1]);
+                        var hidden = $(celda_1).children('input')[1];
+                        var idsubproducto = $(hidden).val();
+                        simulacion.subproductos.push(idsubproducto);
+                    }
+                });
+                if (simulacion.idcampana === '' ||
+                        simulacion.cae === '' ||
+                        simulacion.comision === '' ||
+                        simulacion.costototal === '' ||
+                        simulacion.cuotas === '' ||
+                        simulacion.dvcliente === '' ||
+                        simulacion.dvvendedor === '' ||
+                        simulacion.idcampana === '' ||
+                        simulacion.monto === '' ||
+                        simulacion.rutcliente === '' ||
+                        simulacion.rutvendedor === '' ||
+                        simulacion.tasainteres === '' ||
+                        simulacion.tasaanual === '' ||
+                        simulacion.valorcuota === '' ||
+                        simulacion.vencimiento === '') {
+
+                    alert("No ha ingresado todos los campos.");
+                    return false;
+                }
+                var hoy = getDateHoy('-');
+                if (diffFechas(hoy, simulacion.vencimiento) < 30) {
+                    alert('La fecha de vencimiento debe ser de por lo menos 30 días a contar de hoy.');
+                    return false;
+                }
+                
+                var montoAprobado = $('#hidMontoAprobado').val();
+                if(simulacion.monto > montoAprobado){
+                    alert('El monto de la simulación no puede ser superior al monto aprobado ($' + formatMiles(montoAprobado) + ')');
+                }
+                return true;
+            }
+
+            function insert() {
+                if (validarCampos()) {
+                    var simulacion = {
+                        idcampana: $('#hidIdCampana').val(),
+                        rutvendedor: '<% out.print(session.getAttribute("rutusuario")); %>',
+                        dvvendedor: '<% out.print(session.getAttribute("dvusuario"));%>',
+                        rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", ""),
+                        dvcliente: $('#rutcliente').val().split("-")[1],
+                        monto: $('#montoaprobado').val().replaceAll("\\.", ""),
+                        cuotas: $('#cuotas').val().replaceAll("\\.", ""),
+                        valorcuota: $('#valorcuota').val().replaceAll("\\.", ""),
+                        tasainteres: $('#tasainteres').val(),
+                        tasaanual: $('#tasaanual').val(),
+                        cae: $('#cae').val(),
+                        vencimiento: $('#vencimiento').val(),
+                        costototal: $('#costototal').val().replaceAll("\\.", ""),
+                        comision: $('#comision').val().replaceAll("\\.", ""),
+                        subproductos: []
+                    };
+                    $('#tab-subproductos tbody tr').each(function (t) {
+                        var fila = $(this)[0];
+                        var celdas = $(fila.cells);
+                        var celda_0 = $(celdas[0]);
+                        var check = $(celda_0).children('input');
+                        if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
+                            var celda_1 = $(celdas[1]);
+                            var hidden = $(celda_1).children('input')[1];
+                            var idsubproducto = $(hidden).val();
+                            simulacion.subproductos.push({idsubproducto: idsubproducto});
+                        }
+                    });
+                    var detalle = {
+                        url: 'SimulacionController',
+                        datos: {
+                            tipo: 'ins-simulacion',
+                            simulacion: simulacion
+                        }
+                    };
+                    insertar(detalle);
+                    //Cargar listado de simulaciones y limpiar
+                    limpiar();
+                }
+                cargarSimulaciones();
+            }
+
             function pintarDatos(campana, subproductos) {
+                $('#hidIdCampana').val(campana.idcampana);
+                $('#hidMontoAprobado').val(campana.montoaprobado);
                 $('#cuerpo-subproductos').html(subproductos);
                 $('#codcampana').html(campana.codcampana);
                 $('#codproducto').html(campana.codproducto);
@@ -64,6 +188,26 @@
                 $('#montometa').html(campana.montometa);
                 $('#direccion').html(campana.direccion);
                 $('#montoaprobado').val(formatMiles(campana.montoaprobado));
+                $('#montometa').html(formatMiles(campana.meta));
+            }
+
+            function limpiar() {
+                $('#hidIdCampana').val('');
+                $('#hidMontoAprobado').val('');
+                $('#cuerpo-subproductos').html('');
+                $('#codcampana').html('');
+                $('#codproducto').html('');
+                $('#nomcampana').html('');
+                $('#descproducto').html('');
+                $('#fechaini').html('');
+                $('#nomcliente').html('');
+                $('#fechafin').html('');
+                $('#apellidoscliente').html('');
+                $('#montometa').html('');
+                $('#direccion').html('');
+                $('#montoaprobado').val('');
+                $('#montometa').html('');
+                $('#rutcliente').val('');
             }
 
             function mostrarAlert(clase, mensaje) {
@@ -80,6 +224,8 @@
             }
         </script>
         <div class="container-fluid">
+            <input type='hidden' id='hidIdCampana' value='' />
+            <input type='hidden' id='hidMontoAprobado' value='' />
             <br />
             <br />
             <br />
@@ -94,13 +240,11 @@
                         <div class="form-group small">
                             <label for="rutcliente">Rut</label>
                             <input id="rutcliente" type="text" class="form-control form-control-sm" placeholder="Indique el rut del cliente" />
-                            <div class="row">
-                                <div class="col-sm-2">
-                                    <div id="alerta" class="alert oculto">
 
-                                    </div>
-                                </div>
+                            <div id="alerta" class="alert oculto">
+
                             </div>
+
                         </div>
                         <div class="form-group small">
                             <button type='button' onclick='buscar();' class='btn btn-primary btn-sm' id='btnBuscar'>Buscar</button>
@@ -109,31 +253,15 @@
 
                 </div>
 
-                <div class='col-sm-10'>
+                <div class='col-sm-6'>
                     <table id='tab-detalles' class='table-sm small' style='border: none; border-collapse: collapse;'>
                         <tr>
                             <td style='font-weight: bold;'>Cod. Campaña</td>
-                            <td id='codcampana'>CCCP</td>
+                            <td id='codcampana'></td>
 
                             <td style='font-weight: bold;'>Cod. producto</td>
-                            <td id='codproducto'>Unión Soviética</td>
-                            <td><br /><br /> <span style='font-weight: bold;'>Subproductos</span>
-                                <table id='tab-subproductos' class='table-sm small' style='border: none; border-collapse: collapse;'>
-                                    <thead>
-                                        <tr>
-                                            <th>Sel</th>
-                                            <th>Código</th>
-                                            <th>Descripcion</th>
-                                            <th>Prima</th>
-                                            <th>Monto meta</th>
-                                            <th>Cant. meta</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id='cuerpo-subproductos'>
-
-                                    </tbody>
-
-                                </table>
+                            <td id='codproducto'></td>
+                            <td>
                             </td>
                         </tr>
                         <tr>
@@ -176,10 +304,11 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style='font-weight: bold;'>Tasa interés</td>
+                            <td style='font-weight: bold;'>Valor cuota</td>
                             <td>
-                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasainteres' value=''/>
+                                <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='valorcuota' value=''/>
                             </td>
+
 
                             <td style='font-weight: bold;'>Tasa anual</td>
                             <td>
@@ -187,22 +316,27 @@
                             </td>
                         </tr>
                         <tr>
+                            <td style='font-weight: bold;'>Tasa interés</td>
+                            <td>
+                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasainteres' value=''/>
+                            </td>
                             <td style='font-weight: bold;'>CAE</td>
                             <td>
                                 <input class='form-control form-control-sm' type='number' step='0.01' id='cae' value=''/>
-                            </td>
-
+                            </td> 
+                        </tr>
+                        <tr>
                             <td style='font-weight: bold;'>Vencimiento</td>
                             <td>
                                 <input class='form-control form-control-sm' type='date' id='vencimiento' value=''/>
                             </td>
-                        </tr>
-                        <tr>
                             <td style='font-weight: bold;'>Costo total</td>
                             <td>
                                 <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='costototal' value=''/>
                             </td>
 
+                        </tr>
+                        <tr>
                             <td style='font-weight: bold;'>Comisión</td>
                             <td>
                                 <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='comision' value=''/>
@@ -217,15 +351,41 @@
                     </div>
 
                 </div>
+                <div class='col-sm-4'>
+                    <span style='font-weight: bold;'>Subproductos</span>
+                    <table id='tab-subproductos' class='table-sm small' style='border: none; border-collapse: collapse;'>
+                        <thead>
+                            <tr>
+                                <th>Sel</th>
+                                <th>Código</th>
+                                <th>Descripcion</th>
+                                <th>Prima</th>
+                                <th>Monto meta</th>
+                                <th>Cant. meta</th>
+                            </tr>
+                        </thead>
+                        <tbody id='cuerpo-subproductos'>
+
+                        </tbody>
+
+                    </table>
+                </div>
             </div>
             <div class="row">
                 <br />
                 <h3>Simulaciones ingresadas</h3>
-                <div class="col-sm-12">
+                <div class="col-sm-12" id="listado">
                     <table id="tabla-simulaciones" class="table table-sm small table-borderless table-hover table-striped">
                         <thead>
                             <tr>
-                                <th>Rut</th>
+                                <th>Fecha</th>
+                                <th>Rut cliente</th>
+                                <th>Nombres</th>
+                                <th>Código producto</th>
+                                <th>Producto</th>
+                                <th>Monto</th>
+                                <th>Cuotas</th>
+                                <th>Subproductos</th>
                             </tr>
                         </thead>
                         <tbody id="cuerpo-tab-simulacion">

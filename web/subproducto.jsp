@@ -28,13 +28,27 @@
                 cargarSelect(det);
             });
 
+            function traerSubProductos() {
+                var detalle = {
+                    url: 'SubProductoController',
+                    datos: {
+                        tipo: 'get-subproductos',
+                        idempresa: '<% out.print(session.getAttribute("idempresa")); %>'
+                    },
+                    bodyDestino: 'cuerpo-tab-subproducto',
+                    tablaObjetivo: 'tabla-subproductos'
+                };
+                traerListado(detalle);
+                $('.dataTable').DataTable().destroy();
+                $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+            }
             function insert() {
                 if (validarCampos()) {
                     var idempresa = $('#select-empresa').val();
                     var codigo = $('#codigo').val();
                     var descripcion = $('#descripcion').val();
                     var prima = $('#prima').val();
-                    if(prima === '' || prima === '0' || prima == 0 || prima === null || prima === undefined){
+                    if (prima === '' || prima === '0' || prima == 0 || prima === null || prima === undefined) {
                         prima = 0.0;
                     }
                     var subproducto = {
@@ -126,7 +140,7 @@
             function save() {
                 if (validarCampos()) {
                     var prima = $('#prima').val();
-                    if(prima === '' || prima === null || prima === undefined){
+                    if (prima === '' || prima === null || prima === undefined) {
                         prima = 0;
                     }
                     var subproducto = {
@@ -221,7 +235,7 @@
                     $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
                 }
             }
-            
+
         </script>
         <div class="container-fluid">
             <br />
