@@ -45,10 +45,11 @@
 
             function modalCambiar(boton) {
                 var fila = $(boton).parent().parent();
-                $('#rutusuariocambio').val($(fila.children()[0]).html());
+                var rutusuario = $(fila.children()[0]).text();
+                $('#rutusuariocambio').val(rutusuario);
                 var nombres = $(fila.children()[1]).html();
-                var apmaterno = $(fila.children()[2]).html();
-                var appaterno = $(fila.children()[3]).html();
+                var appaterno = $(fila.children()[2]).html();
+                var apmaterno = $(fila.children()[3]).html();
                 $('#nombrescambio').html(nombres + ' ' + appaterno + ' ' + apmaterno);
                 $('#modal-reset').modal();
             }
@@ -67,7 +68,7 @@
 
                 $.ajax({
                     type: 'post',
-                    url: 'Dispatcher',
+                    url: 'UsuarioController',
                     cache: false,
                     data: {
                         datos: JSON.stringify(datos)

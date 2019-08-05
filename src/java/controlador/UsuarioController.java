@@ -42,6 +42,12 @@ public class UsuarioController extends HttpServlet {
 	    case "del-usuario":
 		out.print(delUsuario(entrada.getInt("idusuario")));
 		break;
+	    case "reset-pass-usuario":
+		out.print(resetPassUsuario(entrada));
+		break;
+	    case "cambio-pass":
+		out.print(cambioPass(entrada.getString("rutfull"), entrada.getString("claveAnterior"), entrada.getString("claveNueva"), request));
+		break;
 	}
     }
 
@@ -51,6 +57,7 @@ public class UsuarioController extends HttpServlet {
 	String password = credenciales.getString("password");
 
 	String query = "CALL SP_VALIDA_USUARIO(" + rut + ", '" + modelo.Util.hashMD5(password) + "')";
+	System.out.println(query);
 	Conexion c = new Conexion();
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
@@ -72,9 +79,10 @@ public class UsuarioController extends HttpServlet {
 		usuario.put("idusuario", rs.getInt("IDUSUARIO"));
 		usuario.put("empresa", rs.getString("EMPRESA"));
 		cont++;
-		salida.put("filas", cont);
+		//salida.put("filas", cont);
 		salida.put("usuario", usuario);
 	    }
+	    salida.put("filas", cont);
 	    if (cont < 1) {
 		salida.put("estado", "no-valido");
 		salida.put("mensaje", "Las credenciales que ingresó no coinciden con las registradas.");
@@ -122,7 +130,7 @@ public class UsuarioController extends HttpServlet {
 		filas += "<td>" + modelo.Util.formatRut(rs.getString("RUTEMPRESA") + "-" + rs.getString("DVEMPRESA")) + "</td>";
 		filas += "<td>" + rs.getString("NOMBRE") + "</td>";
 		filas += "<td><input type='hidden' value='" + rs.getInt("IDTIPOUSUARIO") + "' />" + rs.getString("DESCTIPOUSUARIO") + "</td>";
-		filas += "<td><button type='button' class='btn btn-sm btn-warning' onclick='edit(this)'>Editar</button><button type='button' class='btn btn-sm btn-danger' onclick='del(this)'>Eliminar</button></td>";
+		filas += "<td><button type='button' class='btn btn-sm btn-warning' onclick='edit(this)'>Editar</button><button type='button' class='btn btn-sm btn-danger' onclick='del(this)'>Eliminar</button><button type='button' class='btn btn-sm btn-success' onclick='modalCambiar(this)'>Cambio pass</button></td>";
 		filas += "</tr>";
 	    }
 	    salida.put("cuerpotabla", filas);
@@ -221,8 +229,55 @@ public class UsuarioController extends HttpServlet {
 	return salida;
     }
 
-    private JSONObject cambioPass() {
+    private JSONObject resetPassUsuario(JSONObject entrada) {
 	JSONObject salida = new JSONObject();
+	String rutfullusuario = entrada.getString("rutfullusuario");
+	int rutusuario = Integer.parseInt(rutfullusuario.substring(0, rutfullusuario.length() - 1));
+	int rutadmin = Integer.parseInt(entrada.getString("rutadmin"));
+	String nuevapass = entrada.getString("nuevapass");
+	String passMD5 = modelo.Util.hashMD5(nuevapass);
+	String query = "CALL SP_RESET_PASSWORD(" + rutadmin + ", " + rutusuario + ", '" + passMD5 + "')";
+	Conexion c = new Conexion();
+	c.abrir();
+	ResultSet rs = c.ejecutarQuery(query);
+	try {
+	    while (rs.next()) {
+		if (Integer.parseInt(rs.getString("SALIDA")) == 0) {
+		    salida.put("estado", "ok");
+		    salida.put("mensaje", "Contraseña cambiada correctamente.");
+		} else if (Integer.parseInt(rs.getString("SALIDA")) == -1) {
+		    salida.put("estado", "ok");
+		    salida.put("mensaje", "Usuario no autorizado para cambiar contraseñas.");
+		}
+	    }
+	} catch (JSONException | NumberFormatException | SQLException ex) {
+	    salida.put("estado", "error");
+	    salida.put("error", ex);
+	    System.out.println("No se pudo ejecutar el cambio de contraseña.");
+	    System.out.println(ex);
+	}
+	c.cerrar();
+	return salida;
+    }
+
+    public JSONObject cambioPass(String rutfull, String passAnterior, String passNueva, HttpServletRequest request) {
+	JSONObject salida = new JSONObject();
+	JSONObject credenciales = new JSONObject();
+	credenciales.put("rutusuario", rutfull.substring(0, rutfull.length() - 1));
+	credenciales.put("password", passAnterior);
+	JSONObject login = loginUsuario(credenciales, request);
+	if (login.getInt("filas") > 0) {
+	    int rut = Integer.parseInt(rutfull.substring(0, rutfull.length() - 1));
+	    String query = "CALL SP_UPD_PASSWORD(" + rut + ", '" + modelo.Util.hashMD5(passNueva) + "')";
+	    Conexion c = new Conexion();
+	    c.abrir();
+	    c.ejecutar(query);
+	    c.cerrar();
+	    salida.put("estado", "ok");
+	} else {
+	    salida.put("estado", "error");
+	    salida.put("mensaje", "La contraseña ingresada no corresponde con la registrada. Intente nuevamente");
+	}
 	return salida;
     }
 }
