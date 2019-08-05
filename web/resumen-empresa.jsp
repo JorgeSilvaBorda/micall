@@ -49,8 +49,6 @@
             ventasDia += parseInt($(this)[0].acumdia);
             ventasMes += parseInt($(this)[0].montoacum);
         });
-        console.log(ventasDia);
-        console.log(ventasMes);
         pintarResumen(ventasDia, ventasMes);
         return tab;
     }

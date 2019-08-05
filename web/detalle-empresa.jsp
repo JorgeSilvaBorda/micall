@@ -39,18 +39,18 @@
         var tab = "";
         $.each(arr, function () {
             tab += "<tr>";
-            tab += "<td>" + $(this)[0].fecha + "</td>";
-            tab += "<td>" + $(this)[0].codigo + "</td>";
-            tab += "<td>" + $(this)[0].producto + "</td>";
+            tab += "<td>" + $(this)[0].fechasimulacion + "</td>";
+            tab += "<td>" + $(this)[0].codcampana + "</td>";
+            tab += "<td>" + $(this)[0].nomcampana + "</td>";
+            tab += "<td>" + $(this)[0].codproducto + "</td>";
+            tab += "<td>" + $(this)[0].descproducto + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].monto) + "</td>";
             tab += "<td>" + $.formatRut($(this)[0].rutfullcliente) + "</td>";
             tab += "<td>" + $.formatRut($(this)[0].rutfullvendedor) + "</td>";
             tab += "<td>" + $(this)[0].cuotas + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].valorcuota) + "</td>";
-            tab += "<td>" + $(this)[0].porcentajes1 + "%</td>";
-            tab += "<td>" + $(this)[0].porcentajes2 + "%</td>";
-            tab += "<td>$" + formatMiles($(this)[0].montoseguro) + "</td>";
+            tab += "<td>" + $(this)[0].subproductos + "</td>";
             tab += "</tr>";
         });
         return tab;
@@ -100,7 +100,9 @@
             <thead>
                 <tr>
                     <th>Fecha</th>
-                    <th>Código</th>
+                    <th>Cod. Campaña</th>
+                    <th>Campaña</th>
+                    <th>Cod. Producto</th>
                     <th>Producto</th>
                     <th>Meta</th>
                     <th>Monto</th>
@@ -108,9 +110,7 @@
                     <th>Rut Vendedor</th>
                     <th>Cuotas</th>
                     <th>Valor Cuota</th>
-                    <th>% Seguro 1</th>
-                    <th>% Seguro 2</th>
-                    <th>Monto Seguro</th>
+                    <th>Subproductos</th>
                 </tr>
             </thead>
             <tbody id="cuerpo-tab-detalle-empresa">
