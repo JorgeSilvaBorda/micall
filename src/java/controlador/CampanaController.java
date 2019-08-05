@@ -40,6 +40,9 @@ public class CampanaController extends HttpServlet {
 	    case "get-campana-empresa-rutcliente":
 		out.print(getCampanaEmpresaRutcliente(entrada.getInt("rutcliente"), entrada.getInt("idempresa")));
 		break;
+	    case "get-camapana-idcampana-idempresa":
+		out.print(getCamapanaIdcampanaIdempresa(entrada.getInt("idcampana"), entrada.getInt("idempresa")));
+		break;
 	    default:
 		break;
 	}
@@ -196,18 +199,21 @@ public class CampanaController extends HttpServlet {
 	c.cerrar();
 	return salida;
     }
-    
-    private JSONObject getCampanaEmpresaRutcliente(int rutcliente, int idempresa){
+
+    private JSONObject getCampanaEmpresaRutcliente(int rutcliente, int idempresa) {
 	JSONObject salida = new JSONObject();
 	String query = "CALL SP_GET_CAMPANA_EMPRESA_RUTCLIETE("
 		+ rutcliente + ","
 		+ idempresa + ")";
-	JSONObject campana = new JSONObject();
+
 	Conexion c = new Conexion();
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
+	JSONArray campanas = new JSONArray();
+	int cont = 0;
 	try {
-	    while(rs.next()){
+	    while (rs.next()) {
+		JSONObject campana = new JSONObject();
 		campana.put("idcampana", rs.getInt("IDCAMPANA"));
 		campana.put("idproducto", rs.getInt("IDPRODUCTO"));
 		campana.put("idempresa", rs.getInt("IDEMPRESA"));
@@ -234,10 +240,13 @@ public class CampanaController extends HttpServlet {
 		campana.put("descproducto", rs.getString("DESCPRODUCTO"));
 		campana.put("nomempresa", rs.getString("NOMBRE"));
 		campana.put("rutempresa", rs.getInt("RUTEMPRESA"));
+		campana.put("dvempresa", rs.getString("DVEMPRESA"));
 		campana.put("montoaprobado", rs.getInt("MONTOAPROBADO"));
-                campana.put("meta", rs.getInt("META"));
+		campana.put("meta", rs.getInt("META"));
+		campanas.put(campana);
+		cont++;
 	    }
-	    salida.put("campana", campana);
+	    salida.put("campanas", campanas);
 	} catch (JSONException | SQLException ex) {
 	    System.out.println("Problemas en modelo.CampanaController.getCampanaEmpresaRutCliente()[CABECERA]");
 	    System.out.println(ex);
@@ -245,14 +254,17 @@ public class CampanaController extends HttpServlet {
 	    salida.put("mensaje", ex);
 	}
 	c.cerrar();
-	
+	if (cont > 1) {
+	    salida.put("estado", "ok");
+	    return salida;
+	}
 	c = new Conexion();
 	c.abrir();
 	query = "CALL SP_GET_DETALLE_SUBPRODUCTOS(" + salida.getJSONObject("campana").getInt("idcampana") + ")";
 	ResultSet result = c.ejecutarQuery(query);
 	String tab = "";
 	try {
-	    while(result.next()){
+	    while (result.next()) {
 		tab += "<tr>";
 		tab += "<td><input type='checkbox' /></td>";
 		tab += "<td><input type='hidden' value='" + result.getInt("IDCAMPANA") + "' /><input type='hidden' value='" + result.getInt("IDSUBPRODUCTO") + "' />" + result.getString("CODSUBPRODUCTO") + "</td>";
@@ -271,7 +283,88 @@ public class CampanaController extends HttpServlet {
 	    salida.put("mensaje", ex);
 	}
 	c.cerrar();
-	
+
+	return salida;
+    }
+
+    private JSONObject getCamapanaIdcampanaIdempresa(int idcampana, int idempresa) {
+	JSONObject salida = new JSONObject();
+	String query = "CALL SP_GET_CAMPANA_IDCAMPANA_IDEMPRESA("
+		+ idcampana + ","
+		+ idempresa + ")";
+
+	Conexion c = new Conexion();
+	c.abrir();
+	ResultSet rs = c.ejecutarQuery(query);
+	JSONObject campana = new JSONObject();
+	try {
+	    while (rs.next()) {
+		
+		campana.put("idcampana", rs.getInt("IDCAMPANA"));
+		campana.put("idproducto", rs.getInt("IDPRODUCTO"));
+		campana.put("idempresa", rs.getInt("IDEMPRESA"));
+		campana.put("rutcliente", rs.getInt("RUT"));
+		campana.put("dvcliente", rs.getString("DV"));
+		campana.put("nomcliente", rs.getString("NOMBRES"));
+		campana.put("apellidoscliente", rs.getString("APELLIDOS"));
+		campana.put("genero", rs.getString("GENERO"));
+		campana.put("fechanac", rs.getDate("FECHANAC"));
+		campana.put("direccion", rs.getString("DIRECCION"));
+		campana.put("comuna", rs.getString("COMUNA"));
+		campana.put("region", rs.getString("REGION"));
+		campana.put("codigopostal", rs.getInt("CODIGOPOSTAL"));
+		campana.put("email", rs.getString("EMAIL"));
+		campana.put("fono1", rs.getInt("FONO1"));
+		campana.put("fono2", rs.getInt("FONO2"));
+		campana.put("fono3", rs.getInt("FONO3"));
+		campana.put("nomcampana", rs.getString("NOMCAMPANA"));
+		campana.put("codcampana", rs.getString("CODCAMPANA"));
+		campana.put("fechaini", rs.getDate("FECHAINI"));
+		campana.put("fechafin", rs.getDate("FECHAFIN"));
+		campana.put("meta", rs.getInt("META"));
+		campana.put("codproducto", rs.getString("CODPRODUCTO"));
+		campana.put("descproducto", rs.getString("DESCPRODUCTO"));
+		campana.put("nomempresa", rs.getString("NOMBRE"));
+		campana.put("rutempresa", rs.getInt("RUTEMPRESA"));
+		campana.put("dvempresa", rs.getString("DVEMPRESA"));
+		campana.put("montoaprobado", rs.getInt("MONTOAPROBADO"));
+		campana.put("meta", rs.getInt("META"));
+	    }
+	    salida.put("campana", campana);
+	} catch (JSONException | SQLException ex) {
+	    System.out.println("Problemas en modelo.CampanaController.getCampanaIdcamapanaIdempresa()[CABECERA]");
+	    System.out.println(ex);
+	    salida.put("estado", "error");
+	    salida.put("mensaje", ex);
+	}
+	c.cerrar();
+
+	c = new Conexion();
+	c.abrir();
+	query = "CALL SP_GET_DETALLE_SUBPRODUCTOS(" + salida.getJSONObject("campana").getInt("idcampana") + ")";
+	ResultSet result = c.ejecutarQuery(query);
+	String tab = "";
+	try {
+	    while (result.next()) {
+		tab += "<tr>";
+		tab += "<td><input type='checkbox' /></td>";
+		tab += "<td><input type='hidden' value='" + result.getInt("IDCAMPANA") + "' /><input type='hidden' value='" + result.getInt("IDSUBPRODUCTO") + "' />" + result.getString("CODSUBPRODUCTO") + "</td>";
+		tab += "<td>" + result.getString("DESCSUBPRODUCTO") + "</td>";
+		tab += "<td>" + result.getBigDecimal("PRIMA") + "</td>";
+		tab += "<td>" + result.getInt("MONTOMETA") + "</td>";
+		tab += "<td>" + result.getInt("CANTIDADMETA") + "</td>";
+		tab += "</tr>";
+	    }
+	    salida.put("estado", "ok");
+	    salida.put("cuerpotabla", tab);
+	} catch (JSONException | SQLException ex) {
+	    System.out.println("Problemas en modelo.CampanaController.getCampanaIdcampanaIdempresa() [DETALLE]");
+	    System.out.println(ex);
+	    salida.put("estado", "error");
+	    salida.put("mensaje", ex);
+	}
+	c.cerrar();
+
 	return salida;
     }
 }

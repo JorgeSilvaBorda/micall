@@ -25,8 +25,8 @@
                     ocultarAlert();
                 });
             });
-            
-            function cargarSimulaciones(){
+
+            function cargarSimulaciones() {
                 var detalle = {
                     url: 'SimulacionController',
                     bodyDestino: 'cuerpo-tab-simulacion',
@@ -35,8 +35,76 @@
                         rutvendedor: parseInt('<% out.print(session.getAttribute("rutusuario")); %>')
                     }
                 };
-                
+
                 traerListado(detalle);
+            }
+
+            function armarModalCampanas(campanas) {
+
+                var tab = "<table id='tab-sel-campana' class='table small table-sm table-striped'><thead>";
+                tab += "<tr>";
+                tab += "<th>Rut Empresa</th>";
+                tab += "<th>Cod. Campaña</th>";
+                tab += "<th>Nom. Campaña</th>";
+                tab += "<th>Nom. Empresa</th>";
+                tab += "<th>Cod. Producto</th>";
+                tab += "<th>Desc. Producto</th>";
+                tab += "<th>Seleccionar</th>";
+                tab += "</tr>";
+                tab += "</thead><tbody>";
+                $(campanas).each(function () {
+                    var rutcliente = $(this)[0].rutcliente;
+                    var rutempresa = $(this)[0].rutempresa;
+                    var dvempresa = $(this)[0].dvempresa;
+                    var nomcampana = $(this)[0].nomcampana;
+                    var codcampana = $(this)[0].codcampana;
+                    var nomempresa = $(this)[0].nomempresa;
+                    var codproducto = $(this)[0].codproducto;
+                    var descproducto = $(this)[0].descproducto;
+                    var idcampana = $(this)[0].idcampana;
+                    var idempresa = $(this)[0].idempresa;
+
+                    tab += "<tr>";
+                    tab += "<td>" + $.formatRut(rutempresa + "-" + dvempresa) + "</td>";
+                    tab += "<td>" + codcampana + "</td>";
+                    tab += "<td>" + nomcampana + "</td>";
+                    tab += "<td>" + nomempresa + "</td>";
+                    tab += "<td>" + codproducto + "</td>";
+                    tab += "<td>" + descproducto + "</td>";
+                    tab += "<td><button onclick='seleccionarCampana(" + idcampana + ", " + idempresa + ");' type='button' class='btn btn-sm btn-default'>Seleccionar</button></td>";
+                    tab += "</tr>";
+                    //console.log(campanas);
+                });
+
+                tab += "</tbody></table>";
+                $('#cuerpo-modal').html(tab);
+                $('#modal-campanas').modal();
+            }
+
+            function seleccionarCampana(idcampana, idempresa) {
+                var datos = {
+                    tipo: 'get-camapana-idcampana-idempresa',
+                    idcampana: idcampana,
+                    idempresa: idempresa
+                };
+                $.ajax({
+                    url: 'CampanaController',
+                    type: 'post',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function (res) {
+                        var obj = JSON.parse(res);
+                        if (obj.estado === 'ok') {
+                            pintarDatos(obj.campana, obj.cuerpotabla);
+                            $('#montoaprobado').focus();
+                            $('#btnCerrarModal').click();
+                        }else{
+                            console.log(obj.estado);
+                        }
+                    }
+                });
+
             }
 
             function buscar() {
@@ -57,8 +125,14 @@
                     success: function (res) {
                         var obj = JSON.parse(res);
                         if (obj.estado === 'ok') {
-                            pintarDatos(obj.campana, obj.cuerpotabla);
-                            $('#montoaprobado').focus();
+                            if (obj.campanas.length > 1) {
+                                //Son varias campañas para el rut. Escoger...
+                                armarModalCampanas(obj.campanas);
+                            } else {
+                                pintarDatos(obj.campana, obj.cuerpotabla);
+                                $('#montoaprobado').focus();
+                            }
+
                         } else {
                             alert(obj.mensaje);
                         }
@@ -120,9 +194,9 @@
                     alert('La fecha de vencimiento debe ser de por lo menos 30 días a contar de hoy.');
                     return false;
                 }
-                
+
                 var montoAprobado = $('#hidMontoAprobado').val();
-                if(simulacion.monto > montoAprobado){
+                if (simulacion.monto > montoAprobado) {
                     alert('El monto de la simulación no puede ser superior al monto aprobado ($' + formatMiles(montoAprobado) + ')');
                 }
                 return true;
@@ -224,6 +298,31 @@
             }
         </script>
         <div class="container-fluid">
+            <!-- The Modal -->
+            <div class="modal fade" id="modal-campanas">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Campañas</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body" id='cuerpo-modal'>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <p>El rut seleccionado se ha cargado para más de una campaña. Por favor seleccione una</p>
+                            <button type="button" id='btnCerrarModal' class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
             <input type='hidden' id='hidIdCampana' value='' />
             <input type='hidden' id='hidMontoAprobado' value='' />
             <br />
