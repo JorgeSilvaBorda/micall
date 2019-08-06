@@ -3,7 +3,7 @@
         "puerto": 5555,
         "bdServer": "localhost",
         "bdPort": 3306,
-        "baseDatos": "tts",
+        "baseDatos": "micall",
         "bdUser": "root",
         "bdPassword": ""
     },

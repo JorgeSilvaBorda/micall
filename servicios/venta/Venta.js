@@ -44,124 +44,74 @@ app.use(
 // Fin Configuración del servidor----------------------------------------------------------------------------------
 
 //Servicios de respuesta-------------------------------------------------------------------------------------------
-app.get('/test', function(req, res) {
-    var salida = {
-        status: 'OK',
-        servicio: 'test',
-    };
-    res.send(salida);
-});
-
 app.post('/ins-simulacion', function(req, res) {
-    var mysql = require('mysql');
-    var connection = mysql.createConnection({
-        host: defaultConfig.bdServer,
-        user: defaultConfig.bdUser,
-        password: defaultConfig.bdPassword,
-        database: defaultConfig.baseDatos,
-    });
-
-    try {
+    try{
         var simulacion = {
-            codprodperiod: req.body.codprodperiod,
+            codcampana: req.body.codcampana,
             rutvendedor: req.body.rutvendedor,
             dvvendedor: req.body.dvvendedor,
             rutcliente: req.body.rutcliente,
             dvcliente: req.body.dvcliente,
             monto: req.body.monto,
-            fecha: req.body.fecha,
-            vencimiento: req.body.vencimiento,
             cuotas: req.body.cuotas,
             valorcuota: req.body.valorcuota,
-            costototal: req.body.costototal,
             tasainteres: req.body.tasainteres,
             tasaanual: req.body.tasaanual,
             cae: req.body.cae,
+            vencimiento: req.body.vencimiento,
+            costototal: req.body.costototal,
             comision: req.body.comision,
-            porcentajes1: req.body.porcentajes1,
-            porcentajes2: req.body.porcentajes2,
-            montoseguro: req.body.montoseguro,
+            rutempresa: req.body.rutempresa,
+            subproductos: req.body.subproductos
         };
+        //Acá se valida
+        var salida;
+        validarSimulacion(simulacion, function(resp){
+            salida = resp;
 
-        //console.log(simulacion);
-        var query =
-            'CALL SP_INS_SIMULACION(' +
-            simulacion.codprodperiod +
-            ', ' +
-            simulacion.rutvendedor +
-            ", '" +
-            simulacion.dvvendedor +
-            "', " +
-            simulacion.rutcliente +
-            ", '" +
-            simulacion.dvcliente +
-            "', " +
-            simulacion.monto +
-            ", '" +
-            simulacion.fecha +
-            "', '" +
-            simulacion.vencimiento +
-            "', " +
-            simulacion.cuotas +
-            ', ' +
-            simulacion.valorcuota +
-            ', ' +
-            simulacion.costototal +
-            ', ' +
-            simulacion.tasainteres +
-            ', ' +
-            simulacion.tasaanual +
-            ', ' +
-            simulacion.cae +
-            ', ' +
-            simulacion.comision +
-            ', ' +
-            simulacion.porcentajes1 +
-            ', ' +
-            simulacion.porcentajes2 +
-            ', ' +
-            simulacion.montoseguro +
-            ')';
+            if(salida.codigo === 0){
 
-        //console.log(query);
-
-        connection.connect();
-        connection.query(query, function(error, results, fields) {
-            if (error) {
-                res.send({
-                    estado: 'error',
-                    codigoRespuesta: 10,
-                    error: 'Problemas al ejecutar la operación en base de datos.',
+                insertarSimulacion(simulacion, function(salida){
+                    var codigo;
+                    var mensaje;
+                    if(salida !== 0){
+                        codigo = 0;
+                        mensaje = "Simulación ingresada correctamente";
+                        
+                    }else{
+                        codigo = 20,
+                        mensaje = "La simulación no ha sido cursada";
+                    }
+                    res.send({
+                        codigo: codigo,
+                        mensaje: mensaje
+                    });
                 });
-                //throw error;
-            } else {
-                if (results.affectedRows === 1) {
-                    res.send({
-                        estado: 'ok',
-                        codigoRespuesta: 0,
-                        mensaje: 'Registro insertado correctamente.',
-                    });
-                } else {
-                    res.send({
-                        estado: 'error',
-                        mensaje: error,
-                        codigoRespuesta: 1,
-                    });
-                }
+            }else{
+                res.send({
+                    codigo: 30,
+                    mensaje: "La simulación no es válida"
+                });
             }
         });
-    } catch (err) {
-        console.log('error al ejecutar ins-simulacion');
-        console.log(err);
-        res.send({
-            estado: 'error',
-            mensaje: 'Error al ejecutar ins-simulacion',
-            codigoRespuesta: 1,
-        });
+
+
+    }catch(err){
+        respuesta = {
+            codigo: 3,
+            mensaje: "Error" + err
+        };
+        res.send(respuesta);
     }
+    
 });
 
-app.post('/rec-simulacion', function(req, res) {
+app.post('/rec-simulacion', function(req, res){
+    var rutcliente = req.body.rutcliente;
+    var fechasimulacion = req.body.fechasimulacion;
+    var rutempresa = req.body.rutempresa;
+    var query = "CALL SP_GET_SIMULACION_API(" + rutcliente + ", '" + fechasimulacion + "', " + rutempresa + ")";
+
     var mysql = require('mysql');
     var connection = mysql.createConnection({
         host: defaultConfig.bdServer,
@@ -170,121 +120,48 @@ app.post('/rec-simulacion', function(req, res) {
         database: defaultConfig.baseDatos,
     });
 
-    try {
+    connection.query(query, function(error, results, fields){
+        
         var simulacion = {
-            rutcliente: req.body.rutcliente,
-            fecha: req.body.fecha,
-        };
-
-        var query = 'CALL SP_REC_SIMULACION(' + simulacion.rutcliente + ", '" + simulacion.fecha + "')";
-        connection.connect();
-        connection.query(query, function(error, results, fields) {
-            if (error) {
-                res.send({
-                    estado: 'error',
-                    codigoRespuesta: 10,
-                    error: 'Problemas al ejecutar la operación en base de datos.',
-                });
-            } else {
-                try {
-                    var simulacion = {
-                        rutcliente: results[0][0].RUTCLIENTE,
-                        dvcliente: results[0][0].DVCLIENTE.toString(),
-                        rutvendedor: results[0][0].RUTVENDEDOR,
-                        dvvendedor: results[0][0].DVVENDEDOR.toString(),
-                        codigo: results[0][0].CODIGO.toString(),
-                        producto: results[0][0].PRODUCTO.toString(),
-                        rutempresa: results[0][0].RUTEMPRESA,
-                        dvempresa: results[0][0].DVEMPRESA.toString(),
-                        empresa: results[0][0].EMPRESA.toString(),
-                        monto: results[0][0].MONTO,
-                        fecha: formatFecha(results[0][0].FECHA),
-                        cuotas: results[0][0].CUOTAS,
-                        valorcuota: results[0][0].VALORCUOTA,
-                        tasainteres: results[0][0].TASAINTERES,
-                        tasaanual: results[0][0].TASAANUAL,
-                        cae: results[0][0].CAE,
-                        vencimiento: formatFecha(results[0][0].VENCIMIENTO),
-                        costototal: results[0][0].COSTOTOTAL,
-                        comision: results[0][0].COMISION,
-                        porcentajes1: results[0][0].PORCENTAJES1,
-                        porcentajes2: results[0][0].PORCENTAJES2,
-                        montoseguro: results[0][0].MONTOSEGURO,
-                    };
-                    res.send({
-                        estado: 'ok',
-                        codigoRespuesta: 0,
-                        simulacion: simulacion,
-                    });
-                } catch (err) {
-                    res.send({
-                        estado: 'error',
-                        codigoRespuesta: 12,
-                        mensaje: err,
-                    });
-                }
-            }
-        });
-        connection.end();
-    } catch (err) {
-        console.log('Error al ejecutar rec-simulacion');
-        console.log(err);
-        res.send({
-            estado: 'error',
-            codigoRespuesta: 1,
-            error: 'Error al ejecutar ins-simulacion',
-        });
-    }
-});
-
-app.post('/rec-productos-empresa', function(req, res) {
-    var mysql = require('mysql');
-    var connection = mysql.createConnection({
-        host: defaultConfig.bdServer,
-        user: defaultConfig.bdUser,
-        password: defaultConfig.bdPassword,
-        database: defaultConfig.baseDatos,
+            idsimulacion: results[0][0].IDSIMULACION,
+            idcampana: results[0][0].IDCAMPANA,
+            fechasimulacion: results[0][0].FECHASIMULACION,
+            rutvendedor: results[0][0].RUTVENDEDOR,
+            dvvendedor: results[0][0].DVVENDEDOR,
+            rutcliente: results[0][0].RUTCLIENTE,
+            dvcliente: results[0][0].DVCLIENTE,
+            monto: results[0][0].MONTO,
+            cuotas: results[0][0].CUOTAS,
+            valorcuota: results[0][0].VALORCUOTA,
+            tasainteres: results[0][0].TASAINTERES,
+            tasaanual: results[0][0].TASAANUAL,
+            cae: results[0][0].CAE,
+            vencimiento: results[0][0].VENCIMIENTO,
+            costototal: results[0][0].COSTOTOTAL,
+            comision: results[0][0].COMISION,
+            codcampana: results[0][0].CODCAMPANA,
+            nomcampana: results[0][0].NOMCAMPANA,
+            codproducto: results[0][0].CODPRODUCTO,
+            descproducto: results[0][0].DESCPRODUCTO,
+            rutempresa: results[0][0].RUTEMPRESA,
+            dvempresa: results[0][0].DVEMPRESA,
+            nomempresa: results[0][0].NOMEMPRESA,
+            subproductos: []
+        }; 
+        for(var i = 0; i < results.length; i++){
+            var subproducto = {
+                idsubproducto: results[0][i].IDSUBPRODUCTO,
+                codsubproducto: results[0][i].CODSUBPRODUCTO,
+                descsubproducto: results[0][i].DESCSUBPRODUCTO,
+                prima: results[0][i].PRIMA,
+            };
+            simulacion.subproductos.push(subproducto);
+            
+        }
+        res.send(simulacion);
     });
-    try {
-        var datos = {
-            rutempresa: parseInt(req.body.rutempresa),
-            rutusuario: parseInt(req.body.rutusuario),
-            passusuario: req.body.passusuario,
-        };
+    connection.end();
 
-        var query =
-            'CALL SP_GET_CAMPANAS_USUARIO_EMPRESA(' +
-            datos.rutusuario +
-            ', ' +
-            datos.rutempresa +
-            ", '" +
-            datos.passusuario +
-            "')";
-        connection.connect();
-        connection.query(query, function(error, results, fields) {
-            if (error) {
-                res.send({
-                    estado: 'Error',
-                    mensaje: 'No se pudo obtener el listado de productos para la empresa.',
-                    err: error,
-                });
-            } else {
-                res.send({
-                    estado: 'ok',
-                    productos: results,
-                });
-            }
-        });
-        connection.end();
-    } catch (err) {
-        console.log('Error al ejecutar rec-productos-empresa');
-        console.log(err);
-        res.send({
-            estado: 'Error',
-            mensaje: 'No se pudo obtener el listado de productos para la empresa.',
-            error: 'Error al ejecutar rec-productos-empresa',
-        });
-    }
 });
 
 //Fin Servicios de respuesta---------------------------------------------------------------------------------------
@@ -297,5 +174,69 @@ function formatFecha(fecha) {
     var dia = fec.getDate() < 10 ? '0' + fec.getDate() : fec.getDate();
     var date = fec.getFullYear() + sep + mes + sep + dia;
     return date;
+}
+
+function insertarSimulacion(simulacion, callback){
+    
+    try{
+        var mysql = require('mysql');
+        var connection = mysql.createConnection({
+            host: defaultConfig.bdServer,
+            user: defaultConfig.bdUser,
+            password: defaultConfig.bdPassword,
+            database: defaultConfig.baseDatos,
+        });
+        var query = "CALL SP_INS_SIMULACION_API(" + simulacion.rutvendedor + ", '" + simulacion.dvvendedor + "', " + simulacion.rutcliente + ", '" + simulacion.dvcliente + "', " + simulacion.monto + ", " + simulacion.cuotas + ", " + simulacion.valorcuota + ", " + simulacion.tasainteres + ", " + simulacion.tasaanual + ", " + simulacion.cae + ", '" + simulacion.vencimiento + "', " + simulacion.costototal + ", " + simulacion.comision + ", '" + simulacion.codcampana + "', " + simulacion.rutempresa + ")";
+        connection.query(query, function(error, results, fields){
+
+            var liid = results[0][0].LIID;
+            
+            for(var i = 0; i < simulacion.subproductos.length; i++){
+                var connection2 = mysql.createConnection({
+                    host: defaultConfig.bdServer,
+                    user: defaultConfig.bdUser,
+                    password: defaultConfig.bdPassword,
+                    database: defaultConfig.baseDatos,
+                });
+                var query2 = "CALL SP_INS_SIMULACION_SUBPRODUCTO_API(" + liid + ", '" + simulacion.subproductos[i] + "', " + simulacion.rutempresa + ")";
+                connection2.query(query2, function(error, results, fields){
+
+                });
+                connection2.end();
+            }
+            
+            callback(liid);
+        });
+        connection.end();
+    }catch(err){
+        console.log(err);
+        callback(0);
+    }
+}
+
+function validarSimulacion(simulacion, callback){
+    try{
+        var mysql = require('mysql');
+        var connection = mysql.createConnection({
+            host: defaultConfig.bdServer,
+            user: defaultConfig.bdUser,
+            password: defaultConfig.bdPassword,
+            database: defaultConfig.baseDatos,
+        });
+        var query = "CALL SP_VALIDA_SIMULACION_API('" + simulacion.codcampana + "', " + simulacion.rutcliente + ")";
+
+        connection.query(query, function(error, results, fields) {
+            var resp = {codigo: results[0][0].CODIGO, mensaje: results[0][0].MENSAJE, idcampana: results[0][0].IDCAMPANA};
+            callback(resp);
+        });
+
+        connection.end();
+    }catch(err){
+        var resp = {
+            codigo: 3,
+            mensaje: err
+        };
+        callback(resp);
+    }
 }
 //Fin Funciones utilizadas por los api-----------------------------------------------------------------------------
