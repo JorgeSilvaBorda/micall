@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import modelo.Conexion;
 
@@ -55,6 +56,7 @@ public class CampanaController extends HttpServlet {
 	Conexion c = new Conexion();
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
+	DecimalFormat format = new DecimalFormat("#");
 	try {
 	    while (rs.next()) {
 		filas += "<tr>";
@@ -65,7 +67,7 @@ public class CampanaController extends HttpServlet {
 		filas += "<td>" + rs.getString("DESCPRODUCTO") + "</td>";
 		filas += "<td>" + rs.getString("FECHAINI") + "</td>";
 		filas += "<td>" + rs.getString("FECHAFIN") + "</td>";
-		filas += "<td>" + rs.getInt("META") + "</td>";
+		filas += "<td>" + format.format(rs.getDouble("META")) + "</td>";
 		String filaButton = "";
 		if (rs.getInt("SUBPRODUCTOS") < 1) {
 		    filaButton = "<td>0</td>";
@@ -100,7 +102,7 @@ public class CampanaController extends HttpServlet {
 		+ "'" + campana.getString("codcampana") + "', "
 		+ "'" + campana.getString("fechaini") + "', "
 		+ "'" + campana.getString("fechafin") + "', "
-		+ campana.getInt("meta") + ")";
+		+ campana.getBigInteger("meta") + ")";
 	Conexion c = new Conexion();
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
@@ -130,7 +132,7 @@ public class CampanaController extends HttpServlet {
 	    query = "CALL SP_INS_CAMPANA_SUBPRODUCTO("
 		    + liid + ","
 		    + subproducto.getInt("idsubproducto") + ","
-		    + subproducto.getInt("montometa") + ","
+		    + subproducto.getBigInteger("montometa") + ","
 		    + subproducto.getInt("cantmeta") + ")";
 	    c.ejecutar(query);
 	    c.cerrar();
@@ -176,6 +178,7 @@ public class CampanaController extends HttpServlet {
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
 	String cuerpotabla = "";
+	DecimalFormat format = new DecimalFormat("#");
 	try {
 	    while (rs.next()) {
 		cuerpotabla += "<tr>";
@@ -183,7 +186,7 @@ public class CampanaController extends HttpServlet {
 		cuerpotabla += "<td>" + rs.getString("CODSUBPRODUCTO") + "</td>";
 		cuerpotabla += "<td>" + rs.getString("DESCSUBPRODUCTO") + "</td>";
 		cuerpotabla += "<td>" + rs.getBigDecimal("PRIMA") + "</td>";
-		cuerpotabla += "<td>" + rs.getInt("MONTOMETA") + "</td>";
+		cuerpotabla += "<td>" + format.format(rs.getDouble("MONTOMETA")) + "</td>";
 		cuerpotabla += "<td>" + rs.getInt("CANTIDADMETA") + "</td>";
 
 		cuerpotabla += "</tr>";
@@ -210,6 +213,7 @@ public class CampanaController extends HttpServlet {
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
 	JSONArray campanas = new JSONArray();
+	DecimalFormat format = new DecimalFormat("#");
 	int cont = 0;
 	try {
 	    while (rs.next()) {
@@ -242,7 +246,7 @@ public class CampanaController extends HttpServlet {
 		campana.put("rutempresa", rs.getInt("RUTEMPRESA"));
 		campana.put("dvempresa", rs.getString("DVEMPRESA"));
 		campana.put("montoaprobado", rs.getInt("MONTOAPROBADO"));
-		campana.put("meta", rs.getInt("META"));
+		campana.put("meta", format.format(rs.getDouble("META")));
 		campanas.put(campana);
 		cont++;
 	    }
@@ -263,6 +267,7 @@ public class CampanaController extends HttpServlet {
 	query = "CALL SP_GET_DETALLE_SUBPRODUCTOS(" + salida.getJSONObject("campana").getInt("idcampana") + ")";
 	ResultSet result = c.ejecutarQuery(query);
 	String tab = "";
+	
 	try {
 	    while (result.next()) {
 		tab += "<tr>";
@@ -270,7 +275,7 @@ public class CampanaController extends HttpServlet {
 		tab += "<td><input type='hidden' value='" + result.getInt("IDCAMPANA") + "' /><input type='hidden' value='" + result.getInt("IDSUBPRODUCTO") + "' />" + result.getString("CODSUBPRODUCTO") + "</td>";
 		tab += "<td>" + result.getString("DESCSUBPRODUCTO") + "</td>";
 		tab += "<td>" + result.getBigDecimal("PRIMA") + "</td>";
-		tab += "<td>" + result.getInt("MONTOMETA") + "</td>";
+		tab += "<td>" + format.format(result.getDouble("MONTOMETA")) + "</td>";
 		tab += "<td>" + result.getInt("CANTIDADMETA") + "</td>";
 		tab += "</tr>";
 	    }
@@ -297,6 +302,7 @@ public class CampanaController extends HttpServlet {
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
 	JSONObject campana = new JSONObject();
+	DecimalFormat format = new DecimalFormat("#");
 	try {
 	    while (rs.next()) {
 		
@@ -328,7 +334,7 @@ public class CampanaController extends HttpServlet {
 		campana.put("rutempresa", rs.getInt("RUTEMPRESA"));
 		campana.put("dvempresa", rs.getString("DVEMPRESA"));
 		campana.put("montoaprobado", rs.getInt("MONTOAPROBADO"));
-		campana.put("meta", rs.getInt("META"));
+		campana.put("meta", format.format(rs.getDouble("META")));
 	    }
 	    salida.put("campana", campana);
 	} catch (JSONException | SQLException ex) {
@@ -344,6 +350,7 @@ public class CampanaController extends HttpServlet {
 	query = "CALL SP_GET_DETALLE_SUBPRODUCTOS(" + salida.getJSONObject("campana").getInt("idcampana") + ")";
 	ResultSet result = c.ejecutarQuery(query);
 	String tab = "";
+	
 	try {
 	    while (result.next()) {
 		tab += "<tr>";
@@ -351,7 +358,7 @@ public class CampanaController extends HttpServlet {
 		tab += "<td><input type='hidden' value='" + result.getInt("IDCAMPANA") + "' /><input type='hidden' value='" + result.getInt("IDSUBPRODUCTO") + "' />" + result.getString("CODSUBPRODUCTO") + "</td>";
 		tab += "<td>" + result.getString("DESCSUBPRODUCTO") + "</td>";
 		tab += "<td>" + result.getBigDecimal("PRIMA") + "</td>";
-		tab += "<td>" + result.getInt("MONTOMETA") + "</td>";
+		tab += "<td>" + format.format(result.getDouble("MONTOMETA")) + "</td>";
 		tab += "<td>" + result.getInt("CANTIDADMETA") + "</td>";
 		tab += "</tr>";
 	    }
