@@ -107,7 +107,7 @@
                 var idproducto = $($(fila.children()[0]).children()[0]).val();
                 var idempresa = $($(fila.children()[0]).children()[1]).val();
                 $('#hidIdProducto').val(idproducto);
-                $('#hidIdEmpresa').val(idproducto);
+                $('#hidIdEmpresa').val(idempresa);
                 $('#select-empresa').val(idempresa);
                 $('#nombre').val(descproducto);
                 $('#codigo').val(codproducto);

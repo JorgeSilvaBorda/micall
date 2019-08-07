@@ -1288,7 +1288,7 @@ CREATE TABLE IF NOT EXISTS `EMPRESA` (
 --
 
 INSERT INTO `EMPRESA` (`IDEMPRESA`, `RUTEMPRESA`, `DVEMPRESA`, `NOMBRE`, `DIRECCION`, `CREACION`, `ULTMODIFICACION`) VALUES
-(1, 11111111, '1', 'Administración interna', 'Sin dirección', '2019-07-25 10:25:20', '2019-07-25 10:25:20'),
+(1, 11111111, '1', 'Administración interna', 'Sin dirección', '2019-07-25 10:25:20', '2019-07-25 10:25:20');
 -- --------------------------------------------------------
 
 --
@@ -1443,5 +1443,5 @@ CREATE TABLE IF NOT EXISTS `USUARIO` (
 --
 
 INSERT INTO `USUARIO` (`IDUSUARIO`, `IDEMPRESA`, `IDTIPOUSUARIO`, `RUTUSUARIO`, `DVUSUARIO`, `NOMUSUARIO`, `APPATERNO`, `APMATERNO`, `ESTADO`, `ULTMODIFICACION`, `PASSWORD`) VALUES
-(1, 1, 1, 11111111, '1', 'Administrador', 'Interno', 'Empresa interna', 1, '2019-08-06', md5('password')),
+(1, 1, 1, 11111111, '1', 'Administrador', 'Interno', 'Empresa interna', 1, '2019-08-06', md5('password'));
 COMMIT;

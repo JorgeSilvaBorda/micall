@@ -127,7 +127,7 @@
                 var idsubproducto = $($(fila.children()[0]).children()[0]).val();
                 var idempresa = $($(fila.children()[0]).children()[1]).val();
                 $('#hidIdSubProducto').val(idsubproducto);
-                $('#hidIdEmpresa').val(idsubproducto);
+                $('#hidIdEmpresa').val(idempresa);
                 $('#select-empresa').val(idempresa);
                 $('#nombre').val(descsubproducto);
                 $('#prima').val(prima);
