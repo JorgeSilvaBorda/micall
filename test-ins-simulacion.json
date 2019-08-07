@@ -1,0 +1,22 @@
+{
+	"codcampana": "SAV-SEG-001",
+	"rutvendedor": 11111111,
+	"dvvendedor": 1,
+	"rutcliente": 11948618,
+	"dvcliente": 1,
+	"monto": 1000000,
+	"cuotas": 12,
+	"valorcuota": 80000,
+	"tasainteres": 1.2,
+	"tasaanual": 2.5,
+	"cae": 10,
+	"vencimiento": "2020-01-01",
+	"costototal": 1200000,
+	"comision": 200000,
+	"rutempresa": "22222222",
+	"subproductos": [
+		"SEG-VID-001",
+		"SEG-DES-001",
+		"SEG-FALSO-NO-EXISTE"
+		]
+}
