@@ -141,30 +141,32 @@
                         }
                     };
 
-                    insertar(detalles);
+                    insertar(detalles, function (obj) {
+                        var detalle = {
+                            url: 'UsuarioController',
+                            datos: {
+                                tipo: 'get-usuarios'
+                            },
+                            bodyDestino: 'cuerpo-tab-usuario',
+                            tablaObjetivo: 'tabla-usuarios'
+                        };
+                        traerListado(detalle);
+                        var det = {
+                            tipo: 'carga-select-empresa',
+                            url: 'EmpresaController',
+                            objetivo: 'select-empresa'
+                        };
+                        cargarSelect(det);
+                        det = {
+                            tipo: 'carga-select-tipousuario',
+                            url: 'UsuarioController',
+                            objetivo: 'select-tipo-usuario'
+                        };
+                        cargarSelect(det);
+                        limpiar();
+                    });
                 }
-                var detalle = {
-                    url: 'UsuarioController',
-                    datos: {
-                        tipo: 'get-usuarios'
-                    },
-                    bodyDestino: 'cuerpo-tab-usuario',
-                    tablaObjetivo: 'tabla-usuarios'
-                };
-                traerListado(detalle);
-                var det = {
-                    tipo: 'carga-select-empresa',
-                    url: 'EmpresaController',
-                    objetivo: 'select-empresa'
-                };
-                cargarSelect(det);
-                det = {
-                    tipo: 'carga-select-tipousuario',
-                    url: 'UsuarioController',
-                    objetivo: 'select-tipo-usuario'
-                };
-                cargarSelect(det);
-                limpiar();
+
             }
 
             function edit(boton) {
@@ -225,33 +227,35 @@
                         datos: datos
                     };
 
-                    guardar(detalle);
-                }
-                var det = {
-                    url: 'UsuarioController',
-                    datos: {
-                        tipo: 'get-usuarios'
-                    },
-                    bodyDestino: 'cuerpo-tab-usuario',
-                    tablaObjetivo: 'tabla-usuarios'
-                };
-                traerListado(det);
-                var dets = {
-                    tipo: 'carga-select-empresa',
-                    url: 'EmpresaController',
-                    objetivo: 'select-empresa'
-                };
-                cargarSelect(dets);
-                det = {
-                    tipo: 'carga-select-tipousuario',
-                    url: 'UsuarioController',
-                    objetivo: 'select-tipo-usuario'
-                };
-                cargarSelect(det);
-                $('.dataTable').DataTable().destroy();
-                $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                    guardar(detalle, function (obj) {
+                        var det = {
+                            url: 'UsuarioController',
+                            datos: {
+                                tipo: 'get-usuarios'
+                            },
+                            bodyDestino: 'cuerpo-tab-usuario',
+                            tablaObjetivo: 'tabla-usuarios'
+                        };
+                        traerListado(det);
+                        var dets = {
+                            tipo: 'carga-select-empresa',
+                            url: 'EmpresaController',
+                            objetivo: 'select-empresa'
+                        };
+                        cargarSelect(dets);
+                        det = {
+                            tipo: 'carga-select-tipousuario',
+                            url: 'UsuarioController',
+                            objetivo: 'select-tipo-usuario'
+                        };
+                        cargarSelect(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
 
-                cancelarEdicion();
+                        cancelarEdicion();
+                    });
+                }
+
             }
 
             function limpiar() {

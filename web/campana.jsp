@@ -109,9 +109,11 @@
                         }
                     };
 
-                    insertar(detalle);
-                    limpiar();
-                    traerCampanas();
+                    insertar(detalle, function(obj){
+                        limpiar();
+                        traerCampanas();
+                    });
+                    
                 }
 
             }

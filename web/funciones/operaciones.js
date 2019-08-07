@@ -24,7 +24,7 @@ function traerListado(detalle) {
     });
 }
 
-function insertar(detalle) {
+function insertar(detalle, callback) {
     $.ajax({
         type: 'post',
         url: detalle.url,
@@ -34,13 +34,14 @@ function insertar(detalle) {
         success: function (res) {
             var obj = JSON.parse(res);
             if (obj.estado === 'ok') {
+                callback(obj);
                 alert('Registros ingresados correctamente.');
             }
         }
     });
 }
 
-function guardar(detalle) {
+function guardar(detalle, callback) {
     $.ajax({
         type: 'post',
         url: detalle.url,
@@ -50,7 +51,7 @@ function guardar(detalle) {
         success: function (res) {
             var obj = JSON.parse(res);
             if (obj.estado === 'ok') {
-
+                callback(obj);
             } else {
                 console.log(obj.mensaje);
             }
