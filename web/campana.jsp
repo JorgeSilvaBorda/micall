@@ -67,7 +67,7 @@
             function insert() {
                 var codcampana = $('#codcampana').val();
                 var nomcampana = $('#nomcampana').val();
-                var idempresa = $('#select-empresa').val(); //solo efectos de validación
+                //var idempresa = $('#select-empresa').val(); //solo efectos de validación
                 var idproducto = $('#select-producto').val();
                 var desde = $('#desde').val();
                 var hasta = $('#hasta').val();
