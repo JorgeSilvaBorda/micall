@@ -321,32 +321,33 @@
                         datos: datos
                     };
 
-                    eliminar(detalle);
+                    eliminar(detalle, function (obj) {
+                        var det = {
+                            url: 'UsuarioController',
+                            datos: {
+                                tipo: 'get-usuarios'
+                            },
+                            bodyDestino: 'cuerpo-tab-usuario',
+                            tablaObjetivo: 'tabla-usuarios'
+                        };
+                        traerListado(det);
+                        var dets = {
+                            tipo: 'carga-select-empresa',
+                            url: 'EmpresaController',
+                            objetivo: 'select-empresa'
+                        };
+                        cargarSelect(dets);
+                        det = {
+                            tipo: 'carga-select-tipousuario',
+                            url: 'UsuarioController',
+                            objetivo: 'select-tipo-usuario'
+                        };
+                        cargarSelect(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        limpiar();
+                    });
                 }
-                var det = {
-                    url: 'UsuarioController',
-                    datos: {
-                        tipo: 'get-usuarios'
-                    },
-                    bodyDestino: 'cuerpo-tab-usuario',
-                    tablaObjetivo: 'tabla-usuarios'
-                };
-                traerListado(det);
-                var dets = {
-                    tipo: 'carga-select-empresa',
-                    url: 'EmpresaController',
-                    objetivo: 'select-empresa'
-                };
-                cargarSelect(dets);
-                det = {
-                    tipo: 'carga-select-tipousuario',
-                    url: 'UsuarioController',
-                    objetivo: 'select-tipo-usuario'
-                };
-                cargarSelect(det);
-                $('.dataTable').DataTable().destroy();
-                $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                limpiar();
             }
 
         </script>

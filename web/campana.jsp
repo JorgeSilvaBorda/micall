@@ -200,9 +200,11 @@
                             idcampana: idcampana
                         }
                     };
-                    eliminar(detalle);
+                    eliminar(detalle, function(obj){
+                        traerCampanas();
+                    });
                 }
-                traerCampanas();
+                
             }
             
             function verSubs(idcampana){

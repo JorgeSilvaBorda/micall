@@ -224,18 +224,20 @@
                             idsubproducto: idsubproducto
                         }
                     };
-                    eliminar(detalle);
-                    var det = {
-                        url: 'SubProductoController',
-                        datos: {
-                            tipo: 'get-subproductos'
-                        },
-                        bodyDestino: 'cuerpo-tab-subproducto',
-                        tablaObjetivo: 'tabla-subproductos'
-                    };
-                    traerListado(det);
-                    $('.dataTable').DataTable().destroy();
-                    $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                    eliminar(detalle, function (obj) {
+                        var det = {
+                            url: 'SubProductoController',
+                            datos: {
+                                tipo: 'get-subproductos'
+                            },
+                            bodyDestino: 'cuerpo-tab-subproducto',
+                            tablaObjetivo: 'tabla-subproductos'
+                        };
+                        traerListado(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                    });
+
                 }
             }
 

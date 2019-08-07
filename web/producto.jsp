@@ -196,18 +196,19 @@
                             idproducto: idproducto
                         }
                     };
-                    eliminar(detalle);
-                    var det = {
-                        url: 'ProductoController',
-                        datos: {
-                            tipo: 'get-productos'
-                        },
-                        bodyDestino: 'cuerpo-tab-producto',
-                        tablaObjetivo: 'tabla-productos'
-                    };
-                    traerListado(det);
-                    $('.dataTable').DataTable().destroy();
-                    $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                    eliminar(detalle, function (obj) {
+                        var det = {
+                            url: 'ProductoController',
+                            datos: {
+                                tipo: 'get-productos'
+                            },
+                            bodyDestino: 'cuerpo-tab-producto',
+                            tablaObjetivo: 'tabla-productos'
+                        };
+                        traerListado(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                    });
                 }
             }
 

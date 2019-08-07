@@ -64,7 +64,7 @@ function guardar(detalle, callback) {
     });
 }
 
-function eliminar(detalle) {
+function eliminar(detalle, callback) {
     $.ajax({
         url: detalle.url,
         type: 'post',
@@ -74,7 +74,7 @@ function eliminar(detalle) {
         success: function (res) {
             var obj = JSON.parse(res);
             if (obj.estado === 'ok') {
-
+                callback(obj);
             } else {
                 console.log(obj.mensaje);
             }

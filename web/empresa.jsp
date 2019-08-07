@@ -121,19 +121,20 @@
                         }
                     };
 
-                    eliminar(detalle);
-                    var det = {
-                        url: 'EmpresaController',
-                        datos: {
-                            tipo: 'get-empresas'
-                        },
-                        bodyDestino: 'cuerpo-tab-empresa',
-                        tablaObjetivo: 'tabla-empresas'
-                    };
-                    traerListado(det);
-                    $('.dataTable').DataTable().destroy();
-                    $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                    limpiar();
+                    eliminar(detalle, function (obj) {
+                        var det = {
+                            url: 'EmpresaController',
+                            datos: {
+                                tipo: 'get-empresas'
+                            },
+                            bodyDestino: 'cuerpo-tab-empresa',
+                            tablaObjetivo: 'tabla-empresas'
+                        };
+                        traerListado(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        limpiar();
+                    });
                 }
             }
 
