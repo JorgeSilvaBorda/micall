@@ -37,10 +37,10 @@
         var ventasMes = 0;
         $.each(arr, function () {
             tab += "<tr>";
-            tab += "<td>" + $(this)[0].codcampana + "</td>";
-            tab += "<td>" + $(this)[0].nomcampana + "</td>";
-            tab += "<td>" + $(this)[0].codproducto + "</td>";
-            tab += "<td>" + $(this)[0].descproducto + "</td>";
+            //tab += "<td>" + $(this)[0].codcampana + "</td>";
+            tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
+            //tab += "<td>" + $(this)[0].codproducto + "</td>";
+            tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].montoacum) + "</td>";
             tab += "<td>" + $(this)[0].porcacum + "%</td>";
@@ -54,8 +54,8 @@
     }
 
     function pintarResumen(ventasDia, ventasMes) {
-        $('#totalDia').html(formatMiles(ventasDia));
-        $('#totalMes').html(formatMiles(ventasMes));
+        $('#totalDia').html("$" + formatMiles(ventasDia));
+        $('#totalMes').html("$" + formatMiles(ventasMes));
     }
 </script>
 <br />
@@ -64,9 +64,9 @@
         <table id="tabla-resumen-empresa" class="table table-sm small table-borderless table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Cod. Campaña</th>
-                    <th>campaña</th>
-                    <th>Cod. Producto</th>
+                    <!--th>Cod. Campaña</th-->
+                    <th>Campaña</th>
+                    <!--th>Cod. Producto</th-->
                     <th>Producto</th>
                     <th>Meta</th>
                     <th>Acumulado<br />Mes</th>                         

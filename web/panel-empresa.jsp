@@ -23,7 +23,7 @@
             <br />
             <div class="row">
                 <div class="col-sm-12">
-                    <h2>Estado ventas - <% out.print(session.getAttribute("empresa")); %></h2>
+                    <h2>Estado Ventas</h2>
                 </div>
             </div>
             <div class="row">

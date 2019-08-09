@@ -40,10 +40,10 @@
         $.each(arr, function () {
             tab += "<tr>";
             tab += "<td>" + $(this)[0].fechasimulacion + "</td>";
-            tab += "<td>" + $(this)[0].codcampana + "</td>";
-            tab += "<td>" + $(this)[0].nomcampana + "</td>";
-            tab += "<td>" + $(this)[0].codproducto + "</td>";
-            tab += "<td>" + $(this)[0].descproducto + "</td>";
+            //tab += "<td>" + $(this)[0].codcampana + "</td>";
+            tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
+            //tab += "<td>" + $(this)[0].codproducto + "</td>";
+            tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].monto) + "</td>";
             tab += "<td>" + $.formatRut($(this)[0].rutfullcliente) + "</td>";
@@ -100,9 +100,9 @@
             <thead>
                 <tr>
                     <th>Fecha</th>
-                    <th>Cod. Campaña</th>
+                    <!--th>Cod. Campaña</th-->
                     <th>Campaña</th>
-                    <th>Cod. Producto</th>
+                    <!--th>Cod. Producto</th-->
                     <th>Producto</th>
                     <th>Meta</th>
                     <th>Monto</th>
