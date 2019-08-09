@@ -86,9 +86,9 @@
                 //recorrer tabla subproductos
                 $('#cuerpo-tab-subproducto tr').each(function (i) {
                     var idsubproducto = $($(this).children()[0]).children(0).val();
-                    var montometa = $($(this).children()[3]).children(0).val();
-                    var cantmeta = $($(this).children()[4]).children(0).val();
-                    var check = $($(this).children()[5]).children()[0];
+                    var montometa = $($(this).children()[2]).children(0).val();
+                    var cantmeta = $($(this).children()[3]).children(0).val();
+                    var check = $($(this).children()[4]).children()[0];
                     if (check.checked) {
                         var subproducto = {
                             idsubproducto: parseInt(idsubproducto),
@@ -109,11 +109,11 @@
                         }
                     };
 
-                    insertar(detalle, function(obj){
+                    insertar(detalle, function (obj) {
                         limpiar();
                         traerCampanas();
                     });
-                    
+
                 }
 
             }
@@ -162,7 +162,16 @@
                             alert('Debe ingresar una cantidad de meta para los subproductos seleccionados.');
                             return false;
                         }
+
                     });
+                }
+                //Validar que la fecha de inicio de la campaña no pueda ser inferior al primer día del mes en curso.
+                var fechaPrimerDia = new Date();
+                fechaPrimerDia.setDate(1);
+                var fec = formatFecha(fechaPrimerDia);
+                if (diffFechas(fec, campana.fechaini) !== 1) {
+                    alert('La fecha de inicio de la campaña no puede ser anterior al primer día del mes en curso.');
+                    return false;
                 }
                 return true;
             }
@@ -183,11 +192,11 @@
             function checkCampos(check) {
                 var fila = $(check).parent().parent();
                 if (check.checked) {
+                    $($(fila).children()[2]).children(0).removeClass("oculto");
                     $($(fila).children()[3]).children(0).removeClass("oculto");
-                    $($(fila).children()[4]).children(0).removeClass("oculto");
                 } else {
+                    $($(fila).children()[2]).children(0).addClass("oculto");
                     $($(fila).children()[3]).children(0).addClass("oculto");
-                    $($(fila).children()[4]).children(0).addClass("oculto");
                 }
             }
 
@@ -200,14 +209,14 @@
                             idcampana: idcampana
                         }
                     };
-                    eliminar(detalle, function(obj){
+                    eliminar(detalle, function (obj) {
                         traerCampanas();
                     });
                 }
-                
+
             }
-            
-            function verSubs(idcampana){
+
+            function verSubs(idcampana) {
                 var detalle = {
                     url: 'CampanaController',
                     bodyDestino: 'cuerpo-detalle-subproducto',
@@ -218,9 +227,13 @@
                 };
                 traerListado(detalle);
                 $('#modal-detalle').modal();
+                var filas = $('#tabla-detalle-subproductos tbody tr');
+                for (var i = 0; i < filas.length; i++) {
+                    console.log($(this));
+                }
             }
         </script>
-        
+
         <!-- Modal detalle -->
         <div class="modal fade" id="modal-detalle">
             <div class="modal-dialog">
@@ -241,15 +254,15 @@
                                 <table id='tab-detalle-subproductos' class="table table-sm small table-striped table-borderless">
                                     <thead>
                                         <tr>
-                                            <td>Código</td>
-                                            <td>Descripción</td>
+                                            <!--td>Código</td-->
+                                            <td>Subproducto</td>
                                             <td>Prima</td>
                                             <td>Monto Meta</td>
                                             <td>Cant. Meta</td>
                                         </tr>
                                     </thead>
                                     <tbody id='cuerpo-detalle-subproducto'>
-                                        
+
                                     </tbody>
                                 </table>
                             </div>
@@ -264,7 +277,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="container-fluid">
             <br />
             <br />
@@ -322,12 +335,12 @@
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <h3>Subproductos empresa seleccionada</h3>
+                    <h3>Subproductos Empresa Seleccionada</h3>
                     <table id="tabla-subproductos" class="table table-sm small table-borderless table-hover table-striped">
                         <thead>
                             <tr>
-                                <th>Código</th>
-                                <th>Descripción</th>
+                                <!--th>Código</th-->
+                                <th>Suboroducto</th>
                                 <th>Prima</th>
                                 <th>Monto Meta</th>
                                 <th>Cant. Meta</th>

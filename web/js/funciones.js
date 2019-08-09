@@ -75,3 +75,10 @@ function fechaIntToString(fecha) {
 
     return (anio + "-" + mes + "-" + dia);
 }
+
+function formatFecha(date){
+    var mes = ((date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
+    var dia = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
+    var fec = date.getFullYear() + '-' + mes + '-' + dia;
+    return fec;
+}

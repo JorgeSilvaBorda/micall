@@ -56,7 +56,7 @@ public class CampanaController extends HttpServlet {
 	Conexion c = new Conexion();
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
-	DecimalFormat format = new DecimalFormat("#");
+	DecimalFormat format = new DecimalFormat("###,###,###,###.##");
 	try {
 	    while (rs.next()) {
 		filas += "<tr>";
@@ -178,13 +178,13 @@ public class CampanaController extends HttpServlet {
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
 	String cuerpotabla = "";
-	DecimalFormat format = new DecimalFormat("#");
+	DecimalFormat format = new DecimalFormat("###,###,###.##");
 	try {
 	    while (rs.next()) {
 		cuerpotabla += "<tr>";
 
-		cuerpotabla += "<td>" + rs.getString("CODSUBPRODUCTO") + "</td>";
-		cuerpotabla += "<td>" + rs.getString("DESCSUBPRODUCTO") + "</td>";
+		cuerpotabla += "<td>[" + rs.getString("CODSUBPRODUCTO") + "] " + rs.getString("DESCSUBPRODUCTO") + "</td>";
+		//cuerpotabla += "<td>" + rs.getString("DESCSUBPRODUCTO") + "</td>";
 		cuerpotabla += "<td>" + rs.getBigDecimal("PRIMA") + "</td>";
 		cuerpotabla += "<td>" + format.format(rs.getDouble("MONTOMETA")) + "</td>";
 		cuerpotabla += "<td>" + rs.getInt("CANTIDADMETA") + "</td>";
@@ -213,7 +213,7 @@ public class CampanaController extends HttpServlet {
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
 	JSONArray campanas = new JSONArray();
-	DecimalFormat format = new DecimalFormat("#");
+	DecimalFormat format = new DecimalFormat("###,###,###,###.##");
 	int cont = 0;
 	try {
 	    while (rs.next()) {
@@ -301,7 +301,7 @@ public class CampanaController extends HttpServlet {
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
 	JSONObject campana = new JSONObject();
-	DecimalFormat format = new DecimalFormat("#");
+	DecimalFormat format = new DecimalFormat("###,###,###,###.##");
 	try {
 	    while (rs.next()) {
 		
@@ -326,7 +326,7 @@ public class CampanaController extends HttpServlet {
 		campana.put("codcampana", rs.getString("CODCAMPANA"));
 		campana.put("fechaini", rs.getDate("FECHAINI"));
 		campana.put("fechafin", rs.getDate("FECHAFIN"));
-		campana.put("meta", rs.getInt("META"));
+		//campana.put("meta", rs.getInt("META"));
 		campana.put("codproducto", rs.getString("CODPRODUCTO"));
 		campana.put("descproducto", rs.getString("DESCPRODUCTO"));
 		campana.put("nomempresa", rs.getString("NOMBRE"));
