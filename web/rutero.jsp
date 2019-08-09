@@ -312,7 +312,7 @@
                 </div>
                 <div class="col-sm-8">
 
-                    <table id="tabla-productos" class="table table-sm small table-borderless table-hover table-striped">
+                    <!--table id="tabla-productos" class="table table-sm small table-borderless table-hover table-striped">
                         <thead>
                             <tr>
                                 <th>Código</th>
@@ -325,7 +325,7 @@
                         <tbody id="cuerpo-tab-producto">
 
                         </tbody>
-                    </table>
+                    </table-->
 
                 </div>
             </div>

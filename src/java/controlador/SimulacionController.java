@@ -114,7 +114,7 @@ public class SimulacionController extends HttpServlet {
                 salida.put("cuerpotabla", cuerpo);
             }
             salida.put("estado", "ok");
-        }catch (Exception ex) {
+        }catch (JSONException | SQLException ex) {
             System.out.println("Problemas en SimulacionController.getSimulacionesRutVendedor()");
             System.out.println(ex);
             salida.put("estado", "error");

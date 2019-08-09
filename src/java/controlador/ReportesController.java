@@ -44,7 +44,7 @@ public class ReportesController extends HttpServlet {
 	JSONObject salida = new JSONObject();
 	JSONArray registros = new JSONArray();
 	int rutvendedor = Integer.parseInt(rutfullvendedor.substring(0, rutfullvendedor.length() - 1));
-	String query = "CALL SP_GET_RESUMEN_MES_VENDEDOR(" + rutvendedor + ")";
+	String query = "CALL SP_RESUMEN_MES_VENDEDOR(" + rutvendedor + ")";
 	Conexion c = new Conexion();
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
@@ -55,9 +55,10 @@ public class ReportesController extends HttpServlet {
 		registro.put("nomcampana", rs.getString("NOMCAMPANA"));
 		registro.put("codproducto", rs.getString("CODPRODUCTO"));
 		registro.put("descproducto", rs.getString("DESCPRODUCTO"));
-		registro.put("meta", rs.getInt("META"));
-		registro.put("montoacum", rs.getInt("MONTOACUM"));
-		registro.put("porcacum", Util.redondear(rs.getFloat("PORCACUM"), 2));
+		//registro.put("meta", rs.getInt("META"));
+		registro.put("montoacum", rs.getInt("ACUMMES"));
+		//registro.put("porcacum", Util.redondear(rs.getFloat("PORCACUM"), 2));
+		registro.put("cantidad", rs.getInt("CANTIDAD"));
 		registros.put(registro);
 	    }
 	    salida.put("registros", registros);

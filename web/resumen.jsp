@@ -38,13 +38,15 @@
         var tab = "";
         $.each(arr, function () {
             tab += "<tr>";
-            tab += "<td>" + $(this)[0].codproducto + "</td>";
-            tab += "<td>" + $(this)[0].descproducto + "</td>";
-            tab += "<td>" + $(this)[0].codcampana + "</td>";
-            tab += "<td>" + $(this)[0].nomcampana + "</td>";
-            tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
+            //tab += "<td>" + $(this)[0].codproducto + "</td>";
+            
+            //tab += "<td>" + $(this)[0].codcampana + "</td>";
+            tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
+            tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
+            //tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].montoacum) + "</td>";
-            tab += "<td>" + $(this)[0].porcacum + "%</td>";
+            tab += "<td>" + $(this)[0].cantidad + "</td>";
+            //tab += "<td>" + $(this)[0].porcacum + "%</td>";
             tab += "</tr>";
         });
         return tab;
@@ -57,13 +59,14 @@
         <table id="tabla-resumen" class="table table-sm small table-borderless table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Cod. Producto</th>
-                    <th>Producto</th>
-                    <th>Cod. campaña</th>
+                    <!--th>Cod. Producto</th-->
+                    
+                    <!--th>Cod. campaña</th-->
                     <th>campaña</th>
-                    <th>Meta</th>
+                    <th>Producto</th>
+                    <!--th>Meta</th-->
                     <th>Acum. Mes</th>
-                    <th>% Acum. Mes</th>
+                    <th>Cantidad</th>
                 </tr>
             </thead>
             <tbody id="cuerpo-tab-resumen">
