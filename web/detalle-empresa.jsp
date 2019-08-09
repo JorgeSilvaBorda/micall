@@ -44,10 +44,12 @@
             tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
             //tab += "<td>" + $(this)[0].codproducto + "</td>";
             tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
-            tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
-            tab += "<td>$" + formatMiles($(this)[0].monto) + "</td>";
-            tab += "<td>" + $.formatRut($(this)[0].rutfullcliente) + "</td>";
+            //tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
             tab += "<td>" + $.formatRut($(this)[0].rutfullvendedor) + "</td>";
+            tab += "<td>" + $.formatRut($(this)[0].rutfullcliente) + "</td>";
+            tab += "<td>$" + formatMiles($(this)[0].monto) + "</td>";
+            
+            
             tab += "<td>" + $(this)[0].cuotas + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].valorcuota) + "</td>";
             tab += "<td>" + $(this)[0].subproductos + "</td>";
@@ -104,10 +106,12 @@
                     <th>Campaña</th>
                     <!--th>Cod. Producto</th-->
                     <th>Producto</th>
-                    <th>Meta</th>
-                    <th>Monto</th>
-                    <th>Rut Cliente</th>
+                    <!--th>Meta</th-->
                     <th>Rut Vendedor</th>
+                    <th>Rut Cliente</th>
+                    <th>Monto</th>
+                    
+                    
                     <th>Cuotas</th>
                     <th>Valor Cuota</th>
                     <th>Subproductos</th>
