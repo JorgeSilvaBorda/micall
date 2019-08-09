@@ -67,7 +67,7 @@ public class CampanaController extends HttpServlet {
 		filas += "<td>" + rs.getString("DESCPRODUCTO") + "</td>";
 		filas += "<td>" + rs.getString("FECHAINI") + "</td>";
 		filas += "<td>" + rs.getString("FECHAFIN") + "</td>";
-		filas += "<td>" + format.format(rs.getDouble("META")) + "</td>";
+		filas += "<td>$" + format.format(rs.getDouble("META")) + "</td>";
 		String filaButton = "";
 		if (rs.getInt("SUBPRODUCTOS") < 1) {
 		    filaButton = "<td>0</td>";
