@@ -238,8 +238,7 @@ public class CampanaController extends HttpServlet {
 		campana.put("nomcampana", rs.getString("NOMCAMPANA"));
 		campana.put("codcampana", rs.getString("CODCAMPANA"));
 		campana.put("fechaini", rs.getDate("FECHAINI"));
-		campana.put("fechafin", rs.getDate("FECHAFIN"));
-		campana.put("meta", rs.getInt("META"));
+		campana.put("fechafin", rs.getDate("FECHAFIN")); //Debajo de esta línea se estaba rescatando la meta como int. a parte de la de abajo
 		campana.put("codproducto", rs.getString("CODPRODUCTO"));
 		campana.put("descproducto", rs.getString("DESCPRODUCTO"));
 		campana.put("nomempresa", rs.getString("NOMBRE"));
