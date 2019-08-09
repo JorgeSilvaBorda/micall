@@ -129,7 +129,7 @@
                                 //Son varias campañas para el rut. Escoger...
                                 armarModalCampanas(obj.campanas);
                             } else {
-                                pintarDatos(obj.campana, obj.cuerpotabla);
+                                pintarDatos(obj.campanas[0], obj.cuerpotabla);
                                 $('#montoaprobado').focus();
                             }
 

@@ -7,11 +7,17 @@
     </head>
     <body>
         <script type="text/javascript">
+            var MENSAJES = [];
+            var ERRORES = 0;
             var RUTERO = null;
             document.getElementById('archivo').onchange = function () {
+                var cont = 1;
+                var log = [];
                 var file = this.files[0];
                 var reader = new FileReader();
                 reader.onload = function () { //Acá convertir a tabla
+                    ERRORES = 0;
+                    MENSAJES = [];
                     var lineas = this.result.split("\n");
                     var rutero = {
                         idcampana: $('#select-campana').val(),
@@ -21,9 +27,9 @@
                     for (var i = 1; i < lineas.length; i++) { //Comienza en 1. La primera línea es cabecera
                         if (lineas[i].length > 10) {
                             var linea = lineas[i].split(";");
-
                             var rutcliente = linea[0];
                             var dvcliente = linea[1];
+
                             var nombres = linea[2];
                             var apellidos = linea[3];
                             var genero = linea[4];
@@ -54,17 +60,78 @@
                                 montoaprobado: montoaprobado,
                                 fono1: fono1,
                                 fono2: fono2,
-                                fono3: fono3
+                                fono3: fono3,
+                                posicion: i
                             };
-                            rutero.filas.push(filaRutero);
-                            rutero.registros ++;
+                            if (validarFila(filaRutero)) {
+                                rutero.filas.push(filaRutero);
+                                rutero.registros++;
+                            } else {
+                                ERRORES++;
+                            }
                         }
+                        cont++;
                     }
                     RUTERO = rutero;
                     armarTablaRutero(rutero);
                 };
                 reader.readAsText(file, 'UTF-8');
             };
+
+            function validarFila(filarutero) {
+                var mensaje = [];
+                var SALIDA = true;
+                var rutfullcliente = filarutero.rutcliente.toString() + filarutero.dvcliente.toString();
+                if (filarutero.rutcliente.length < 7 || filarutero.rutcliente.length > 8) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El largo del rut no puede ser menor a 7 ni mayor que 8 dígitos.");
+                    SALIDA = false;
+                }
+                if (isNaN(filarutero.rutcliente)) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El rut debe ser numérico.");
+                    SALIDA = false;
+                }
+                if (!$.validateRut(rutfullcliente)) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El dígito verificador no corresponde al rut.");
+                    SALIDA = false;
+                }
+                if (filarutero.nombres.length < 2) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El campo de nombres debe ser de largo al menos 2.");
+                    SALIDA = false;
+                }
+                if (filarutero.apellidos.length < 2) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El campo de apellidos debe ser de largo al menos 2.");
+                    SALIDA = false;
+                }
+                if (isNaN(filarutero.fono1.toString())) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El campo Fono1 debe ser únicamente numérico.");
+                    SALIDA = false;
+                }
+                if (isNaN(filarutero.fono2.toString())) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El campo Fono2 debe ser únicamente numérico.");
+                    SALIDA = false;
+                }
+                if (isNaN(filarutero.fono3.toString())) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El campo Fono3 debe ser únicamente numérico.");
+                    SALIDA = false;
+                }
+                if (filarutero.fono1.toString().length !== 9) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El largo del Fono1 debe ser de 9 digitos.");
+                    SALIDA = false;
+                }
+                if (filarutero.fono2.toString().length !== 9) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El largo del Fono2 debe ser de 9 digitos.");
+                    SALIDA = false;
+                }
+                if (filarutero.fono3.toString().length !== 9) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El largo del Fono3 debe ser de 9 digitos.");
+                    SALIDA = false;
+                }
+                if (!SALIDA) {
+                    MENSAJES.push(mensaje);
+                }
+                
+                return SALIDA;
+            }
 
             function armarTablaRutero(rutero) {
                 var tab = "<table id='tab-rutero' class='table table-sm small table-striped table-condensed table-hover'><thead>";
@@ -107,19 +174,40 @@
                     tab += "</tr>";
                 });
                 tab += "</tbody></table>";
-                
+
                 var tabDetalle = "<table style='border: none; border-collapse: collapse;'><tbody><tr>";
                 tabDetalle += "<td>Registros procesados</td>";
                 tabDetalle += "<td>" + rutero.registros + "</td>";
-                tabDetalle += "</tr></tbody></table>";
-                $('#tabla-rutero').html(tabDetalle + "<br />"+ tab);
+                tabDetalle += "</tr>";
+                if (ERRORES > 0) {
+                    tabDetalle += "<tr>";
+                    tabDetalle += "<td>Registros con problemas</td>";
+                    tabDetalle += "<td>" + ERRORES + " <button class='btn btn-sm btn-warning' type='button' onclick='mostrarErrores();'>Detalle</button></td>";
+                    tabDetalle += "</tr>";
+                }
+                tabDetalle += "</tbody></table>";
+                $('#tabla-rutero').html(tabDetalle + "<br />" + tab);
             }
 
             $(document).ready(function () {
                 cargaSelectCampana();
             });
+
+            function mostrarErrores() {
+                var texto = "<table style='border: none; border-collapse: collapse;'><tbody>";
+                for (var i = 0; i < MENSAJES.length; i++) {
+                    for (var j = 0; j < MENSAJES[i].length; j++) {
+                        console.log(MENSAJES[i][j]);
+                        texto += "<tr><td>" + MENSAJES[i][j] + "</td></tr>";
+                    }
+                }
+                texto += "</tbody></table>";
+                $('#cuerpo-modal-errores').html(texto);
+                $('#modal-errores').modal();
+            }
+
             function insert() {
-                if(validarInsert()){
+                if (validarInsert()) {
                     var detalle = {
                         url: 'RuteroController',
                         datos: {
@@ -127,29 +215,29 @@
                             rutero: RUTERO
                         }
                     };
-                    insertar(detalle, function(obj){
-                        
+                    insertar(detalle, function (obj) {
+
                     });
                 }
             }
-            
-            function validarInsert(){
-                if($('#select-campana').val() === '0' || $('#select-campana').val() === 0){
+
+            function validarInsert() {
+                if ($('#select-campana').val() === '0' || $('#select-campana').val() === 0) {
                     alert('Debe seleccionar una campaña para cargar el rutero.');
                     return false;
                 }
-                
+
                 var cantidad = 0;
-                $('#tab-rutero tbody tr').each(function(){
-                    cantidad ++;
+                $('#tab-rutero tbody tr').each(function () {
+                    cantidad++;
                 });
-                if(cantidad === 0){
+                if (cantidad === 0) {
                     alert('No existen registros para insertar');
                     return false;
                 }
                 return true;
             }
-            
+
             function cargaSelectCampana() {
                 var idempresa = '<% out.print(session.getAttribute("idempresa"));%>';
                 var detalle = {
@@ -162,14 +250,38 @@
                 };
                 cargarSelectParams(detalle);
             }
-            
-            function limpiar(){
+
+            function limpiar() {
                 $('#tabla-rutero').html('');
                 $('#select-campana').val('0');
                 $('#archivo').val('');
                 RUTERO = null;
             }
         </script>
+        <!-- The Modal -->
+        <div class="modal" id="modal-errores">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Informe de errores</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div id="cuerpo-modal-errores" class="modal-body">
+                        
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
         <div class="container-fluid">
             <br />
             <br />

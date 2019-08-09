@@ -210,6 +210,8 @@ public class CampanaController extends HttpServlet {
 		+ idempresa + ")";
 
 	Conexion c = new Conexion();
+	//System.out.println("query: " + query);
+	int idCampana = 0;
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
 	JSONArray campanas = new JSONArray();
@@ -218,6 +220,7 @@ public class CampanaController extends HttpServlet {
 	try {
 	    while (rs.next()) {
 		JSONObject campana = new JSONObject();
+		idCampana = rs.getInt("IDCAMPANA");
 		campana.put("idcampana", rs.getInt("IDCAMPANA"));
 		campana.put("idproducto", rs.getInt("IDPRODUCTO"));
 		campana.put("idempresa", rs.getInt("IDEMPRESA"));
@@ -256,6 +259,7 @@ public class CampanaController extends HttpServlet {
 	    salida.put("estado", "error");
 	    salida.put("mensaje", ex);
 	}
+	System.out.println("Cont: " + cont);
 	c.cerrar();
 	if (cont > 1) {
 	    salida.put("estado", "ok");
@@ -263,7 +267,8 @@ public class CampanaController extends HttpServlet {
 	}
 	c = new Conexion();
 	c.abrir();
-	query = "CALL SP_GET_DETALLE_SUBPRODUCTOS(" + salida.getJSONObject("campana").getInt("idcampana") + ")";
+	query = "CALL SP_GET_DETALLE_SUBPRODUCTOS(" + idCampana + ")";
+	
 	ResultSet result = c.ejecutarQuery(query);
 	String tab = "";
 	
@@ -287,7 +292,7 @@ public class CampanaController extends HttpServlet {
 	    salida.put("mensaje", ex);
 	}
 	c.cerrar();
-
+	System.out.println(salida);
 	return salida;
     }
 
