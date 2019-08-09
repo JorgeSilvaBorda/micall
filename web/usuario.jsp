@@ -349,6 +349,16 @@
                     });
                 }
             }
+            
+            function esVendedor(select){//Validar que si es vendedor o administrador, se pueda escoger únicamente la administración interna
+                if(parseInt($(select).val()) === 3 || parseInt($(select).val()) === 1){
+                    $('#select-empresa').val(1);
+                    $('#select-empresa').attr("disabled", "disabled");
+                }else{
+                    $('#select-empresa').removeAttr("disabled");
+                    $('#select-empresa').val(0);
+                }
+            }
 
         </script>
         <!-- Modal reset pass -->
@@ -431,7 +441,7 @@
                         </div>
                         <div class="form-group small">
                             <label for="select-tipo-usuario">Tipo Usuario</label>
-                            <select class="form-control form-control-sm" id="select-tipo-usuario">
+                            <select onchange="esVendedor(this);" class="form-control form-control-sm" id="select-tipo-usuario">
 
                             </select>
                         </div>
