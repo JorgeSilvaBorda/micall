@@ -186,7 +186,7 @@ public class CampanaController extends HttpServlet {
 		cuerpotabla += "<td>[" + rs.getString("CODSUBPRODUCTO") + "] " + rs.getString("DESCSUBPRODUCTO") + "</td>";
 		//cuerpotabla += "<td>" + rs.getString("DESCSUBPRODUCTO") + "</td>";
 		cuerpotabla += "<td>" + rs.getBigDecimal("PRIMA") + "</td>";
-		cuerpotabla += "<td>" + format.format(rs.getDouble("MONTOMETA")) + "</td>";
+		cuerpotabla += "<td>$" + format.format(rs.getDouble("MONTOMETA")) + "</td>";
 		cuerpotabla += "<td>" + rs.getInt("CANTIDADMETA") + "</td>";
 
 		cuerpotabla += "</tr>";
