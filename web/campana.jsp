@@ -67,7 +67,7 @@
             function insert() {
                 var codcampana = $('#codcampana').val();
                 var nomcampana = $('#nomcampana').val();
-                var idempresa = $('#select-empresa').val(); //solo efectos de validación
+                //var idempresa = $('#select-empresa').val(); //solo efectos de validación
                 var idproducto = $('#select-producto').val();
                 var desde = $('#desde').val();
                 var hasta = $('#hasta').val();
@@ -109,9 +109,11 @@
                         }
                     };
 
-                    insertar(detalle);
-                    limpiar();
-                    traerCampanas();
+                    insertar(detalle, function(obj){
+                        limpiar();
+                        traerCampanas();
+                    });
+                    
                 }
 
             }
@@ -198,9 +200,11 @@
                             idcampana: idcampana
                         }
                     };
-                    eliminar(detalle);
+                    eliminar(detalle, function(obj){
+                        traerCampanas();
+                    });
                 }
-                traerCampanas();
+                
             }
             
             function verSubs(idcampana){

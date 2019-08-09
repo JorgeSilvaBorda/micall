@@ -46,19 +46,20 @@
                         }
                     };
 
-                    insertar(detalle);
-                    var det = {
-                        url: 'ProductoController',
-                        datos: {
-                            tipo: 'get-productos'
-                        },
-                        bodyDestino: 'cuerpo-tab-producto',
-                        tablaObjetivo: 'tabla-productos'
-                    };
-                    traerListado(det);
-                    $('.dataTable').DataTable().destroy();
-                    $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                    limpiar();
+                    insertar(detalle, function (obj) {
+                        var det = {
+                            url: 'ProductoController',
+                            datos: {
+                                tipo: 'get-productos'
+                            },
+                            bodyDestino: 'cuerpo-tab-producto',
+                            tablaObjetivo: 'tabla-productos'
+                        };
+                        traerListado(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        limpiar();
+                    });
                 }
             }
 
@@ -107,7 +108,7 @@
                 var idproducto = $($(fila.children()[0]).children()[0]).val();
                 var idempresa = $($(fila.children()[0]).children()[1]).val();
                 $('#hidIdProducto').val(idproducto);
-                $('#hidIdEmpresa').val(idproducto);
+                $('#hidIdEmpresa').val(idempresa);
                 $('#select-empresa').val(idempresa);
                 $('#nombre').val(descproducto);
                 $('#codigo').val(codproducto);
@@ -134,20 +135,22 @@
                         datos: datos
                     };
                     //console.log(detalle);
-                    guardar(detalle);
+                    guardar(detalle, function (obj) {
+                        var det = {
+                            url: 'ProductoController',
+                            datos: {
+                                tipo: 'get-productos'
+                            },
+                            bodyDestino: 'cuerpo-tab-producto',
+                            tablaObjetivo: 'tabla-productos'
+                        };
+                        traerListado(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        limpiar();
+                    });
                 }
-                var det = {
-                    url: 'ProductoController',
-                    datos: {
-                        tipo: 'get-productos'
-                    },
-                    bodyDestino: 'cuerpo-tab-producto',
-                    tablaObjetivo: 'tabla-productos'
-                };
-                traerListado(det);
-                $('.dataTable').DataTable().destroy();
-                $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                limpiar();
+
             }
 
             function limpiar() {
@@ -193,18 +196,19 @@
                             idproducto: idproducto
                         }
                     };
-                    eliminar(detalle);
-                    var det = {
-                        url: 'ProductoController',
-                        datos: {
-                            tipo: 'get-productos'
-                        },
-                        bodyDestino: 'cuerpo-tab-producto',
-                        tablaObjetivo: 'tabla-productos'
-                    };
-                    traerListado(det);
-                    $('.dataTable').DataTable().destroy();
-                    $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                    eliminar(detalle, function (obj) {
+                        var det = {
+                            url: 'ProductoController',
+                            datos: {
+                                tipo: 'get-productos'
+                            },
+                            bodyDestino: 'cuerpo-tab-producto',
+                            tablaObjetivo: 'tabla-productos'
+                        };
+                        traerListado(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                    });
                 }
             }
 

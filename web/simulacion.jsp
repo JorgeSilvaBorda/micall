@@ -99,7 +99,7 @@
                             pintarDatos(obj.campana, obj.cuerpotabla);
                             $('#montoaprobado').focus();
                             $('#btnCerrarModal').click();
-                        }else{
+                        } else {
                             console.log(obj.estado);
                         }
                     }
@@ -240,11 +240,11 @@
                             simulacion: simulacion
                         }
                     };
-                    insertar(detalle);
-                    //Cargar listado de simulaciones y limpiar
-                    limpiar();
+                    insertar(detalle, function (obj) {
+                        limpiar();
+                        cargarSimulaciones();
+                    });
                 }
-                cargarSimulaciones();
             }
 
             function pintarDatos(campana, subproductos) {

@@ -50,21 +50,21 @@
                             }
                         }
                     };
-                    insertar(detalle);
-                    var det = {
-                        url: 'EmpresaController',
-                        datos: {
-                            tipo: 'get-empresas'
-                        },
-                        bodyDestino: 'cuerpo-tab-empresa',
-                        tablaObjetivo: 'tabla-empresas'
-                    };
-
+                    insertar(detalle, function (obj) {
+                        var det = {
+                            url: 'EmpresaController',
+                            datos: {
+                                tipo: 'get-empresas'
+                            },
+                            bodyDestino: 'cuerpo-tab-empresa',
+                            tablaObjetivo: 'tabla-empresas'
+                        };
+                        traerListado(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        limpiar();
+                    });
                 }
-                traerListado(det);
-                $('.dataTable').DataTable().destroy();
-                $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                limpiar();
             }
 
             function save() {
@@ -91,19 +91,21 @@
                         url: 'EmpresaController'
                     };
 
-                    guardar(detalle);
-                    var det = {
-                        url: 'EmpresaController',
-                        datos: {
-                            tipo: 'get-empresas'
-                        },
-                        bodyDestino: 'cuerpo-tab-empresa',
-                        tablaObjetivo: 'tabla-empresas'
-                    };
-                    traerListado(det);
-                    $('.dataTable').DataTable().destroy();
-                    $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                    cancelarEdicion();
+                    guardar(detalle, function (obj) {
+                        var det = {
+                            url: 'EmpresaController',
+                            datos: {
+                                tipo: 'get-empresas'
+                            },
+                            bodyDestino: 'cuerpo-tab-empresa',
+                            tablaObjetivo: 'tabla-empresas'
+                        };
+                        traerListado(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        cancelarEdicion();
+                    });
+
                 }
             }
 
@@ -119,19 +121,20 @@
                         }
                     };
 
-                    eliminar(detalle);
-                    var det = {
-                        url: 'EmpresaController',
-                        datos: {
-                            tipo: 'get-empresas'
-                        },
-                        bodyDestino: 'cuerpo-tab-empresa',
-                        tablaObjetivo: 'tabla-empresas'
-                    };
-                    traerListado(det);
-                    $('.dataTable').DataTable().destroy();
-                    $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                    limpiar();
+                    eliminar(detalle, function (obj) {
+                        var det = {
+                            url: 'EmpresaController',
+                            datos: {
+                                tipo: 'get-empresas'
+                            },
+                            bodyDestino: 'cuerpo-tab-empresa',
+                            tablaObjetivo: 'tabla-empresas'
+                        };
+                        traerListado(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        limpiar();
+                    });
                 }
             }
 

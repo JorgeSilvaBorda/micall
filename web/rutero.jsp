@@ -127,7 +127,9 @@
                             rutero: RUTERO
                         }
                     };
-                    insertar(detalle);
+                    insertar(detalle, function(obj){
+                        
+                    });
                 }
             }
             

@@ -33,7 +33,7 @@
                     url: 'SubProductoController',
                     datos: {
                         tipo: 'get-subproductos',
-                        idempresa: '<% out.print(session.getAttribute("idempresa")); %>'
+                        idempresa: '<% out.print(session.getAttribute("idempresa"));%>'
                     },
                     bodyDestino: 'cuerpo-tab-subproducto',
                     tablaObjetivo: 'tabla-subproductos'
@@ -65,19 +65,21 @@
                         }
                     };
 
-                    insertar(detalle);
-                    var det = {
-                        url: 'SubProductoController',
-                        datos: {
-                            tipo: 'get-subproductos'
-                        },
-                        bodyDestino: 'cuerpo-tab-subproducto',
-                        tablaObjetivo: 'tabla-subproductos'
-                    };
-                    traerListado(det);
-                    $('.dataTable').DataTable().destroy();
-                    $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                    limpiar();
+                    insertar(detalle, function (obj) {
+                        var det = {
+                            url: 'SubProductoController',
+                            datos: {
+                                tipo: 'get-subproductos'
+                            },
+                            bodyDestino: 'cuerpo-tab-subproducto',
+                            tablaObjetivo: 'tabla-subproductos'
+                        };
+                        traerListado(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        limpiar();
+                    });
+
                 }
             }
 
@@ -127,7 +129,7 @@
                 var idsubproducto = $($(fila.children()[0]).children()[0]).val();
                 var idempresa = $($(fila.children()[0]).children()[1]).val();
                 $('#hidIdSubProducto').val(idsubproducto);
-                $('#hidIdEmpresa').val(idsubproducto);
+                $('#hidIdEmpresa').val(idempresa);
                 $('#select-empresa').val(idempresa);
                 $('#nombre').val(descsubproducto);
                 $('#prima').val(prima);
@@ -160,20 +162,21 @@
                         datos: datos
                     };
                     //console.log(detalle);
-                    guardar(detalle);
+                    guardar(detalle, function (obj) {
+                        var det = {
+                            url: 'SubProductoController',
+                            datos: {
+                                tipo: 'get-subproductos'
+                            },
+                            bodyDestino: 'cuerpo-tab-subproducto',
+                            tablaObjetivo: 'tabla-subproductos'
+                        };
+                        traerListado(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        limpiar();
+                    });
                 }
-                var det = {
-                    url: 'SubProductoController',
-                    datos: {
-                        tipo: 'get-subproductos'
-                    },
-                    bodyDestino: 'cuerpo-tab-subproducto',
-                    tablaObjetivo: 'tabla-subproductos'
-                };
-                traerListado(det);
-                $('.dataTable').DataTable().destroy();
-                $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                limpiar();
             }
 
             function limpiar() {
@@ -221,18 +224,20 @@
                             idsubproducto: idsubproducto
                         }
                     };
-                    eliminar(detalle);
-                    var det = {
-                        url: 'SubProductoController',
-                        datos: {
-                            tipo: 'get-subproductos'
-                        },
-                        bodyDestino: 'cuerpo-tab-subproducto',
-                        tablaObjetivo: 'tabla-subproductos'
-                    };
-                    traerListado(det);
-                    $('.dataTable').DataTable().destroy();
-                    $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                    eliminar(detalle, function (obj) {
+                        var det = {
+                            url: 'SubProductoController',
+                            datos: {
+                                tipo: 'get-subproductos'
+                            },
+                            bodyDestino: 'cuerpo-tab-subproducto',
+                            tablaObjetivo: 'tabla-subproductos'
+                        };
+                        traerListado(det);
+                        $('.dataTable').DataTable().destroy();
+                        $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                    });
+
                 }
             }
 
