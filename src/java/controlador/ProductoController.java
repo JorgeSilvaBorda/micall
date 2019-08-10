@@ -132,7 +132,6 @@ public class ProductoController extends HttpServlet {
     }
     
     private JSONObject getSelectProductos(int idempresa){
-	System.out.println("Entra");
 	JSONObject salida = new JSONObject();
 	String query = "CALL SP_GET_SELECT_PRODUCTOS(" + idempresa + ")";
 	Conexion c = new Conexion();
