@@ -31,13 +31,17 @@
                 cargarSelect(det);
                 $('.dataTable').DataTable().destroy();
                 $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                $('#rut').rut(
-                        {
-                            formatOn: 'keyup',
-                            validateOn: 'blur'
-                        }).on('rutInvalido', function () {
+                $('#rut').rut({
+                    formatOn: 'keyup',
+                    validateOn: 'blur'
+                }).on('rutInvalido', function () {
+                    console.log("rut inválido");
+                    existeUsuario();
                     mostrarAlert('alert-danger', "El rut ingresado no es válido");
+                    
                 }).on('rutValido', function () {
+                    console.log("rut válido");
+                    existeUsuario();
                     ocultarAlert();
                 });
 
@@ -299,11 +303,15 @@
                 $('#mensaje-alerta').html(mensaje);
                 $('#alerta').fadeIn(500);
                 $('#alerta').removeClass('oculto');
+                $('#btnInsert').attr('disabled', 'disabled');
+                $('#btnSave').attr('disabled', 'disabled');
             }
 
             function ocultarAlert() {
                 $('#alerta').fadeOut(500);
                 $('#alerta').html('');
+                $('#btnInsert').removeAttr('disabled');
+                $('#btnSave').removeAttr('disabled');
             }
 
             function del(boton) {
@@ -349,12 +357,12 @@
                     });
                 }
             }
-            
-            function esVendedor(select){//Validar que si es vendedor o administrador, se pueda escoger únicamente la administración interna
-                if(parseInt($(select).val()) === 3 || parseInt($(select).val()) === 1){
+
+            function esVendedor(select) {//Validar que si es vendedor o administrador, se pueda escoger únicamente la administración interna
+                if (parseInt($(select).val()) === 3 || parseInt($(select).val()) === 1) {
                     $('#select-empresa').val(1);
                     $('#select-empresa').attr("disabled", "disabled");
-                }else{
+                } else {
                     $('#select-empresa').removeAttr("disabled");
                     $('#select-empresa').val(0);
                 }
@@ -383,6 +391,7 @@
                                         <label for="rutusuariocambio">Rut:</label>
                                         <input type="text" id="rutusuariocambio" class="form-control form-control-sm" disabled="disabled" />
                                     </div>
+
                                     <div class="form-group small">
                                         <label for="nuevapass">Nueva contraseña</label>
                                         <input type="password" id="nuevapass" class="form-control form-control-sm" />
@@ -425,7 +434,10 @@
                         </div>
                         <div class="form-group small">
                             <label for="rut">Rut</label>
-                            <input id="rut" type="text" onblur="existeUsuario();" class="form-control form-control-sm" /> 
+                            <input id="rut" type="text" class="form-control form-control-sm" /> 
+                        </div>
+                        <div id="alerta" class="alert oculto">
+
                         </div>
                         <div class="form-group small">
                             <label for="nombres">Nombres</label>
@@ -450,7 +462,7 @@
                             <button onclick='limpiar();' type="button" class="btn btn-default btn-sm float-right">Limpiar</button>
                         </div>
                         <div id='edicion' class="form-group oculto small">
-                            <button onclick="save();" type="button" class="btn btn-success btn-sm">Guardar</button>
+                            <button id="btnSave" onclick="save();" type="button" class="btn btn-success btn-sm">Guardar</button>
                             <button onclick='cancelarEdicion();' type="button" class="btn btn-default btn-sm">Cancelar</button>
                         </div>
                     </form>
@@ -478,11 +490,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-3">
-                    <div id="alerta" class="alert oculto">
 
-                    </div>
-                </div>
             </div>
         </div>
     </body>
