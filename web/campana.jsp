@@ -340,7 +340,7 @@
                         <thead>
                             <tr>
                                 <!--th>Código</th-->
-                                <th>Suboroducto</th>
+                                <th>Subproducto</th>
                                 <th>Prima</th>
                                 <th>Monto Meta</th>
                                 <th>Cant. Meta</th>
