@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import modelo.Conexion;
-import modelo.Util;
 
 public class ReportesController extends HttpServlet {
 
@@ -118,6 +118,7 @@ public class ReportesController extends HttpServlet {
 	String query = "CALL SP_RESUMEN_VENTAS_EMPRESA(" + rutusuario + ")";
 	Conexion c = new Conexion();
 	c.abrir();
+        DecimalFormat format = new DecimalFormat("###,###,###,###,###");
 	ResultSet rs = c.ejecutarQuery(query);
 	try{
 	    while(rs.next()){
@@ -126,14 +127,11 @@ public class ReportesController extends HttpServlet {
 		registro.put("descproducto", rs.getString("DESCPRODUCTO"));
 		registro.put("codcampana", rs.getString("CODCAMPANA"));
 		registro.put("nomcampana", rs.getString("NOMCAMPANA"));
-		//registro.put("rutfullempresa", rs.getString("RUTFULLEMPRESA"));
-		registro.put("meta", rs.getInt("META"));
+		registro.put("meta", format.format(rs.getDouble("META")));
 		registro.put("montoacum", rs.getInt("MONTOACUM"));
 		registro.put("porcacum", rs.getInt("PORCACUM"));
 		registro.put("cantidad", rs.getInt("CANTIDAD"));
 		registro.put("acumdia", rs.getInt("ACUMDIA"));
-		//registro.put("cantidad", Util.redondear(rs.getFloat("PORCCUMPMES"), 2));
-		//registro.put("trxmes", rs.getInt("TRX"));
 		registros.put(registro);
 	    }
 	    salida.put("registros", registros);
@@ -155,6 +153,7 @@ public class ReportesController extends HttpServlet {
 	String query = "CALL SP_DETALLE_VENTAS_EMPRESA(" + rutusuario + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
 	Conexion c = new Conexion();
 	c.abrir();
+        DecimalFormat format = new DecimalFormat("###,###,###,###,###");
 	ResultSet rs = c.ejecutarQuery(query);
 	try{
 	    while(rs.next()){
@@ -164,7 +163,7 @@ public class ReportesController extends HttpServlet {
 		venta.put("nomcampana", rs.getString("NOMCAMPANA"));
 		venta.put("codproducto", rs.getString("CODPRODUCTO"));
 		venta.put("descproducto", rs.getString("DESCPRODUCTO"));
-		venta.put("meta", rs.getInt("META"));
+		venta.put("meta", format.format(rs.getDouble("META")));
 		venta.put("monto", rs.getInt("MONTO"));
 		venta.put("rutfullcliente", rs.getString("RUTFULLCLIENTE"));
 		venta.put("rutfullvendedor", rs.getString("RUTFULLVENDEDOR"));
