@@ -162,6 +162,7 @@ public class ReportesController extends HttpServlet {
 	try{
 	    while(rs.next()){
 		JSONObject venta = new JSONObject();
+                venta.put("idsimulacion", rs.getInt("IDSIMULACION"));
 		venta.put("fechasimulacion", rs.getDate("FECHASIMULACION"));
 		venta.put("codcampana", rs.getString("CODCAMPANA"));
 		venta.put("nomcampana", rs.getString("NOMCAMPANA"));
