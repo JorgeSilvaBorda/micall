@@ -10,6 +10,7 @@
             $(document).ready(function () {
                 cargaSelectCampana();
                 traerRuterosEmpresa();
+                $('#select-campana').val('0');
             });
             var MENSAJES = [];
             var ERRORES = 0;
@@ -91,7 +92,7 @@
                     tipo: 'traer-ruteros-empresa',
                     rutempresa: '<% out.print(session.getAttribute("rutempresa")); %>'
                 };
-                
+
                 $.ajax({
                     url: 'RuteroController',
                     type: 'post',
@@ -235,21 +236,46 @@
             }
 
             function insert() {
+                var modo = "";
+                if($('#select-tipo').val() === '1'){
+                    modo = 'ins-rutero';
+                }else if($('#select-tipo').val() === '2'){
+                    modo = 'del-rutero';
+                }
                 if (validarInsert()) {
-                    var detalle = {
-                        url: 'RuteroController',
-                        datos: {
-                            tipo: 'ins-rutero',
-                            rutero: RUTERO
+                    if (ERRORES > 0) {
+                        if (confirm('El rutero cargado presenta errores. Está seguro de que desea cargar únicamente los registros buenos?')) {
+                            var detalle = {
+                                url: 'RuteroController',
+                                datos: {
+                                    tipo: modo,
+                                    rutero: RUTERO
+                                }
+                            };
+                            insertar(detalle, function (obj) {
+                                traerRuterosEmpresa();
+                            });
                         }
-                    };
-                    insertar(detalle, function (obj) {
-                        traerRuterosEmpresa();
-                    });
+                    } else {
+                        var detalle = {
+                            url: 'RuteroController',
+                            datos: {
+                                tipo: modo,
+                                rutero: RUTERO
+                            }
+                        };
+                        insertar(detalle, function (obj) {
+                            traerRuterosEmpresa();
+                        });
+                    }
                 }
             }
 
             function validarInsert() {
+                if ($('#select-tipo').val() === '0') {
+                    alert('Debe seleccionar una operación de carga de rutero. Ingreso o eliminación.');
+                    return false;
+                }
                 if ($('#select-campana').val() === '0' || $('#select-campana').val() === 0) {
                     alert('Debe seleccionar una campaña para cargar el rutero.');
                     return false;
@@ -310,7 +336,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="container-fluid">
             <br />
             <br />
@@ -331,6 +357,14 @@
                         <div class="form-group-small">
                             <label for="archivo">Archivo rutero</label>
                             <input type="file" class="form-control form-control-sm" id="archivo" />
+                        </div>
+                        <div class="form-group small">
+                            <label for="select-tipo">Operación</label>
+                            <select  id="select-tipo" class="form-control form-control-sm" >
+                                <option value='0'>Seleccione</option>
+                                <option value='1'>Ingreso</option>
+                                <option value='2'>Eliminación</option>
+                            </select>
                         </div>
                         <br />
                         <div id='creacion' class="form-group small">

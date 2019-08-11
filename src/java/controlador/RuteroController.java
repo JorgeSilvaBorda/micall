@@ -16,57 +16,59 @@ public class RuteroController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	JSONObject entrada = new JSONObject(request.getParameter("datos"));
-	PrintWriter out = response.getWriter();
-	response.setContentType("text/html; charset=UTF-8");
-	switch (entrada.getString("tipo")) {
-	    case "ins-rutero":
-		out.print(insRutero(entrada.getJSONObject("rutero")));
-		break;
+        JSONObject entrada = new JSONObject(request.getParameter("datos"));
+        PrintWriter out = response.getWriter();
+        response.setContentType("text/html; charset=UTF-8");
+        switch (entrada.getString("tipo")) {
+            case "ins-rutero":
+                out.print(insRutero(entrada.getJSONObject("rutero")));
+                break;
             case "traer-ruteros-empresa":
                 out.print(traerRuterosEmpresa(entrada.getInt("rutempresa")));
                 break;
-	    default:
-		break;
-	}
+            case "del-rutero":
+                out.print(delRutero(entrada.getJSONObject("rutero")));
+                break;
+            default:
+                break;
+        }
     }
 
     private JSONObject insRutero(JSONObject rutero) {
-	JSONObject salida = new JSONObject();
-	int idcampana = rutero.getInt("idcampana");
-	Iterator i = rutero.getJSONArray("filas").iterator();
-	while(i.hasNext()){
-	    JSONObject fila = (JSONObject) i.next();
-	    String query = "CALL SP_INS_FILA_RUTERO("
-		    + idcampana + ","
-		    + fila.getInt("rutcliente") + ","
-		    + "'" + fila.getString("dvcliente") + "',"
-		    + "'" + fila.getString("nombres") + "',"
-		    + "'" + fila.getString("apellidos") + "',"
-		    + "'" + fila.getString("genero") + "',"
-		    + "'" + fila.getString("fechanac") + "',"
-		    + "'" + fila.getString("direccion") + "',"
-		    + "'" + fila.getString("comuna") + "',"
-		    + "'" + fila.getString("region") + "',"
-		    + fila.getInt("codigopostal") + ","
-		    + "'" + fila.getString("email") + "',"
-		    + fila.getInt("montoaprobado") + ","
-		    + fila.getInt("fono1") + ","
-		    + fila.getInt("fono2") + ","
-		    + fila.getInt("fono3") + ","
+        JSONObject salida = new JSONObject();
+        int idcampana = rutero.getInt("idcampana");
+        Iterator i = rutero.getJSONArray("filas").iterator();
+        while (i.hasNext()) {
+            JSONObject fila = (JSONObject) i.next();
+            String query = "CALL SP_INS_FILA_RUTERO("
+                    + idcampana + ","
+                    + fila.getInt("rutcliente") + ","
+                    + "'" + fila.getString("dvcliente") + "',"
+                    + "'" + fila.getString("nombres") + "',"
+                    + "'" + fila.getString("apellidos") + "',"
+                    + "'" + fila.getString("genero") + "',"
+                    + "'" + fila.getString("fechanac") + "',"
+                    + "'" + fila.getString("direccion") + "',"
+                    + "'" + fila.getString("comuna") + "',"
+                    + "'" + fila.getString("region") + "',"
+                    + fila.getInt("codigopostal") + ","
+                    + "'" + fila.getString("email") + "',"
+                    + fila.getInt("montoaprobado") + ","
+                    + fila.getInt("fono1") + ","
+                    + fila.getInt("fono2") + ","
+                    + fila.getInt("fono3") + ","
                     + "'" + fila.getString("nomarchivo") + "')";
-	    Conexion c = new Conexion();
-	    c.abrir();
-	    c.ejecutar(query);
-	    c.cerrar();
-	}
-	
-	
-	salida.put("estado", "ok");
-	return salida;
+            Conexion c = new Conexion();
+            c.abrir();
+            c.ejecutar(query);
+            c.cerrar();
+        }
+
+        salida.put("estado", "ok");
+        return salida;
     }
-    
-    private JSONObject traerRuterosEmpresa(int rutempresa){
+
+    private JSONObject traerRuterosEmpresa(int rutempresa) {
         JSONObject salida = new JSONObject();
         String query = "CALL SP_GET_RUTEROS_EMPRESA(" + rutempresa + ")";
         Conexion c = new Conexion();
@@ -81,7 +83,7 @@ public class RuteroController extends HttpServlet {
         tab += "<th>Archivo</th>";
         tab += "</tr></thead><tbody>";
         try {
-            while(rs.next()){
+            while (rs.next()) {
                 tab += "<tr>";
                 tab += "<td>" + rs.getDate("FECHACARGA") + "</td>";
                 tab += "<td>[" + rs.getString("CODCAMPANA") + "] " + rs.getString("NOMCAMPANA") + "</td>";
@@ -101,4 +103,23 @@ public class RuteroController extends HttpServlet {
         c.cerrar();
         return salida;
     }
+
+    private JSONObject delRutero(JSONObject rutero) {
+        JSONObject salida = new JSONObject();
+        int idcampana = rutero.getInt("idcampana");
+        Iterator i = rutero.getJSONArray("filas").iterator();
+        while (i.hasNext()) {
+            JSONObject fila = (JSONObject) i.next();
+            String query = "CALL SP_DEL_FILA_RUTERO("
+                    + idcampana + ","
+                    + fila.getInt("rutcliente") + ")";
+            Conexion c = new Conexion();
+            c.abrir();
+            c.ejecutar(query);
+            c.cerrar();
+        }
+        salida.put("estado", "ok");
+        return salida;
+    }
+
 }
