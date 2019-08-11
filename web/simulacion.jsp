@@ -542,12 +542,12 @@
             </div>
             <div class="row">
                 <br />
-                <h3>Simulaciones ingresadas</h3>
+                <h3>Simulaciones Ingresadas Del Día</h3>
                 <div class="col-sm-12" id="listado">
                     <table id="tabla-simulaciones" class="table table-sm small table-borderless table-hover table-striped">
                         <thead>
                             <tr>
-                                <th>Fecha</th>
+                                <th>Empresa</th>
                                 <th>Rut cliente</th>
                                 <th>Nombres</th>
                                 <th>Código producto</th>
