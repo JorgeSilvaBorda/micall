@@ -237,9 +237,9 @@
 
             function insert() {
                 var modo = "";
-                if($('#select-tipo').val() === '1'){
+                if ($('#select-tipo').val() === '1') {
                     modo = 'ins-rutero';
-                }else if($('#select-tipo').val() === '2'){
+                } else if ($('#select-tipo').val() === '2') {
                     modo = 'del-rutero';
                 }
                 if (validarInsert()) {
@@ -254,6 +254,7 @@
                             };
                             insertar(detalle, function (obj) {
                                 traerRuterosEmpresa();
+                                limpiar();
                             });
                         }
                     } else {
@@ -266,6 +267,7 @@
                         };
                         insertar(detalle, function (obj) {
                             traerRuterosEmpresa();
+                            limpiar();
                         });
                     }
                 }
@@ -309,7 +311,11 @@
                 $('#tabla-rutero').html('');
                 $('#select-campana').val('0');
                 $('#archivo').val('');
+                $('#select-tipo').val('0');
+                MENSAJES = [];
+                ERRORES = 0;
                 RUTERO = null;
+                NOMARCHIVO = "";
             }
         </script>
         <!-- The Modal -->

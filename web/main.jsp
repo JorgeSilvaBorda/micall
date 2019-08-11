@@ -25,8 +25,8 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12">
-            <nav class="navbar small navbar-expand-sm navbar-light bg-light fixed-top">
-                <a class="navbar-brand" href="#">Mi Call <% if(session.getAttribute("idtipousuario").toString().equals("3")){out.print("MiCall");}else{out.print(session.getAttribute("empresa"));} %></a>
+            <nav class="navbar small navbar-expand-sm navbar-light bg-light fixed-top"><img src='img/logo.jpg' height="40" width='50' />
+                <a class="navbar-brand" href="#"><% if(session.getAttribute("idtipousuario").toString().equals("3")){out.print("MiCall");}else{out.print(session.getAttribute("empresa"));} %></a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#contenidoNavbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
