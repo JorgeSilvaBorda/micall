@@ -74,4 +74,15 @@ public class Util {
 	return format;
     }
     
+    public static String formatMiles(String numero){
+	StringBuilder builder = new StringBuilder();
+	for(int i = 1, len = builder.length();	i < len; i++){
+	    if(i % 4 == 0){
+		builder.insert(len = builder.length() - i, '.');
+		len = builder.length();
+	    }
+	}
+	return builder.toString();
+    }
+    
 }

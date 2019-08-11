@@ -19,11 +19,30 @@
                 datos: JSON.stringify(datos)
             },
             success: function (res) {
+                var OPTS_DT = {
+                    "language": {
+                        "lengthMenu": "Mostrar _MENU_ registros por página",
+                        "zeroRecords": "Sin ventas",
+                        "info": "Mostrando página _PAGE_ de _PAGES_",
+                        "infoEmpty": "Sin ventas",
+                        "infoFiltered": "(filtered from _MAX_ total records)",
+                        "paginate": {
+                            "previous": "Anterior",
+                            "next": "Siguiente"
+                        },
+                        "search": "Buscar"
+                    },
+                    "paging": true,
+                    "ordering": true,
+                    "drawCallback": function () {
+                        $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+                    }
+                };
                 var obj = JSON.parse(res);
                 if (obj.estado === 'ok') {
                     $('.dataTable').DataTable().destroy();
                     $('#cuerpo-tab-resumen').html(armarTabla(obj.registros));
-                    $('#tabla-resumen').DataTable(OPCIONES_DATATABLES);
+                    $('#tabla-resumen').DataTable(OPTS_DT);
                 }
             },
             error: function (a, b, c) {
@@ -38,13 +57,15 @@
         var tab = "";
         $.each(arr, function () {
             tab += "<tr>";
-            tab += "<td>" + $(this)[0].codproducto + "</td>";
-            tab += "<td>" + $(this)[0].descproducto + "</td>";
-            tab += "<td>" + $(this)[0].codcampana + "</td>";
-            tab += "<td>" + $(this)[0].nomcampana + "</td>";
-            tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
+            //tab += "<td>" + $(this)[0].codproducto + "</td>";
+
+            tab += "<td>" + $(this)[0].nomempresa + "</td>";
+            tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
+            tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
+            //tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].montoacum) + "</td>";
-            tab += "<td>" + $(this)[0].porcacum + "%</td>";
+            tab += "<td>" + $(this)[0].cantidad + "</td>";
+            //tab += "<td>" + $(this)[0].porcacum + "%</td>";
             tab += "</tr>";
         });
         return tab;
@@ -57,17 +78,18 @@
         <table id="tabla-resumen" class="table table-sm small table-borderless table-hover table-striped">
             <thead>
                 <tr>
-                    <th>Cod. Producto</th>
+                    <!--th>Cod. Producto</th-->
+
+                    <th>Empresa</th>
+                    <th>Campaña</th>
                     <th>Producto</th>
-                    <th>Cod. campaña</th>
-                    <th>campaña</th>
-                    <th>Meta</th>
+                    <!--th>Meta</th-->
                     <th>Acum. Mes</th>
-                    <th>% Acum. Mes</th>
+                    <th>Cantidad</th>
                 </tr>
             </thead>
             <tbody id="cuerpo-tab-resumen">
-                
+
             </tbody>
         </table>
     </div>

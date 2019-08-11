@@ -59,7 +59,8 @@ function formatMiles(valor) {
 function diffFechas(fechaini, fechafin) {
     var fecIni = new Date(fechaini);
     var fecFin = new Date(fechafin);
-    var diffTime = Math.abs(fecFin.getTime() - fecIni.getTime());
+    //var diffTime = Math.abs(fecFin.getTime() - fecIni.getTime());
+    var diffTime = (fecFin.getTime() - fecIni.getTime());
     var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     return diffDays + 1;
@@ -74,4 +75,11 @@ function fechaIntToString(fecha) {
     var dia = fecha.substring(6, 8);
 
     return (anio + "-" + mes + "-" + dia);
+}
+
+function formatFecha(date){
+    var mes = ((date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
+    var dia = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
+    var fec = date.getFullYear() + '-' + mes + '-' + dia;
+    return fec;
 }

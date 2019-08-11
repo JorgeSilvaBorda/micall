@@ -40,19 +40,69 @@
         $.each(arr, function () {
             tab += "<tr>";
             tab += "<td>" + $(this)[0].fechasimulacion + "</td>";
-            tab += "<td>" + $(this)[0].codcampana + "</td>";
-            tab += "<td>" + $(this)[0].nomcampana + "</td>";
-            tab += "<td>" + $(this)[0].codproducto + "</td>";
-            tab += "<td>" + $(this)[0].descproducto + "</td>";
-            tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
-            tab += "<td>$" + formatMiles($(this)[0].monto) + "</td>";
-            tab += "<td>" + $.formatRut($(this)[0].rutfullcliente) + "</td>";
+            //tab += "<td>" + $(this)[0].codcampana + "</td>";
+            tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
+            //tab += "<td>" + $(this)[0].codproducto + "</td>";
+            tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
+            //tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
             tab += "<td>" + $.formatRut($(this)[0].rutfullvendedor) + "</td>";
+            tab += "<td>" + $.formatRut($(this)[0].rutfullcliente) + "</td>";
+            tab += "<td>$" + formatMiles($(this)[0].monto) + "</td>";
+
+
             tab += "<td>" + $(this)[0].cuotas + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].valorcuota) + "</td>";
-            tab += "<td>" + $(this)[0].subproductos + "</td>";
+            var tdSubs = "<td>" + $(this)[0].subproductos + "</td>";
+            if (parseInt($(this)[0].subproductos) > 0) {
+                tdSubs = "<td>" + $(this)[0].subproductos + " <a href='#' onclick='verSubproductosVendidos(" + $(this)[0].idsimulacion + ");'>Detalle</a></td>";
+            }
+            tab += tdSubs;
             tab += "</tr>";
         });
+        return tab;
+    }
+
+    function verSubproductosVendidos(idsimulacion) {
+        var datos = {
+            tipo: 'get-subproductos-simulacion',
+            idsimulacion: idsimulacion
+        };
+
+        $.ajax({
+            type: 'post',
+            url: 'SimulacionController',
+            data: {
+                datos: JSON.stringify(datos)
+            },
+            success: function (resp) {
+                var obj = JSON.parse(resp);
+                console.log(obj);
+                if (obj.estado === 'ok') {
+                    //pintar popup
+                    $('#cuerpo-modal-subproductos').html(armarTablaSubproductos(obj.subproductos));
+                    $('#modal-subproductos').modal();
+                }
+            }
+        });
+    }
+
+    function armarTablaSubproductos(subproductos) {
+        var tab = "<table id='tab-subproductos' class='table-sm small' style='border: none; border-collapse: collapse;'><thead>";
+        tab += "<tr>";
+        tab += "<th>Subproducto</th>";
+        tab += "<th>Prima</th>";
+        tab += "<th>Meta Monto</th>";
+        tab += "<th>Meta Cantidad</th>";
+        tab += "</tr></thead><tbody>";
+        $(subproductos).each(function () {
+            tab += "<tr>";
+            tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
+            tab += "<td>" + $(this)[0].prima + "</td>";
+            tab += "<td>$" + formatMiles($(this)[0].montometa) + "</td>";
+            tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
+            tab += "</tr>";
+        });
+        tab += "</tbody></table>";
         return tab;
     }
 
@@ -67,6 +117,29 @@
     }
 </script>
 <br />
+<div class="modal fade" id="modal-subproductos">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Subproductos</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body" id='cuerpo-modal-subproductos'>
+
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" id='btnCerrarModal' class="btn btn-secondary btn-sm" data-dismiss="modal">Cerrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
 <div class="row">
     <div class="col-sm-5">
         <form>
@@ -100,14 +173,16 @@
             <thead>
                 <tr>
                     <th>Fecha</th>
-                    <th>Cod. Campaña</th>
+                    <!--th>Cod. Campaña</th-->
                     <th>Campaña</th>
-                    <th>Cod. Producto</th>
+                    <!--th>Cod. Producto</th-->
                     <th>Producto</th>
-                    <th>Meta</th>
-                    <th>Monto</th>
-                    <th>Rut Cliente</th>
+                    <!--th>Meta</th-->
                     <th>Rut Vendedor</th>
+                    <th>Rut Cliente</th>
+                    <th>Monto</th>
+
+
                     <th>Cuotas</th>
                     <th>Valor Cuota</th>
                     <th>Subproductos</th>

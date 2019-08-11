@@ -8,7 +8,9 @@
     <body>
 	<script type="text/javascript">
             $(document).ready(function(){
-                
+                var anio = formatFecha(new Date()).split("-")[0];
+                var mes = formatFecha(new Date()).split("-")[1];
+                $('#aniomes').html(anio.toString() + "-" + mes.toString());
                 cambiarTab($('#tab-resumen'), 'resumen');
             });
 	    function cambiarTab(tab, nombre){
@@ -25,7 +27,7 @@
             <br />
             <div class="row">
                 <div class="col-sm-12">
-                    <h2>Ventas</h2>
+                    <h2>Ventas <span id="aniomes"></span></h2>
                 </div>
             </div>
 	    <div class="row">

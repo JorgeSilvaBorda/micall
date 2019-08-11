@@ -84,8 +84,8 @@ public class SubProductoController extends HttpServlet {
 	try {
 	    while (rs.next()) {
 		filas += "<tr>";
-		filas += "<td><input type='hidden' value='" + rs.getInt("IDSUBPRODUCTO") + "' /><span>" + rs.getString("CODSUBPRODUCTO") + "</span></td>";
-		filas += "<td>" + rs.getString("DESCSUBPRODUCTO") + "</td>";
+		filas += "<td><input type='hidden' value='" + rs.getInt("IDSUBPRODUCTO") + "' /><span>[" + rs.getString("CODSUBPRODUCTO") + "] " +rs.getString("DESCSUBPRODUCTO") + "</span></td>";
+		//filas += "<td>" + rs.getString("DESCSUBPRODUCTO") + "</td>";
 		filas += "<td>" + rs.getString("PRIMA") + "</td>";
 		filas += "<td><input class='oculto' onkeyup='formatMilesInput(this);' type='text' value='' /></td>";
 		filas += "<td><input class='oculto' onkeyup='formatMilesInput(this);' type='text' value=''/></td>";

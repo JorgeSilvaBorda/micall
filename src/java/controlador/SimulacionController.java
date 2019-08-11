@@ -1,5 +1,6 @@
 package controlador;
 
+import clases.json.JSONArray;
 import clases.json.JSONException;
 import clases.json.JSONObject;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import modelo.Conexion;
 
@@ -26,6 +28,9 @@ public class SimulacionController extends HttpServlet {
                 break;
             case "get-simulaciones-rutvendedor":
                 out.print(getSimulacionesRutVendedor(entrada.getInt("rutvendedor")));
+                break;
+            case "get-subproductos-simulacion":
+                out.print(getSubproductosSimulacion(entrada.getInt("idsimulacion")));
                 break;
         }
     }
@@ -96,17 +101,22 @@ public class SimulacionController extends HttpServlet {
         ResultSet rs = c.ejecutarQuery(query);
         int filas = 0;
         String cuerpo = "";
+        DecimalFormat format = new DecimalFormat("###,###,###,###,###");
         try{
             while(rs.next()){
+                String filaSubs = "<td>" + rs.getInt("SUBPRODUCTOS") + "</td>";
+                if(rs.getInt("SUBPRODUCTOS") > 0){
+                    filaSubs = "<td>" + rs.getInt("SUBPRODUCTOS") + " <a href='#' onclick='verSubproductosVendidos(" + rs.getInt("IDSIMULACION") + ");'>Detalle</a></td>";
+                }
                 cuerpo += "<tr>";
-                cuerpo += "<td>" + rs.getDate("FECHASIMULACION") + "</td>";
+                cuerpo += "<td>" + rs.getString("NOMEMPRESA") + "</td>";
                 cuerpo += "<td>" + rs.getString("RUTCLIENTE") + "-" + rs.getString("DVCLIENTE") + "</td>";
                 cuerpo += "<td>" + rs.getString("NOMBRESCLIENTE") + " " + rs.getString("APELLIDOSCLIENTE") + "</td>";
                 cuerpo += "<td>" + rs.getString("CODPRODUCTO") + "</td>";
                 cuerpo += "<td>" + rs.getString("DESCPRODUCTO") + "</td>";
-                cuerpo += "<td>" + rs.getInt("MONTO") + "</td>";
+                cuerpo += "<td>$" + format.format(rs.getInt("MONTO")) + "</td>";
                 cuerpo += "<td>" + rs.getInt("CUOTAS") + "</td>";
-                cuerpo += "<td>" + rs.getInt("SUBPRODUCTOS") + "</td>";
+                cuerpo += filaSubs;
                 cuerpo += "</tr>";
                 filas ++;
             }
@@ -114,7 +124,7 @@ public class SimulacionController extends HttpServlet {
                 salida.put("cuerpotabla", cuerpo);
             }
             salida.put("estado", "ok");
-        }catch (Exception ex) {
+        }catch (JSONException | SQLException ex) {
             System.out.println("Problemas en SimulacionController.getSimulacionesRutVendedor()");
             System.out.println(ex);
             salida.put("estado", "error");
@@ -122,6 +132,41 @@ public class SimulacionController extends HttpServlet {
         }
         c.cerrar();
 
+        return salida;
+    }
+    
+    private JSONObject getSubproductosSimulacion(int idsimulacion){
+        System.out.println("Entra a buscar detalle");
+        JSONObject salida = new JSONObject();
+        String query = "CALL SP_GET_SUBPRODUCTOS_SIMULACION(" + idsimulacion + ")";
+        Conexion c = new Conexion();
+        c.abrir();
+        ResultSet rs = c.ejecutarQuery(query);
+        JSONArray subproductos = new JSONArray();
+        try {
+            while(rs.next()){
+                JSONObject sub = new JSONObject();
+                sub.put("idsimulacion", rs.getInt("IDSIMULACION"));
+                sub.put("idsubproducto", rs.getInt("IDSUBPRODUCTO"));
+                sub.put("idempresa", rs.getInt("IDEMPRESA"));
+                sub.put("codsubproducto", rs.getString("CODSUBPRODUCTO"));
+                sub.put("descsubproducto", rs.getString("DESCSUBPRODUCTO"));
+                sub.put("prima", rs.getDouble("PRIMA"));
+                sub.put("montometa", rs.getInt("MONTOMETA"));
+                sub.put("cantidadmeta", rs.getInt("CANTIDADMETA"));
+                subproductos.put(sub);
+            }
+            salida.put("subproductos", subproductos);
+            salida.put("estado", "ok");
+        } catch (JSONException | SQLException ex) {
+            System.out.println("Problemas en modelo.SimlacionController.getSubproductosSimulacion()");
+            System.out.println(ex);
+            salida = new JSONObject();
+            salida.put("estado", "error");
+            salida.put("mensaje", ex);
+        }
+        c.cerrar();
+        
         return salida;
     }
 }

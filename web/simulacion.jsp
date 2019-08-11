@@ -15,6 +15,7 @@
         <script type="text/javascript">
             $(document).ready(function () {
                 cargarSimulaciones();
+                cargaSelectEmpresa();
                 $('#rutcliente').rut(
                         {
                             formatOn: 'keyup',
@@ -26,6 +27,15 @@
                 });
             });
 
+            function cargaSelectEmpresa() {
+                var det = {
+                    tipo: 'carga-select-empresa',
+                    url: 'EmpresaController',
+                    objetivo: 'select-empresa'
+                };
+                cargarSelect(det);
+            }
+
             function cargarSimulaciones() {
                 var detalle = {
                     url: 'SimulacionController',
@@ -35,7 +45,6 @@
                         rutvendedor: parseInt('<% out.print(session.getAttribute("rutusuario")); %>')
                     }
                 };
-
                 traerListado(detalle);
             }
 
@@ -108,7 +117,11 @@
             }
 
             function buscar() {
-                var idempresa = '<% out.print(session.getAttribute("idempresa"));%>';
+                if($('#select-empresa').val() === '0'){
+                    alert("Debe seleccionar la empresa para la que se desea simular.");
+                    return false;
+                }
+                var idempresa = $('#select-empresa').val();
                 var rutcliente = $('#rutcliente').val().split("-")[0].replaceAll("\\.", "");
                 var datos = {
                     tipo: 'get-campana-empresa-rutcliente',
@@ -129,7 +142,7 @@
                                 //Son varias campañas para el rut. Escoger...
                                 armarModalCampanas(obj.campanas);
                             } else {
-                                pintarDatos(obj.campana, obj.cuerpotabla);
+                                pintarDatos(obj.campanas[0], obj.cuerpotabla);
                                 $('#montoaprobado').focus();
                             }
 
@@ -198,7 +211,23 @@
                 var montoAprobado = $('#hidMontoAprobado').val();
                 if (simulacion.monto > montoAprobado) {
                     alert('El monto de la simulación no puede ser superior al monto aprobado ($' + formatMiles(montoAprobado) + ')');
+                    return false;
                 }
+                if (simulacion.costototal <= simulacion.monto) {
+                    alert("El costo total debe ser mayor que el monto.");
+                    return false;
+                }
+
+                var costocuotas = parseInt(simulacion.valorcuota) * parseInt(simulacion.cuotas);
+                if (!(costocuotas > montoAprobado)) {
+                    alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto aprobado ($" + formatMiles(montoAprobado) + ")");
+                    return false;
+                }
+                if (!(costocuotas <= simulacion.costototal)) {
+                    alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser menor o igual al costo total ($" + formatMiles(simulacion.costototal) + ")");
+                    return false;
+                }
+
                 return true;
             }
 
@@ -247,6 +276,67 @@
                 }
             }
 
+            function calcTasaAnual() {
+                var tasa = parseFloat($('#tasainteres').val().replaceAll(",", "."));
+                var tasaAnual = (tasa * 12).toString();
+                var decimales = "";
+                var enteros = "";
+                if (tasaAnual.indexOf(",") !== -1) {
+                    decimales = tasaAnual.split(",")[1];
+                    enteros = tasaAnual.split(",")[0];
+                }
+                if (tasaAnual.indexOf(".") !== -1) {
+                    decimales = tasaAnual.split(".")[1];
+                    enteros = tasaAnual.split(".")[0];
+                }
+
+                decimales = decimales.substring(0, 2);
+                $('#tasaanual').val(enteros + "." + decimales);
+            }
+            
+            function verSubproductosVendidos(idsimulacion){
+                var datos = {
+                    tipo: 'get-subproductos-simulacion',
+                    idsimulacion: idsimulacion
+                };
+                
+                $.ajax({
+                    type: 'post',
+                    url: 'SimulacionController',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function(resp){
+                        var obj = JSON.parse(resp);
+                        if(obj.estado === 'ok'){
+                            //pintar popup
+                            $('#cuerpo-modal-subproductos').html(armarTablaSubproductos(obj.subproductos));
+                            $('#modal-subproductos').modal();
+                        }
+                    }
+                });
+            }
+            
+            function armarTablaSubproductos(subproductos){
+                var tab = "<table id='tab-subproductos' class='table-sm small' style='border: none; border-collapse: collapse;'><thead>";
+                tab += "<tr>";
+                tab += "<th>Subproducto</th>";
+                tab += "<th>Prima</th>";
+                tab += "<th>Meta Monto</th>";
+                tab += "<th>Meta Cantidad</th>";
+                tab += "</tr></thead><tbody>";
+                $(subproductos).each(function(){
+                    tab += "<tr>";
+                    tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
+                        tab += "<td>" + $(this)[0].prima + "</td>";
+                        tab += "<td>$" + formatMiles($(this)[0].montometa) + "</td>";
+                        tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
+                        tab += "</tr>";
+                    });
+                    tab += "</tbody></table>";
+                    return tab;
+                }
+
             function pintarDatos(campana, subproductos) {
                 $('#hidIdCampana').val(campana.idcampana);
                 $('#hidMontoAprobado').val(campana.montoaprobado);
@@ -282,6 +372,17 @@
                 $('#montoaprobado').val('');
                 $('#montometa').html('');
                 $('#rutcliente').val('');
+
+                //Limpieza de inputs
+                $('#valorcuota').val('');
+                $('#tasaanual').val('');
+                $('#cuotas').val('');
+                $('#tasainteres').val('');
+                $('#cae').val('');
+                $('#costototal').val('');
+                $('#vencimiento').val('');
+                $('#comision').val('');
+                $('#select-empresa').val('0');
             }
 
             function mostrarAlert(clase, mensaje) {
@@ -323,6 +424,31 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="modal fade" id="modal-subproductos">
+                <div class="modal-dialog modal-lg" >
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Subproductos</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body" id='cuerpo-modal-subproductos'>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="button" id='btnCerrarModal' class="btn btn-secondary btn-sm" data-dismiss="modal">Cerrar</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            
             <input type='hidden' id='hidIdCampana' value='' />
             <input type='hidden' id='hidMontoAprobado' value='' />
             <br />
@@ -344,6 +470,12 @@
 
                             </div>
 
+                        </div>
+                        <div class="form-group small">
+                            <label for="select-empresa">Empresa</label>
+                            <select class="form-control form-control-sm" id="select-empresa">
+
+                            </select>
                         </div>
                         <div class="form-group small">
                             <button type='button' onclick='buscar();' class='btn btn-primary btn-sm' id='btnBuscar'>Buscar</button>
@@ -408,17 +540,24 @@
                                 <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='valorcuota' value=''/>
                             </td>
 
-
-                            <td style='font-weight: bold;'>Tasa anual</td>
-                            <td>
-                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasaanual' value=''/>
-                            </td>
-                        </tr>
-                        <tr>
                             <td style='font-weight: bold;'>Tasa interés</td>
                             <td>
-                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasainteres' value=''/>
+                                <input class='form-control form-control-sm' onkeyup="calcTasaAnual();" type='number' step='0.01' id='tasainteres' value=''/>
                             </td>
+                            <!--td style='font-weight: bold;'>Tasa anual</td>
+                            <td>
+                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasaanual' value=''/>
+                            </td-->
+                        </tr>
+                        <tr>
+                            <td style='font-weight: bold;'>Tasa anual</td>
+                            <td>
+                                <input class='form-control form-control-sm' disabled="disabled" type='number' step='0.01' id='tasaanual' value=''/>
+                            </td>
+                            <!--td style='font-weight: bold;'>Tasa interés</td>
+                            <td>
+                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasainteres' value=''/>
+                            </td-->
                             <td style='font-weight: bold;'>CAE</td>
                             <td>
                                 <input class='form-control form-control-sm' type='number' step='0.01' id='cae' value=''/>
@@ -472,12 +611,12 @@
             </div>
             <div class="row">
                 <br />
-                <h3>Simulaciones ingresadas</h3>
+                <h3>Simulaciones Ingresadas Del Día</h3>
                 <div class="col-sm-12" id="listado">
                     <table id="tabla-simulaciones" class="table table-sm small table-borderless table-hover table-striped">
                         <thead>
                             <tr>
-                                <th>Fecha</th>
+                                <th>Empresa</th>
                                 <th>Rut cliente</th>
                                 <th>Nombres</th>
                                 <th>Código producto</th>
