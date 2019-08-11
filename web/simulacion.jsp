@@ -198,7 +198,13 @@
                 var montoAprobado = $('#hidMontoAprobado').val();
                 if (simulacion.monto > montoAprobado) {
                     alert('El monto de la simulación no puede ser superior al monto aprobado ($' + formatMiles(montoAprobado) + ')');
+                    return false;
                 }
+                if(simulacion.costototal <= simulacion.monto){
+                    alert("El costo total debe ser mayor que el monto.");
+                    return false;
+                }
+                
                 return true;
             }
 
@@ -245,6 +251,24 @@
                         cargarSimulaciones();
                     });
                 }
+            }
+            
+            function calcTasaAnual(){
+                var tasa = parseFloat($('#tasainteres').val().replaceAll(",", "."));
+                var tasaAnual = (tasa * 12).toString();
+                var decimales = "";
+                var enteros = "";
+                if(tasaAnual.indexOf(",") !== -1){
+                   decimales = tasaAnual.split(",")[1];
+                   enteros = tasaAnual.split(",")[0];
+                }
+                if(tasaAnual.indexOf(".") !== -1){
+                   decimales = tasaAnual.split(".")[1];
+                   enteros = tasaAnual.split(".")[0];
+                }
+                
+                decimales = decimales.substring(0, 2);
+                $('#tasaanual').val(enteros + "." + decimales);
             }
 
             function pintarDatos(campana, subproductos) {
@@ -408,17 +432,24 @@
                                 <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='valorcuota' value=''/>
                             </td>
 
-
-                            <td style='font-weight: bold;'>Tasa anual</td>
-                            <td>
-                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasaanual' value=''/>
-                            </td>
-                        </tr>
-                        <tr>
                             <td style='font-weight: bold;'>Tasa interés</td>
                             <td>
-                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasainteres' value=''/>
+                                <input class='form-control form-control-sm' onkeyup="calcTasaAnual();" type='number' step='0.01' id='tasainteres' value=''/>
                             </td>
+                            <!--td style='font-weight: bold;'>Tasa anual</td>
+                            <td>
+                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasaanual' value=''/>
+                            </td-->
+                        </tr>
+                        <tr>
+                            <td style='font-weight: bold;'>Tasa anual</td>
+                            <td>
+                                <input class='form-control form-control-sm' disabled="disabled" type='number' step='0.01' id='tasaanual' value=''/>
+                            </td>
+                            <!--td style='font-weight: bold;'>Tasa interés</td>
+                            <td>
+                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasainteres' value=''/>
+                            </td-->
                             <td style='font-weight: bold;'>CAE</td>
                             <td>
                                 <input class='form-control form-control-sm' type='number' step='0.01' id='cae' value=''/>
