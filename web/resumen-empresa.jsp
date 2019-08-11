@@ -37,7 +37,7 @@
         var ventasMes = 0;
         $.each(arr, function () {
             tab += "<tr>";
-            //tab += "<td>" + $(this)[0].codcampana + "</td>";
+            tab += "<td>" + $(this)[0].fechafin + "</td>";
             tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
             //tab += "<td>" + $(this)[0].codproducto + "</td>";
             tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
@@ -64,7 +64,7 @@
         <table id="tabla-resumen-empresa" class="table table-sm small table-borderless table-hover table-striped">
             <thead>
                 <tr>
-                    <!--th>Cod. Campaña</th-->
+                    <th>Fecha Término</th>
                     <th>Campaña</th>
                     <!--th>Cod. Producto</th-->
                     <th>Producto</th>
