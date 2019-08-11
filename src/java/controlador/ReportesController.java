@@ -86,6 +86,7 @@ public class ReportesController extends HttpServlet {
 	try{
 	    while(rs.next()){
 		JSONObject venta = new JSONObject();
+                venta.put("idsimulacion", rs.getInt("IDSIMULACION"));
 		venta.put("fechasimulacion", rs.getDate("FECHASIMULACION"));
 		venta.put("rutfullcliente", rs.getString("RUTCLIENTE") + "-" + rs.getString("DVCLIENTE"));
 		venta.put("rutcliente", rs.getString("RUTCLIENTE"));
@@ -97,6 +98,7 @@ public class ReportesController extends HttpServlet {
 		venta.put("meta", rs.getInt("META"));
 		venta.put("cuotas", rs.getInt("CUOTAS"));
 		venta.put("empresa", rs.getString("NOMBRE"));
+                venta.put("subproductos", rs.getInt("SUBPRODUCTOS"));
 		ventas.put(venta);
 	    }
 	    salida.put("ventas", ventas);
