@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import modelo.Conexion;
 
@@ -96,15 +97,16 @@ public class SimulacionController extends HttpServlet {
         ResultSet rs = c.ejecutarQuery(query);
         int filas = 0;
         String cuerpo = "";
+        DecimalFormat format = new DecimalFormat("###,###,###,###,###");
         try{
             while(rs.next()){
                 cuerpo += "<tr>";
-                cuerpo += "<td>" + rs.getDate("FECHASIMULACION") + "</td>";
+                cuerpo += "<td>" + rs.getString("NOMEMPRESA") + "</td>";
                 cuerpo += "<td>" + rs.getString("RUTCLIENTE") + "-" + rs.getString("DVCLIENTE") + "</td>";
                 cuerpo += "<td>" + rs.getString("NOMBRESCLIENTE") + " " + rs.getString("APELLIDOSCLIENTE") + "</td>";
                 cuerpo += "<td>" + rs.getString("CODPRODUCTO") + "</td>";
                 cuerpo += "<td>" + rs.getString("DESCPRODUCTO") + "</td>";
-                cuerpo += "<td>" + rs.getInt("MONTO") + "</td>";
+                cuerpo += "<td>$" + format.format(rs.getInt("MONTO")) + "</td>";
                 cuerpo += "<td>" + rs.getInt("CUOTAS") + "</td>";
                 cuerpo += "<td>" + rs.getInt("SUBPRODUCTOS") + "</td>";
                 cuerpo += "</tr>";

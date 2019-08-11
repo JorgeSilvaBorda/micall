@@ -59,7 +59,8 @@ function formatMiles(valor) {
 function diffFechas(fechaini, fechafin) {
     var fecIni = new Date(fechaini);
     var fecFin = new Date(fechafin);
-    var diffTime = Math.abs(fecFin.getTime() - fecIni.getTime());
+    //var diffTime = Math.abs(fecFin.getTime() - fecIni.getTime());
+    var diffTime = (fecFin.getTime() - fecIni.getTime());
     var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     return diffDays + 1;

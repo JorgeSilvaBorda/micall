@@ -7,19 +7,28 @@
     </head>
     <body>
         <script type="text/javascript">
+            $(document).ready(function () {
+                cargaSelectCampana();
+                traerRuterosEmpresa();
+                $('#select-campana').val('0');
+            });
             var MENSAJES = [];
             var ERRORES = 0;
             var RUTERO = null;
+            var NOMARCHIVO = "";
             document.getElementById('archivo').onchange = function () {
                 var cont = 1;
                 var log = [];
                 var file = this.files[0];
+
+                NOMARCHIVO = file;
                 var reader = new FileReader();
                 reader.onload = function () { //Acá convertir a tabla
                     ERRORES = 0;
                     MENSAJES = [];
                     var lineas = this.result.split("\n");
                     var rutero = {
+                        nomarchivo: NOMARCHIVO.name,
                         idcampana: $('#select-campana').val(),
                         registros: 0,
                         filas: []
@@ -78,6 +87,30 @@
                 reader.readAsText(file, 'UTF-8');
             };
 
+            function traerRuterosEmpresa() {
+                var datos = {
+                    tipo: 'traer-ruteros-empresa',
+                    rutempresa: '<% out.print(session.getAttribute("rutempresa")); %>'
+                };
+
+                $.ajax({
+                    url: 'RuteroController',
+                    type: 'post',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function (resp) {
+                        var obj = JSON.parse(resp);
+                        if (obj.estado === 'ok') {
+                            console.log(obj);
+                            $('.dataTable').DataTable().destroy();
+                            $('#contenido-ruteros').html(obj.tabla);
+                            $('#tabla-ruteros-empresa').DataTable(OPCIONES_DATATABLES);
+                        }
+                    }
+                });
+            }
+
             function validarFila(filarutero) {
                 var mensaje = [];
                 var SALIDA = true;
@@ -129,7 +162,7 @@
                 if (!SALIDA) {
                     MENSAJES.push(mensaje);
                 }
-                
+
                 return SALIDA;
             }
 
@@ -189,10 +222,6 @@
                 $('#tabla-rutero').html(tabDetalle + "<br />" + tab);
             }
 
-            $(document).ready(function () {
-                cargaSelectCampana();
-            });
-
             function mostrarErrores() {
                 var texto = "<table style='border: none; border-collapse: collapse;'><tbody>";
                 for (var i = 0; i < MENSAJES.length; i++) {
@@ -207,21 +236,48 @@
             }
 
             function insert() {
+                var modo = "";
+                if ($('#select-tipo').val() === '1') {
+                    modo = 'ins-rutero';
+                } else if ($('#select-tipo').val() === '2') {
+                    modo = 'del-rutero';
+                }
                 if (validarInsert()) {
-                    var detalle = {
-                        url: 'RuteroController',
-                        datos: {
-                            tipo: 'ins-rutero',
-                            rutero: RUTERO
+                    if (ERRORES > 0) {
+                        if (confirm('El rutero cargado presenta errores. Está seguro de que desea cargar únicamente los registros buenos?')) {
+                            var detalle = {
+                                url: 'RuteroController',
+                                datos: {
+                                    tipo: modo,
+                                    rutero: RUTERO
+                                }
+                            };
+                            insertar(detalle, function (obj) {
+                                traerRuterosEmpresa();
+                                limpiar();
+                            });
                         }
-                    };
-                    insertar(detalle, function (obj) {
-
-                    });
+                    } else {
+                        var detalle = {
+                            url: 'RuteroController',
+                            datos: {
+                                tipo: modo,
+                                rutero: RUTERO
+                            }
+                        };
+                        insertar(detalle, function (obj) {
+                            traerRuterosEmpresa();
+                            limpiar();
+                        });
+                    }
                 }
             }
 
             function validarInsert() {
+                if ($('#select-tipo').val() === '0') {
+                    alert('Debe seleccionar una operación de carga de rutero. Ingreso o eliminación.');
+                    return false;
+                }
                 if ($('#select-campana').val() === '0' || $('#select-campana').val() === 0) {
                     alert('Debe seleccionar una campaña para cargar el rutero.');
                     return false;
@@ -255,7 +311,11 @@
                 $('#tabla-rutero').html('');
                 $('#select-campana').val('0');
                 $('#archivo').val('');
+                $('#select-tipo').val('0');
+                MENSAJES = [];
+                ERRORES = 0;
                 RUTERO = null;
+                NOMARCHIVO = "";
             }
         </script>
         <!-- The Modal -->
@@ -271,7 +331,7 @@
 
                     <!-- Modal body -->
                     <div id="cuerpo-modal-errores" class="modal-body">
-                        
+
                     </div>
 
                     <!-- Modal footer -->
@@ -282,6 +342,7 @@
                 </div>
             </div>
         </div>
+
         <div class="container-fluid">
             <br />
             <br />
@@ -303,6 +364,14 @@
                             <label for="archivo">Archivo rutero</label>
                             <input type="file" class="form-control form-control-sm" id="archivo" />
                         </div>
+                        <div class="form-group small">
+                            <label for="select-tipo">Operación</label>
+                            <select  id="select-tipo" class="form-control form-control-sm" >
+                                <option value='0'>Seleccione</option>
+                                <option value='1'>Ingreso</option>
+                                <option value='2'>Eliminación</option>
+                            </select>
+                        </div>
                         <br />
                         <div id='creacion' class="form-group small">
                             <button id="btnInsert" onclick="insert();" type="button" class="btn btn-primary btn-sm">Ingresar</button>
@@ -310,22 +379,7 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-sm-8">
-
-                    <!--table id="tabla-productos" class="table table-sm small table-borderless table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Descripción</th>
-                                <th>Empresa</th>
-                                <th>Rut</th>                         
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cuerpo-tab-producto">
-
-                        </tbody>
-                    </table-->
+                <div class="col-sm-8" id="contenido-ruteros">
 
                 </div>
             </div>
