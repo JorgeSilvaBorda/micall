@@ -35,12 +35,11 @@
                     formatOn: 'keyup',
                     validateOn: 'blur'
                 }).on('rutInvalido', function () {
-                    console.log("rut inválido");
-                    existeUsuario();
+                    $('#btnInsert').attr("disabled", "disabled");
                     mostrarAlert('alert-danger', "El rut ingresado no es válido");
                     
                 }).on('rutValido', function () {
-                    console.log("rut válido");
+                    $('#btnInsert').removeAttr("disabled");
                     existeUsuario();
                     ocultarAlert();
                 });
