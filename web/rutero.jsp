@@ -7,19 +7,27 @@
     </head>
     <body>
         <script type="text/javascript">
+            $(document).ready(function () {
+                cargaSelectCampana();
+                traerRuterosEmpresa();
+            });
             var MENSAJES = [];
             var ERRORES = 0;
             var RUTERO = null;
+            var NOMARCHIVO = "";
             document.getElementById('archivo').onchange = function () {
                 var cont = 1;
                 var log = [];
                 var file = this.files[0];
+
+                NOMARCHIVO = file;
                 var reader = new FileReader();
                 reader.onload = function () { //Acá convertir a tabla
                     ERRORES = 0;
                     MENSAJES = [];
                     var lineas = this.result.split("\n");
                     var rutero = {
+                        nomarchivo: NOMARCHIVO.name,
                         idcampana: $('#select-campana').val(),
                         registros: 0,
                         filas: []
@@ -78,6 +86,30 @@
                 reader.readAsText(file, 'UTF-8');
             };
 
+            function traerRuterosEmpresa() {
+                var datos = {
+                    tipo: 'traer-ruteros-empresa',
+                    rutempresa: '<% out.print(session.getAttribute("rutempresa")); %>'
+                };
+                
+                $.ajax({
+                    url: 'RuteroController',
+                    type: 'post',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function (resp) {
+                        var obj = JSON.parse(resp);
+                        if (obj.estado === 'ok') {
+                            console.log(obj);
+                            $('.dataTable').DataTable().destroy();
+                            $('#contenido-ruteros').html(obj.tabla);
+                            $('#tabla-ruteros-empresa').DataTable(OPCIONES_DATATABLES);
+                        }
+                    }
+                });
+            }
+
             function validarFila(filarutero) {
                 var mensaje = [];
                 var SALIDA = true;
@@ -129,7 +161,7 @@
                 if (!SALIDA) {
                     MENSAJES.push(mensaje);
                 }
-                
+
                 return SALIDA;
             }
 
@@ -189,10 +221,6 @@
                 $('#tabla-rutero').html(tabDetalle + "<br />" + tab);
             }
 
-            $(document).ready(function () {
-                cargaSelectCampana();
-            });
-
             function mostrarErrores() {
                 var texto = "<table style='border: none; border-collapse: collapse;'><tbody>";
                 for (var i = 0; i < MENSAJES.length; i++) {
@@ -216,7 +244,7 @@
                         }
                     };
                     insertar(detalle, function (obj) {
-
+                        traerRuterosEmpresa();
                     });
                 }
             }
@@ -271,7 +299,7 @@
 
                     <!-- Modal body -->
                     <div id="cuerpo-modal-errores" class="modal-body">
-                        
+
                     </div>
 
                     <!-- Modal footer -->
@@ -282,6 +310,7 @@
                 </div>
             </div>
         </div>
+        
         <div class="container-fluid">
             <br />
             <br />
@@ -310,22 +339,7 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-sm-8">
-
-                    <!--table id="tabla-productos" class="table table-sm small table-borderless table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Descripción</th>
-                                <th>Empresa</th>
-                                <th>Rut</th>                         
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cuerpo-tab-producto">
-
-                        </tbody>
-                    </table-->
+                <div class="col-sm-8" id="contenido-ruteros">
 
                 </div>
             </div>
