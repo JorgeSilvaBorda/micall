@@ -205,6 +205,16 @@
                     return false;
                 }
                 
+                var costocuotas = parseInt(simulacion.valorcuota) * parseInt(simulacion.cuotas);
+                if(!(costocuotas > montoAprobado)){
+                    alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto aprobado ($" + formatMiles(montoAprobado) + ")");
+                    return false;
+                }
+                if(!(costocuotas <= simulacion.costototal)){
+                    alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser menor o igual al costo total ($" + formatMiles(simulacion.costototal) + ")");
+                    return false;
+                }
+                
                 return true;
             }
 
