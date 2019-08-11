@@ -316,6 +316,16 @@
                 $('#montoaprobado').val('');
                 $('#montometa').html('');
                 $('#rutcliente').val('');
+                
+                //Limpieza de inputs
+                $('#valorcuota').val('');
+                $('#tasaanual').val('');
+                $('#cuotas').val('');
+                $('#tasainteres').val('');
+                $('#cae').val('');
+                $('#costototal').val('');
+                $('#vencimiento').val('');
+                $('#comision').val('');
             }
 
             function mostrarAlert(clase, mensaje) {
