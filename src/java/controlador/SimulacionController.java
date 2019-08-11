@@ -101,7 +101,7 @@ public class SimulacionController extends HttpServlet {
         try{
             while(rs.next()){
                 cuerpo += "<tr>";
-                cuerpo += "<td>" + rs.getDate("FECHASIMULACION") + "</td>";
+                cuerpo += "<td>" + rs.getString("NOMEMPRESA") + "</td>";
                 cuerpo += "<td>" + rs.getString("RUTCLIENTE") + "-" + rs.getString("DVCLIENTE") + "</td>";
                 cuerpo += "<td>" + rs.getString("NOMBRESCLIENTE") + " " + rs.getString("APELLIDOSCLIENTE") + "</td>";
                 cuerpo += "<td>" + rs.getString("CODPRODUCTO") + "</td>";
