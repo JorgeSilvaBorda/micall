@@ -15,6 +15,7 @@
         <script type="text/javascript">
             $(document).ready(function () {
                 cargarSimulaciones();
+                cargaSelectEmpresa();
                 $('#rutcliente').rut(
                         {
                             formatOn: 'keyup',
@@ -26,6 +27,15 @@
                 });
             });
 
+            function cargaSelectEmpresa() {
+                var det = {
+                    tipo: 'carga-select-empresa',
+                    url: 'EmpresaController',
+                    objetivo: 'select-empresa'
+                };
+                cargarSelect(det);
+            }
+
             function cargarSimulaciones() {
                 var detalle = {
                     url: 'SimulacionController',
@@ -35,7 +45,6 @@
                         rutvendedor: parseInt('<% out.print(session.getAttribute("rutusuario")); %>')
                     }
                 };
-
                 traerListado(detalle);
             }
 
@@ -108,7 +117,11 @@
             }
 
             function buscar() {
-                var idempresa = '<% out.print(session.getAttribute("idempresa"));%>';
+                if($('#select-empresa').val() === '0'){
+                    alert("Debe seleccionar la empresa para la que se desea simular.");
+                    return false;
+                }
+                var idempresa = $('#select-empresa').val();
                 var rutcliente = $('#rutcliente').val().split("-")[0].replaceAll("\\.", "");
                 var datos = {
                     tipo: 'get-campana-empresa-rutcliente',
@@ -200,21 +213,21 @@
                     alert('El monto de la simulación no puede ser superior al monto aprobado ($' + formatMiles(montoAprobado) + ')');
                     return false;
                 }
-                if(simulacion.costototal <= simulacion.monto){
+                if (simulacion.costototal <= simulacion.monto) {
                     alert("El costo total debe ser mayor que el monto.");
                     return false;
                 }
-                
+
                 var costocuotas = parseInt(simulacion.valorcuota) * parseInt(simulacion.cuotas);
-                if(!(costocuotas > montoAprobado)){
+                if (!(costocuotas > montoAprobado)) {
                     alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto aprobado ($" + formatMiles(montoAprobado) + ")");
                     return false;
                 }
-                if(!(costocuotas <= simulacion.costototal)){
+                if (!(costocuotas <= simulacion.costototal)) {
                     alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser menor o igual al costo total ($" + formatMiles(simulacion.costototal) + ")");
                     return false;
                 }
-                
+
                 return true;
             }
 
@@ -262,21 +275,21 @@
                     });
                 }
             }
-            
-            function calcTasaAnual(){
+
+            function calcTasaAnual() {
                 var tasa = parseFloat($('#tasainteres').val().replaceAll(",", "."));
                 var tasaAnual = (tasa * 12).toString();
                 var decimales = "";
                 var enteros = "";
-                if(tasaAnual.indexOf(",") !== -1){
-                   decimales = tasaAnual.split(",")[1];
-                   enteros = tasaAnual.split(",")[0];
+                if (tasaAnual.indexOf(",") !== -1) {
+                    decimales = tasaAnual.split(",")[1];
+                    enteros = tasaAnual.split(",")[0];
                 }
-                if(tasaAnual.indexOf(".") !== -1){
-                   decimales = tasaAnual.split(".")[1];
-                   enteros = tasaAnual.split(".")[0];
+                if (tasaAnual.indexOf(".") !== -1) {
+                    decimales = tasaAnual.split(".")[1];
+                    enteros = tasaAnual.split(".")[0];
                 }
-                
+
                 decimales = decimales.substring(0, 2);
                 $('#tasaanual').val(enteros + "." + decimales);
             }
@@ -316,7 +329,7 @@
                 $('#montoaprobado').val('');
                 $('#montometa').html('');
                 $('#rutcliente').val('');
-                
+
                 //Limpieza de inputs
                 $('#valorcuota').val('');
                 $('#tasaanual').val('');
@@ -388,6 +401,12 @@
 
                             </div>
 
+                        </div>
+                        <div class="form-group small">
+                            <label for="select-empresa">Empresa</label>
+                            <select class="form-control form-control-sm" id="select-empresa">
+
+                            </select>
                         </div>
                         <div class="form-group small">
                             <button type='button' onclick='buscar();' class='btn btn-primary btn-sm' id='btnBuscar'>Buscar</button>
