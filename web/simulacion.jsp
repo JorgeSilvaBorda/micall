@@ -293,6 +293,49 @@
                 decimales = decimales.substring(0, 2);
                 $('#tasaanual').val(enteros + "." + decimales);
             }
+            
+            function verSubproductosVendidos(idsimulacion){
+                var datos = {
+                    tipo: 'get-subproductos-simulacion',
+                    idsimulacion: idsimulacion
+                };
+                
+                $.ajax({
+                    type: 'post',
+                    url: 'SimulacionController',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function(resp){
+                        var obj = JSON.parse(resp);
+                        if(obj.estado === 'ok'){
+                            //pintar popup
+                            $('#cuerpo-modal-subproductos').html(armarTablaSubproductos(obj.subproductos));
+                            $('#modal-subproductos').modal();
+                        }
+                    }
+                });
+            }
+            
+            function armarTablaSubproductos(subproductos){
+                var tab = "<table id='tab-subproductos' class='table-sm small' style='border: none; border-collapse: collapse;'><thead>";
+                tab += "<tr>";
+                tab += "<th>Subproducto</th>";
+                tab += "<th>Prima</th>";
+                tab += "<th>Meta Monto</th>";
+                tab += "<th>Meta Cantidad</th>";
+                tab += "</tr></thead><tbody>";
+                $(subproductos).each(function(){
+                    tab += "<tr>";
+                    tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
+                        tab += "<td>" + $(this)[0].prima + "</td>";
+                        tab += "<td>$" + formatMiles($(this)[0].montometa) + "</td>";
+                        tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
+                        tab += "</tr>";
+                    });
+                    tab += "</tbody></table>";
+                    return tab;
+                }
 
             function pintarDatos(campana, subproductos) {
                 $('#hidIdCampana').val(campana.idcampana);
@@ -339,6 +382,7 @@
                 $('#costototal').val('');
                 $('#vencimiento').val('');
                 $('#comision').val('');
+                $('#select-empresa').val('0');
             }
 
             function mostrarAlert(clase, mensaje) {
@@ -380,6 +424,31 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="modal fade" id="modal-subproductos">
+                <div class="modal-dialog modal-lg" >
+                    <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Subproductos</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body" id='cuerpo-modal-subproductos'>
+
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="button" id='btnCerrarModal' class="btn btn-secondary btn-sm" data-dismiss="modal">Cerrar</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            
             <input type='hidden' id='hidIdCampana' value='' />
             <input type='hidden' id='hidMontoAprobado' value='' />
             <br />
