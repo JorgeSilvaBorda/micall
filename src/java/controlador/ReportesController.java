@@ -55,7 +55,7 @@ public class ReportesController extends HttpServlet {
 		registro.put("nomcampana", rs.getString("NOMCAMPANA"));
 		registro.put("codproducto", rs.getString("CODPRODUCTO"));
 		registro.put("descproducto", rs.getString("DESCPRODUCTO"));
-		//registro.put("meta", rs.getInt("META"));
+		registro.put("nomempresa", rs.getString("NOMEMPRESA"));
 		registro.put("montoacum", rs.getInt("ACUMMES"));
 		//registro.put("porcacum", Util.redondear(rs.getFloat("PORCACUM"), 2));
 		registro.put("cantidad", rs.getInt("CANTIDAD"));

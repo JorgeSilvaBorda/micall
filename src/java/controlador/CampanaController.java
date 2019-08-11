@@ -259,7 +259,7 @@ public class CampanaController extends HttpServlet {
 	    salida.put("estado", "error");
 	    salida.put("mensaje", ex);
 	}
-	System.out.println("Cont: " + cont);
+	//System.out.println("Cont: " + cont);
 	c.cerrar();
 	if (cont > 1) {
 	    salida.put("estado", "ok");
@@ -362,7 +362,7 @@ public class CampanaController extends HttpServlet {
 		tab += "<td><input type='hidden' value='" + result.getInt("IDCAMPANA") + "' /><input type='hidden' value='" + result.getInt("IDSUBPRODUCTO") + "' />" + result.getString("CODSUBPRODUCTO") + "</td>";
 		tab += "<td>" + result.getString("DESCSUBPRODUCTO") + "</td>";
 		tab += "<td>" + result.getBigDecimal("PRIMA") + "</td>";
-		tab += "<td>" + format.format(result.getDouble("MONTOMETA")) + "</td>";
+		tab += "<td>$" + format.format(result.getDouble("MONTOMETA")) + "</td>";
 		tab += "<td>" + result.getInt("CANTIDADMETA") + "</td>";
 		tab += "</tr>";
 	    }
