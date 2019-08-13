@@ -7,6 +7,7 @@
     </head>
     <body>
         <script type="text/javascript">
+            
             $(document).ready(function () {
                 var detalle = {
                     url: 'UsuarioController',
@@ -32,19 +33,36 @@
                 $('.dataTable').DataTable().destroy();
                 $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
                 $('#rut').rut({
-                    formatOn: 'keyup',
-                    validateOn: 'blur'
-                }).on('rutInvalido', function () {
-                    $('#btnInsert').attr("disabled", "disabled");
-                    mostrarAlert('alert-danger', "El rut ingresado no es válido");
-                    
-                }).on('rutValido', function () {
-                    $('#btnInsert').removeAttr("disabled");
-                    existeUsuario();
-                    ocultarAlert();
+                    formatOn: 'keyup'
                 });
 
             });
+            
+            function validarCampoRut(){
+                var rutfullusuario = $('#rut').val().replaceAll("\\.", "").replaceAll("-", "");
+                var rutusuario = $('#rut').val().replaceAll("\\.", "").split("-")[0];
+                var dvusuario = $('#rut').val().split("-")[1];
+                //primero validar que sea rut válido.
+                if($.validateRut(rutfullusuario)){
+                    console.log("Rut válido");
+                    //Verificar existencia
+                    esNuevoRut(function(esNuevo){
+                        if(esNuevo){
+                            $('#btnInsert').removeAttr("disabled");
+                            console.log("No existe. Se ingresa");
+                            ocultarAlert();
+                        }else{
+                            console.log("Ya existe");
+                            $('#btnInsert').attr("disabled", "disabled");
+                            mostrarAlert("alert-danger", "El rut ya existe en la base de datos.");
+                        }
+                    });
+                }else{
+                    console.log("No es válido");
+                    mostrarAlert("alert-danger", "El rut ingresado es inválido");
+                    $('#btnInsert').attr("disabled", "disabled");
+                }
+            }
 
             function modalCambiar(boton) {
                 var fila = $(boton).parent().parent();
@@ -91,7 +109,7 @@
                 });
             }
 
-            function existeUsuario() {
+            function esNuevoRut(callback) {
                 var rutusuario = $('#rut').val().split("-")[0].replaceAll("\\.", "");
                 var datos = {
                     tipo: 'existe-usuario',
@@ -108,10 +126,9 @@
                         var obj = JSON.parse(res);
                         if (obj.estado === 'ok') {
                             if (parseInt(obj.cantidad) === 0) {
-                                $('#btnInsert').removeAttr("disabled");
+                                callback(true);
                             } else {
-                                alert("El rut de usuario que intenta ingresar ya existe.");
-                                $('#btnInsert').attr("disabled", "disabled");
+                                callback(false);
                             }
                         }
 
@@ -265,6 +282,7 @@
                 $('#select-tipo-usuario option').removeAttr("selected");
                 $('#select-empresa option').removeAttr("selected");
                 $('#select-empresa').val('0');
+                $('#select-empresa').removeAtr("disabled");
                 $('#select-tipo-usuario').val('0');
                 $('#nombres').val('');
                 $('#rut').val('');
@@ -433,7 +451,7 @@
                         </div>
                         <div class="form-group small">
                             <label for="rut">Rut</label>
-                            <input id="rut" type="text" class="form-control form-control-sm" /> 
+                            <input onblur="validarCampoRut();" id="rut" type="text" class="form-control form-control-sm" /> 
                         </div>
                         <div id="alerta" class="alert oculto">
 
