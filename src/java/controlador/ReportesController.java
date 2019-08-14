@@ -127,6 +127,7 @@ public class ReportesController extends HttpServlet {
 		JSONObject registro = new JSONObject();
 		registro.put("codproducto", rs.getString("CODPRODUCTO"));
 		registro.put("descproducto", rs.getString("DESCPRODUCTO"));
+		registro.put("acumdia", format.format(rs.getDouble("ACUMDIA")));
 		registro.put("codcampana", rs.getString("CODCAMPANA"));
 		registro.put("nomcampana", rs.getString("NOMCAMPANA"));
 		registro.put("meta", format.format(rs.getDouble("META")));

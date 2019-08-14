@@ -44,6 +44,7 @@
             tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].montoacum) + "</td>";
+            tab += "<td>$" + formatMiles($(this)[0].acumdia) + "</td>";
             tab += "<td>" + $(this)[0].porcacum + "%</td>";
             tab += "<td>" + $(this)[0].cantidad + "</td>";
             tab += "</tr>";
@@ -72,6 +73,7 @@
                     <th>Producto</th>
                     <th>Meta</th>
                     <th>Acumulado<br />Mes</th>                         
+                    <th>Acumulado<br />Día</th>
                     <th>% Cumplimiento<br />Meta Mes</th>
                     <th>TRX Acumuladas<br />Mes</th>
                 </tr>
