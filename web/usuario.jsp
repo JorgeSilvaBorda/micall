@@ -7,17 +7,9 @@
     </head>
     <body>
         <script type="text/javascript">
-            
+
             $(document).ready(function () {
-                var detalle = {
-                    url: 'UsuarioController',
-                    datos: {
-                        tipo: 'get-usuarios'
-                    },
-                    bodyDestino: 'cuerpo-tab-usuario',
-                    tablaObjetivo: 'tabla-usuarios'
-                };
-                traerListado(detalle);
+                listarUsuarios();
                 var det = {
                     tipo: 'carga-select-empresa',
                     url: 'EmpresaController',
@@ -30,34 +22,66 @@
                     objetivo: 'select-tipo-usuario'
                 };
                 cargarSelect(det);
-                $('.dataTable').DataTable().destroy();
-                $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
                 $('#rut').rut({
                     formatOn: 'keyup'
                 });
 
             });
-            
-            function validarCampoRut(){
+
+            function listarUsuarios() {
+                var detalle = {
+                    url: 'UsuarioController',
+                    datos: {
+                        tipo: 'get-usuarios'
+                    },
+                    bodyDestino: 'cuerpo-tab-usuario',
+                    tablaObjetivo: 'tabla-usuarios'
+                };
+                $.ajax({
+                    type: 'post',
+                    url: detalle.url,
+                    data: {
+                        datos: JSON.stringify(detalle.datos)
+                    },
+                    success: function (res) {
+                        var obj = JSON.parse(res);
+                        if (obj.estado === 'ok') {
+                            $('#' + detalle.bodyDestino).html(obj.cuerpotabla);
+                            $('.dataTable').DataTable().destroy();
+                            $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        } else {
+                            console.log("Error");
+                            console.log(obj.mensaje);
+                        }
+                    },
+                    error: function (a, b, c) {
+                        console.log(a);
+                        console.log(b);
+                        console.log(c);
+                    }
+                });
+            }
+
+            function validarCampoRut() {
                 var rutfullusuario = $('#rut').val().replaceAll("\\.", "").replaceAll("-", "");
                 var rutusuario = $('#rut').val().replaceAll("\\.", "").split("-")[0];
                 var dvusuario = $('#rut').val().split("-")[1];
                 //primero validar que sea rut válido.
-                if($.validateRut(rutfullusuario)){
+                if ($.validateRut(rutfullusuario)) {
                     console.log("Rut válido");
                     //Verificar existencia
-                    esNuevoRut(function(esNuevo){
-                        if(esNuevo){
+                    esNuevoRut(function (esNuevo) {
+                        if (esNuevo) {
                             $('#btnInsert').removeAttr("disabled");
                             console.log("No existe. Se ingresa");
                             ocultarAlert();
-                        }else{
+                        } else {
                             console.log("Ya existe");
                             $('#btnInsert').attr("disabled", "disabled");
                             mostrarAlert("alert-danger", "El rut ya existe en la base de datos.");
                         }
                     });
-                }else{
+                } else {
                     console.log("No es válido");
                     mostrarAlert("alert-danger", "El rut ingresado es inválido");
                     $('#btnInsert').attr("disabled", "disabled");
@@ -162,15 +186,7 @@
                     };
 
                     insertar(detalles, function (obj) {
-                        var detalle = {
-                            url: 'UsuarioController',
-                            datos: {
-                                tipo: 'get-usuarios'
-                            },
-                            bodyDestino: 'cuerpo-tab-usuario',
-                            tablaObjetivo: 'tabla-usuarios'
-                        };
-                        traerListado(detalle);
+                        listarUsuarios();
                         var det = {
                             tipo: 'carga-select-empresa',
                             url: 'EmpresaController',
@@ -248,15 +264,7 @@
                     };
 
                     guardar(detalle, function (obj) {
-                        var det = {
-                            url: 'UsuarioController',
-                            datos: {
-                                tipo: 'get-usuarios'
-                            },
-                            bodyDestino: 'cuerpo-tab-usuario',
-                            tablaObjetivo: 'tabla-usuarios'
-                        };
-                        traerListado(det);
+                        listarUsuarios();
                         var dets = {
                             tipo: 'carga-select-empresa',
                             url: 'EmpresaController',
@@ -347,15 +355,7 @@
                     };
 
                     eliminar(detalle, function (obj) {
-                        var det = {
-                            url: 'UsuarioController',
-                            datos: {
-                                tipo: 'get-usuarios'
-                            },
-                            bodyDestino: 'cuerpo-tab-usuario',
-                            tablaObjetivo: 'tabla-usuarios'
-                        };
-                        traerListado(det);
+                        listarUsuarios();
                         var dets = {
                             tipo: 'carga-select-empresa',
                             url: 'EmpresaController',
