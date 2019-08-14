@@ -33,8 +33,8 @@
 
     function armarTabla(arr) {
         var tab = "";
-        var ventasDia = 0;
-        var ventasMes = 0;
+        //var ventasDia = 0;
+        //var ventasMes = 0;
         $.each(arr, function () {
             tab += "<tr>";
             tab += "<td>" + $(this)[0].fechaini + "</td>";
@@ -48,17 +48,19 @@
             tab += "<td>" + $(this)[0].porcacum + "%</td>";
             tab += "<td>" + $(this)[0].cantidad + "</td>";
             tab += "</tr>";
-            ventasDia += parseInt($(this)[0].acumdia);
-            ventasMes += parseInt($(this)[0].montoacum);
+            //ventasDia += parseInt($(this)[0].acumdia);
+            //ventasMes += parseInt($(this)[0].montoacum);
         });
-        pintarResumen(ventasDia, ventasMes);
+        //pintarResumen(ventasDia, ventasMes);
         return tab;
     }
 
-    function pintarResumen(ventasDia, ventasMes) {
+    /*
+     function pintarResumen(ventasDia, ventasMes) {
         $('#totalDia').html("$" + formatMiles(ventasDia));
         $('#totalMes').html("$" + formatMiles(ventasMes));
-    }
+     }
+     */
 </script>
 <br />
 <div class="row">
@@ -84,7 +86,7 @@
         </table>
     </div>
 </div>
-<div class="row">
+<!--div class="row">
 
     <div class="col-sm-12">
         <br />
@@ -108,4 +110,4 @@
             </tbody>
         </table>
     </div>
-</div>
+</div-->
