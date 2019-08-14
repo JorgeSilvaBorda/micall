@@ -45,7 +45,7 @@
             tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].montoacum) + "</td>";
             tab += "<td>" + $(this)[0].porcacum + "%</td>";
-            tab += "<td>" + $(this)[0].cantidad + "%</td>";
+            tab += "<td>" + $(this)[0].cantidad + "</td>";
             tab += "</tr>";
             ventasDia += parseInt($(this)[0].acumdia);
             ventasMes += parseInt($(this)[0].montoacum);
