@@ -33,25 +33,25 @@
 
     function armarTabla(arr) {
         var tab = "";
-        //var ventasDia = 0;
-        //var ventasMes = 0;
         $.each(arr, function () {
             tab += "<tr>";
             tab += "<td>" + $(this)[0].fechaini + "</td>";
             tab += "<td>" + $(this)[0].fechafin + "</td>";
             tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
-            //tab += "<td>" + $(this)[0].codproducto + "</td>";
             tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
-            tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
-            tab += "<td>$" + formatMiles($(this)[0].montoacum) + "</td>";
-            tab += "<td>$" + formatMiles($(this)[0].acumdia) + "</td>";
-            tab += "<td>" + $(this)[0].porcacum + "%</td>";
-            tab += "<td>" + $(this)[0].cantidad + "</td>";
+            tab += "<td>$" + formatMiles($(this)[0].metaproducto) + "</td>";
+            tab += "<td>$" + formatMiles($(this)[0].acumproducto) + "</td>";
+            tab += "<td>" + $(this)[0].porcacumprod + "%</td>";
+            tab += "<td>" + $(this)[0].simulaciones + "</td>";
+            tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
+            tab += "<td>$" + formatMiles($(this)[0].metasubproducto) + "</td>";
+            tab += "<td>$" + formatMiles($(this)[0].acumsubproducto) + "</td>";
+            tab += "<td>" + $(this)[0].porcacumsubprod + "%</td>";
+            tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
+            tab += "<td>" + formatMiles($(this)[0].cantidadmes) + "</td>";
+            tab += "<td>" + $(this)[0].prima + "%</td>";
             tab += "</tr>";
-            //ventasDia += parseInt($(this)[0].acumdia);
-            //ventasMes += parseInt($(this)[0].montoacum);
         });
-        //pintarResumen(ventasDia, ventasMes);
         return tab;
     }
 
@@ -71,13 +71,18 @@
                     <th>Fecha Inicio</th>
                     <th>Fecha Fin</th>
                     <th>Campaña</th>
-                    <!--th>Cod. Producto</th-->
                     <th>Producto</th>
-                    <th>Meta</th>
-                    <th>Acumulado<br />Mes</th>                         
-                    <th>Acumulado<br />Día</th>
-                    <th>% Cumplimiento<br />Meta Mes</th>
-                    <th>TRX Acumuladas<br />Mes</th>
+                    <th>$ Meta Prod.</th>
+                    <th>$ Acumulado<br />Mes Prod.</th>
+                    <th>% Cumplimiento<br />Meta Mes Prod.</th>
+                    <th>Cant.<br />Simulaciones</th>
+                    <th>Subproducto</th>
+                    <th>$ Meta Subprod.</th>
+                    <th>$ Acumulado<br />Mes Subprod.</th>
+                    <th>% Cumplimiento<br />Meta Mes Subrod.</th>
+                    <th>Cant. Meta<br />Subprod.</th>
+                    <th>Cumplimiento. Meta<br />Cant. Subprod.</th>
+                    <th>Prima Subprod.</th>
                 </tr>
             </thead>
             <tbody id="cuerpo-tab-resumen-empresa">
@@ -86,28 +91,3 @@
         </table>
     </div>
 </div>
-<!--div class="row">
-
-    <div class="col-sm-12">
-        <br />
-        <br />
-        <br />
-        <h4>Total acumulado</h4>
-    </div>
-    <div class="col-sm-3">
-        <table id="tabla-total-empresa" class="table table-sm small table-borderless table-hover table-striped">
-            <thead>
-                <tr>
-                    <th>Total día</th>
-                    <th>Total mes</th>
-                </tr>
-            </thead>
-            <tbody id="cuerpo-tab-total-empresa">
-                <tr>
-                    <td id="totalDia"></td>
-                    <td id="totalMes"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div-->
