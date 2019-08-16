@@ -64,6 +64,11 @@
 </script>
 <br />
 <div class="row">
+    <div class="col-sm-4">
+        <h3>Productos / Subproductos</h3>
+    </div>
+</div>
+<div class="row">
     <div class="col-sm-12">
         <table id="tabla-resumen-empresa" class="table table-sm small table-borderless table-hover table-striped">
             <thead>
