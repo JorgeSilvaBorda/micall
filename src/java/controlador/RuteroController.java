@@ -21,20 +21,20 @@ public class RuteroController extends HttpServlet {
         response.setContentType("text/html; charset=UTF-8");
         switch (entrada.getString("tipo")) {
             case "ins-rutero":
-                out.print(insRutero(entrada.getJSONObject("rutero")));
+                out.print(insRutero(entrada.getJSONObject("rutero"), entrada.getInt("idusuario")));
                 break;
             case "traer-ruteros-empresa":
                 out.print(traerRuterosEmpresa(entrada.getInt("rutempresa")));
                 break;
             case "del-rutero":
-                out.print(delRutero(entrada.getJSONObject("rutero")));
+                out.print(delRutero(entrada.getJSONObject("rutero"), entrada.getInt("idusuario")));
                 break;
             default:
                 break;
         }
     }
 
-    private JSONObject insRutero(JSONObject rutero) {
+    private JSONObject insRutero(JSONObject rutero, int idusuario) {
         JSONObject salida = new JSONObject();
         int idcampana = rutero.getInt("idcampana");
         Iterator i = rutero.getJSONArray("filas").iterator();
@@ -57,7 +57,9 @@ public class RuteroController extends HttpServlet {
                     + fila.getInt("fono1") + ","
                     + fila.getInt("fono2") + ","
                     + fila.getInt("fono3") + ","
-                    + "'" + fila.getString("nomarchivo") + "')";
+                    + "'" + rutero.getString("nomarchivo") + "',"
+                    + "'INS',"
+                    + idusuario + ")";
             Conexion c = new Conexion();
             c.abrir();
             c.ejecutar(query);
@@ -81,6 +83,7 @@ public class RuteroController extends HttpServlet {
         tab += "<th>Campaña</th>";
         tab += "<th>Registros</th>";
         tab += "<th>Archivo</th>";
+        tab += "<th>Tipo Operación</th>";
         tab += "</tr></thead><tbody>";
         try {
             while (rs.next()) {
@@ -89,6 +92,7 @@ public class RuteroController extends HttpServlet {
                 tab += "<td>[" + rs.getString("CODCAMPANA") + "] " + rs.getString("NOMCAMPANA") + "</td>";
                 tab += "<td>" + rs.getInt("CANT") + "</td>";
                 tab += "<td>" + rs.getString("NOMARCHIVO") + "</td>";
+                tab += "<td>" + rs.getString("DESCOPERACION") + "</td>";
                 tab += "</tr>";
             }
             salida.put("tabla", tab);
@@ -104,7 +108,7 @@ public class RuteroController extends HttpServlet {
         return salida;
     }
 
-    private JSONObject delRutero(JSONObject rutero) {
+    private JSONObject delRutero(JSONObject rutero, int idusuario) {
         JSONObject salida = new JSONObject();
         int idcampana = rutero.getInt("idcampana");
         Iterator i = rutero.getJSONArray("filas").iterator();
@@ -112,7 +116,10 @@ public class RuteroController extends HttpServlet {
             JSONObject fila = (JSONObject) i.next();
             String query = "CALL SP_DEL_FILA_RUTERO("
                     + idcampana + ","
-                    + fila.getInt("rutcliente") + ")";
+                    + fila.getInt("rutcliente") + ","
+                    + "'" + rutero.getString("nomarchivo") + "',"
+                    + "'DEL',"
+                    + idusuario + ")";
             Conexion c = new Conexion();
             c.abrir();
             c.ejecutar(query);
