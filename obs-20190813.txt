@@ -1,0 +1,33 @@
+Administración Interna.
+7. Cuando edito y graba al volver en los títulos desaparecen las flechitas para orden por campo. OK
+8. Al seleccionar rut o cualquier campo para orden la grilla, se borra todo.el despliegue y vuelve al presionar usuario. OK
+9. En todos las opciones del menú desaparecen los campos, al seleccionar un orden, OK
+
+
+Perfil Cliente Empresa
+A. Resumen.
+5. TRX Acumulada Mes, el resultado no debe ser % es # de trx. Pendiente. OK
+6. Eliminar Total Acumulado, no tiene sentido, y se traspasa columna total día a la grilla de arriba. Pendiente. OK
+7. Donde veo las metas y ventas de los subproductos?., aquí, debemos incorporar al titulo Productos / Subproductos y que sea parte de la lista en la grilla. --> Consultar por vista de subproductos OK --> Se incluye en listado. Campaña se repite hacia abajo
+
+
+B: Detalle. OK
+5. Se incorpora venta emergente, con subproductos, sin embargo aquí solo debe mostrar descripción y prima. No debe aparecer Monto Meta Monto y Meta Cantidad. OK
+
+C. Carga de Rutero
+5. No debe descontar registros eliminados de una archivo cargado, lo que debe reflejar es la historia de archivo asociados a una campaña, tanto ingresados como eliminados, durante el mes en curso.
+6. Al momento de eliminar, solo debe validar el RUT, nada más. por lo tanto el archivo debe traer solo el rut.
+7. Al momento de cargar una campaña con un nuevo archivo, no carga, se revisó base de datos. --> Revisar si no se están pisando
+
+Perfil Vendedor.
+B. Detalle
+2. En Pantalla emergente debe desplegar solo la descripción del subproducto y su prima.
+C.Simulación Manual
+1.1 Al ingresar tasa, 0 o ,5 no muestra tasa anual y eso impide inserta, y dice "No han ingresado todos los campos".
+1.2 El valor cuota multiplicado por la cantidad de cuotas ($6.000.000), debe ser mayor al monto aprobado ($8.573.464) y el valor insertado fue menor, aquí debes ver el valor del campo ingresado, no  de la base aprobada.. otro. El valor cuota multiplicado por la cantidad de cuotas ($4.800.000), debe ser mayor al monto aprobado ($8.250.523)
+4. Costo total del crédito debe ser mayor que el monto aprobado o ingresado
+5. El valor cuota multiplicado por las cantidad cuotas, deben ser mayor al monto aprobado y menor o igual a costo total del crédito.
+6. La tasa anual s, adicionalmente falta en venta emergente para subproductos.e calcula automática, no editable y la tasa mes * 12.
+7. En simulaciones ingresadas , monto no tiene separador de miles, y signo $
+8. Una vez ingresada una simulación, debe limpiar todos los campos
+11. Titulo Simulaciones ingresadas del Día y por I mayúscula. " Simulaciones Ingresadas Del Día" OK
