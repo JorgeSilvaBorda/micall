@@ -121,14 +121,30 @@ public class ReportesController extends HttpServlet {
 	Conexion c = new Conexion();
 	c.abrir();
         DecimalFormat format = new DecimalFormat("###,###,###,###,###");
+	DecimalFormat decimales = new DecimalFormat("###,###.##");
 	ResultSet rs = c.ejecutarQuery(query);
 	try{
 	    while(rs.next()){
 		JSONObject registro = new JSONObject();
-		registro.put("codproducto", rs.getString("CODPRODUCTO"));
-		registro.put("descproducto", rs.getString("DESCPRODUCTO"));
+		registro.put("fechafin", rs.getDate("FECHAINI"));
+		registro.put("fechaini", rs.getDate("FECHAFIN"));
 		registro.put("codcampana", rs.getString("CODCAMPANA"));
 		registro.put("nomcampana", rs.getString("NOMCAMPANA"));
+		registro.put("codproducto", rs.getString("CODPRODUCTO"));
+		registro.put("descproducto", rs.getString("DESCPRODUCTO"));
+		registro.put("metaproducto", format.format(rs.getDouble("META")));
+		registro.put("acumproducto", format.format(rs.getDouble("ACUM")));
+		registro.put("porcacumprod", decimales.format(rs.getDouble("PORCACUM")));
+		registro.put("simulaciones", rs.getInt("SIMULACIONES"));
+		registro.put("codsubproducto", rs.getString("CODSUBPRODUCTO"));
+		registro.put("descsubproducto", rs.getString("DESCSUBPRODUCTO"));
+		registro.put("metasubproducto", format.format(rs.getDouble("MONTOMETA")));
+		registro.put("acumsubproducto", format.format(rs.getDouble("ACUMMES")));
+		registro.put("porcacumsubprod", decimales.format(rs.getDouble("PORCACUMMES")));
+		registro.put("cantidadmeta", rs.getInt("CANTIDADMETA"));
+		registro.put("cantidadmes", rs.getInt("CANTMES"));
+		registro.put("prima", decimales.format(rs.getDouble("PRIMA")));
+		/*
 		registro.put("meta", format.format(rs.getDouble("META")));
 		registro.put("montoacum", rs.getInt("MONTOACUM"));
 		registro.put("porcacum", rs.getInt("PORCACUM"));
@@ -136,6 +152,7 @@ public class ReportesController extends HttpServlet {
 		registro.put("acumdia", rs.getInt("ACUMDIA"));
                 registro.put("fechaini", rs.getDate("FECHAINI"));
                 registro.put("fechafin", rs.getDate("FECHAFIN"));
+		*/
 		registros.put(registro);
 	    }
 	    salida.put("registros", registros);
