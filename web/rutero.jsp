@@ -18,7 +18,6 @@
             var NOMARCHIVO = "";
             document.getElementById('archivo').onchange = function () {
                 var cont = 1;
-                var log = [];
                 var file = this.files[0];
 
                 NOMARCHIVO = file;
@@ -102,7 +101,6 @@
                     success: function (resp) {
                         var obj = JSON.parse(resp);
                         if (obj.estado === 'ok') {
-                            console.log(obj);
                             $('.dataTable').DataTable().destroy();
                             $('#contenido-ruteros').html(obj.tabla);
                             $('#tabla-ruteros-empresa').DataTable(OPCIONES_DATATABLES);
@@ -243,25 +241,29 @@
                     modo = 'del-rutero';
                 }
                 if (validarInsert()) {
+                    var idusuario = '<% out.print(session.getAttribute("idusuario")); %>';
                     if (ERRORES > 0) {
                         if (confirm('El rutero cargado presenta errores. Está seguro de que desea cargar únicamente los registros buenos?')) {
                             var detalle = {
                                 url: 'RuteroController',
                                 datos: {
                                     tipo: modo,
+                                    idusuario: parseInt(idusuario),
                                     rutero: RUTERO
                                 }
-                            };
+                            };                            
                             insertar(detalle, function (obj) {
                                 traerRuterosEmpresa();
                                 limpiar();
                             });
+                            
                         }
                     } else {
                         var detalle = {
                             url: 'RuteroController',
                             datos: {
                                 tipo: modo,
+                                idusuario: parseInt(idusuario),
                                 rutero: RUTERO
                             }
                         };

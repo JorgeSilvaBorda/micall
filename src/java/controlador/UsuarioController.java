@@ -90,6 +90,7 @@ public class UsuarioController extends HttpServlet {
 		salida.put("estado", "ok");
 		HttpSession session = request.getSession();
 		JSONObject usuario = salida.getJSONObject("usuario");
+                session.setAttribute("idusuario", usuario.getInt("idusuario"));
 		session.setAttribute("rutusuario", usuario.getInt("rutusuario"));
 		session.setAttribute("dvusuario", usuario.getString("dvusuario"));
 		session.setAttribute("nombre", usuario.getString("nombre"));
