@@ -154,6 +154,7 @@
             }
 
             function validarCampos() {
+                calcTasaAnual();
                 var simulacion = {
                     idcampana: $('#hidIdCampana').val(),
                     rutvendedor: '<% out.print(session.getAttribute("rutusuario")); %>',
@@ -225,6 +226,11 @@
                 }
                 if (!(costocuotas <= simulacion.costototal)) {
                     alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser menor o igual al costo total ($" + formatMiles(simulacion.costototal) + ")");
+                    return false;
+                }
+                var tasa = parseFloat($('#tasainteres').val().replaceAll(",", "."));
+                if(tasa < 0.01){
+                    alert("Debe ingresar una tasa de interés válida");
                     return false;
                 }
 
