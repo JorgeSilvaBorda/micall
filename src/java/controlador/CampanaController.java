@@ -210,7 +210,7 @@ public class CampanaController extends HttpServlet {
 		+ idempresa + ")";
 
 	Conexion c = new Conexion();
-	//System.out.println("query: " + query);
+	System.out.println("query: " + query);
 	int idCampana = 0;
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);

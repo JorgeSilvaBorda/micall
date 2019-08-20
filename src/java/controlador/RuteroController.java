@@ -35,7 +35,14 @@ public class RuteroController extends HttpServlet {
     }
 
     private JSONObject insRutero(JSONObject rutero, int idusuario) {
+        JSONObject ruteroid = getIdNewRutero();
         JSONObject salida = new JSONObject();
+        if(ruteroid.getInt("idrutero") == 0){
+            salida.put("estado", "error");
+            salida.put("mensaje", "No se puede obtener el ID de Rutero");
+            return salida;
+        }
+        
         int idcampana = rutero.getInt("idcampana");
         Iterator i = rutero.getJSONArray("filas").iterator();
         while (i.hasNext()) {
@@ -59,7 +66,8 @@ public class RuteroController extends HttpServlet {
                     + fila.getInt("fono3") + ","
                     + "'" + rutero.getString("nomarchivo") + "',"
                     + "'INS',"
-                    + idusuario + ")";
+                    + idusuario + ","
+                    + ruteroid.getInt("idrutero") + ")";
             Conexion c = new Conexion();
             c.abrir();
             c.ejecutar(query);
@@ -109,7 +117,13 @@ public class RuteroController extends HttpServlet {
     }
 
     private JSONObject delRutero(JSONObject rutero, int idusuario) {
+        JSONObject ruteroid = getIdNewRutero();
         JSONObject salida = new JSONObject();
+        if(ruteroid.getInt("idrutero") == 0){
+            salida.put("estado", "error");
+            salida.put("mensaje", "No se puede obtener el ID de Rutero");
+            return salida;
+        }
         int idcampana = rutero.getInt("idcampana");
         Iterator i = rutero.getJSONArray("filas").iterator();
         while (i.hasNext()) {
@@ -119,13 +133,36 @@ public class RuteroController extends HttpServlet {
                     + fila.getInt("rutcliente") + ","
                     + "'" + rutero.getString("nomarchivo") + "',"
                     + "'DEL',"
-                    + idusuario + ")";
+                    + idusuario + ","
+                    + ruteroid.getInt("idrutero") + ")";
             Conexion c = new Conexion();
             c.abrir();
             c.ejecutar(query);
             c.cerrar();
         }
         salida.put("estado", "ok");
+        return salida;
+    }
+    
+    private JSONObject getIdNewRutero(){
+        String query = "CALL SP_GET_ID_RUTERO()";
+        Conexion c = new Conexion();
+        c.abrir();
+        JSONObject salida = new JSONObject();
+        ResultSet rs = c.ejecutarQuery(query);
+        try {
+            while(rs.next()){
+                salida.put("idrutero", rs.getInt("IDRUTERO"));
+                salida.put("fechacreacion", rs.getDate("FECHACREACION"));
+            }
+            return salida;
+        } catch (SQLException ex) {
+            System.out.println("No se pudo obtener el IDRUTERO");
+            System.out.println(ex);
+            salida.put("fechacreacion", "1900-01-01");
+            salida.put("idrutero", 0);
+        }
+        c.cerrar();
         return salida;
     }
 
