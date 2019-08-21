@@ -3,9 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/ProjSoftware/micall/web/usuario.jsp</file>
-            <file>file:/E:/ProjSoftware/micall/web/detalle-empresa.jsp</file>
-            <file>file:/E:/ProjSoftware/micall/src/java/controlador/ReportesController.java</file>
+            <file>file:/E:/micall/web/resumen-empresa.jsp</file>
+            <file>file:/E:/micall/web/js/funciones.js</file>
+            <file>file:/E:/micall/web/simulacion.jsp</file>
+            <file>file:/E:/micall/src/java/controlador/ReportesController.java</file>
+            <file>file:/E:/micall/web/detalle.jsp</file>
         </group>
     </open-files>
 </project-private>
