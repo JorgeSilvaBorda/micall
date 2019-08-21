@@ -1823,21 +1823,21 @@ INSERT INTO `RUTERO` (`IDRUTERO`, `IDCAMPANA`, `RUT`, `DV`, `NOMBRES`, `APELLIDO
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ruteroid`
+-- Estructura de tabla para la tabla `RUTEROID`
 --
 
-DROP TABLE IF EXISTS `ruteroid`;
-CREATE TABLE IF NOT EXISTS `ruteroid` (
+DROP TABLE IF EXISTS `RUTEROID`;
+CREATE TABLE IF NOT EXISTS `RUTEROID` (
   `IDRUTERO` bigint(20) NOT NULL AUTO_INCREMENT,
   `FECHACREACION` datetime DEFAULT NULL,
   PRIMARY KEY (`IDRUTERO`)
 ) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `ruteroid`
+-- Volcado de datos para la tabla `RUTEROID`
 --
 
-INSERT INTO `ruteroid` (`IDRUTERO`, `FECHACREACION`) VALUES
+INSERT INTO `RUTEROID` (`IDRUTERO`, `FECHACREACION`) VALUES
 (1, '2019-08-17 16:38:21'),
 (2, '2019-08-17 16:53:58'),
 (3, '2019-08-17 12:58:07'),
