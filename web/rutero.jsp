@@ -218,6 +218,9 @@
                 }
                 tabDetalle += "</tbody></table>";
                 $('#tabla-rutero').html(tabDetalle + "<br />" + tab);
+                $('.dataTable').DataTable().destroy();
+                //$('#contenido-ruteros').html(obj.tabla);
+                $('#tab-rutero').DataTable(OPCIONES_DATATABLES);
             }
 
             function mostrarErrores() {
@@ -251,12 +254,12 @@
                                     idusuario: parseInt(idusuario),
                                     rutero: RUTERO
                                 }
-                            };                            
+                            };
                             insertar(detalle, function (obj) {
                                 traerRuterosEmpresa();
                                 limpiar();
                             });
-                            
+
                         }
                     } else {
                         var detalle = {
