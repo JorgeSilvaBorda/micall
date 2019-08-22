@@ -1,4 +1,8 @@
 var OPCIONES_DATATABLES = {
+    "fixedHeader": {
+        header: true,
+        headerOffset: $('#navbar').outerHeight()
+    },
     "language": {
         "lengthMenu": "Mostrar _MENU_ registros por página",
         "zeroRecords": "Nada encontrado",
