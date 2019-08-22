@@ -46,8 +46,8 @@
                     success: function (res) {
                         var obj = JSON.parse(res);
                         if (obj.estado === 'ok') {
-                            $('#' + detalle.bodyDestino).html(obj.cuerpotabla);
                             $('.dataTable').DataTable().destroy();
+                            $('#' + detalle.bodyDestino).html(obj.cuerpotabla);
                             $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
                         } else {
                             console.log("Error");
@@ -290,7 +290,7 @@
                 $('#select-tipo-usuario option').removeAttr("selected");
                 $('#select-empresa option').removeAttr("selected");
                 $('#select-empresa').val('0');
-                $('#select-empresa').removeAtr("disabled");
+                $('#select-empresa').removeAttr("disabled");
                 $('#select-tipo-usuario').val('0');
                 $('#nombres').val('');
                 $('#rut').val('');
