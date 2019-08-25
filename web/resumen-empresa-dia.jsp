@@ -1,6 +1,8 @@
 <%@include file="headjava.jsp" %>
 <script type="text/javascript">
     $(document).ready(function () {
+        OPCIONES_DATATABLES.buttons[0] = {title: "", extend: "excelHtml5"};
+        OPCIONES_DATATABLES.buttons[0].title = "MiCall-Res-Dia-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date());
         cargarResumen();
     });
     function cargarResumen() {

@@ -1,5 +1,11 @@
 var OPCIONES_DATATABLES = {
-
+    dom: 'Bfrtip',
+    buttons: [
+        {
+            extend: 'excelHtml5',
+            title: ''
+        }
+    ],
     "language": {
         "lengthMenu": "Mostrar _MENU_ registros por página",
         "zeroRecords": "Nada encontrado",
@@ -87,18 +93,18 @@ function formatFecha(date) {
     var mesInt = date.getMonth() + 1;
     var diaInt = date.getDate();
     var anioInt = date.getFullYear();
-    
+
     var mesString = mesInt.toString();
     var diaString = diaInt.toString();
     var anioString = anioInt.toString();
-    
-    if(mesInt < 10){
+
+    if (mesInt < 10) {
         mesString = '0' + mesString;
     }
-    if(diaInt < 10){
+    if (diaInt < 10) {
         diaString = '0' + diaString;
     }
-    
+
     var fec = anioString + '-' + mesString + '-' + diaString;
     return fec;
 }

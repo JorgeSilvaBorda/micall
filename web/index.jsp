@@ -14,14 +14,17 @@
         <script src="js/datatables/jquery-ui.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
         <script src="js/popper.min.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
         <script src="js/bootstrap.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
-        
         <script src="funciones/modelo.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
         <script src="funciones/operaciones.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
         <script src="js/jquery.rut.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
         <script src="js/datatables/datatables.min.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
         <script src="js/datatables/FixedHeader-3.1.4/js/fixedHeader.bootstrap4.min.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
         <script src="js/funciones.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
-        <title>TTS-WebPanel</title>
+        <script src="js/datatables/Buttons-1.5.6/js/buttons.html5.js" type="text/javascript"></script>
+        <script src="js/datatables/JSZip-2.5.0/jszip.js" type="text/javascript"></script>
+        <script src="js/datatables/pdfmake-0.1.36/pdfmake.js" type="text/javascript"></script>
+        <script src="js/datatables/pdfmake-0.1.36/vfs_fonts.js" type="text/javascript"></script>
+        <title>MiCall</title>
     </head>
     <body>
         <script type="text/javascript">

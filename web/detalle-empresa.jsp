@@ -2,6 +2,36 @@
 <script type="text/javascript">
     $(document).ready(function () {
         //cargarDetalle();
+        var buttonCommon = {
+            exportOptions: {
+                format: {
+                    body: function (data, row, column, node) {
+                        // Strip $ from salary column to make it numeric
+                        return column === 7 ?
+                                formatExcelColCuota(data) :
+                                data;
+                    }
+                }
+            }
+        };
+        
+        function formatExcelColCuota(dato){
+            console.log("Entra: " + dato);
+            dato = dato.replaceAll("\\.", "");
+            dato = dato.replaceAll("\\$", "");
+            dato = dato.replaceAll(" ", "");
+            dato = dato.replaceAll("\$", "");
+            dato = dato.split("$")[1];
+            dato = dato.toString().trim();
+            //dato = "$" + dato;
+            //console.log("Sale: " + dato);
+            return "$ " + formatMiles(dato);
+        }
+        //OPCIONES_DATATABLES.buttons[0].title = "MiCall-Det-" + "<% //out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date());
+        OPCIONES_DATATABLES.buttons[0] = $.extend(true, {}, buttonCommon, {
+            extend: 'excelHtml5',
+            title: "MiCall-Det-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date())
+        });
     });
     function cargarDetalle() {
         if (validarCampos()) {

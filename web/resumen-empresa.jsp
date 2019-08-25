@@ -2,6 +2,8 @@
 <script type="text/javascript">
     $(document).ready(function () {
         cargarResumen();
+        OPCIONES_DATATABLES.buttons[0] = {title: "", extend: "excelHtml5"};
+        OPCIONES_DATATABLES.buttons[0].title = "MiCall-Res-Mes-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date());
     });
     function cargarResumen() {
         var datos = {
