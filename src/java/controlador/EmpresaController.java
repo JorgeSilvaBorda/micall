@@ -25,7 +25,7 @@ public class EmpresaController extends HttpServlet {
 	    case "get-empresas":
 		out.print(getEmpresas());
 		break;
-	    case "ins-empresa": 
+	    case "ins-empresa":
 		out.print(crearEmpresa(entrada.getJSONObject("empresa")));
 		break;
 	    case "upd-empresa":
@@ -33,6 +33,9 @@ public class EmpresaController extends HttpServlet {
 		break;
 	    case "del-empresa":
 		out.print(delEmpresa(entrada.getInt("idempresa")));
+		break;
+	    case "existe-empresa":
+		out.print(existeEmpresa(entrada.getInt("rutempresa")));
 		break;
 	    case "carga-select-empresa":
 		out.print(getEmpresasSelect());
@@ -67,7 +70,7 @@ public class EmpresaController extends HttpServlet {
     }
 
     public JSONObject updEmpresa(JSONObject empresa) {
-	
+
 	String query = "CALL SP_UPD_EMPRESA("
 		+ empresa.getInt("idempresa") + ", "
 		+ empresa.getInt("rut") + ", "
@@ -185,8 +188,8 @@ public class EmpresaController extends HttpServlet {
 	c.cerrar();
 	return salida;
     }
-    
-    private JSONObject getEmpresasSelect(){
+
+    private JSONObject getEmpresasSelect() {
 	String query = "CALL SP_GET_EMPRESAS()";
 	Conexion c = new Conexion();
 	c.abrir();
@@ -196,6 +199,29 @@ public class EmpresaController extends HttpServlet {
 	JSONObject salida = new JSONObject();
 	salida.put("estado", "ok");
 	salida.put("options", options);
+	return salida;
+    }
+    
+    private JSONObject existeEmpresa(int rutempresa){
+	JSONObject salida = new JSONObject();
+	Conexion c = new Conexion();
+	c.abrir();
+	String query = "SELECT COUNT(RUTEMPRESA) CANTIDAD FROM EMPRESA WHERE RUTEMPRESA = " + rutempresa;
+	ResultSet rs = c.ejecutarQuery(query);
+	int cont = 0;
+	try {
+	    while(rs.next()){
+		cont = rs.getInt("CANTIDAD");
+	    }
+	    salida.put("cantidad", cont);
+	    salida.put("estado", "ok");
+	} catch (JSONException | SQLException ex) {
+	    System.out.println("Problemas en EmpresaController.existeEmpresa()");
+	    System.out.println(ex);
+	    salida.put("estado", "error");
+	    salida.put("mensaje", "ex");
+	}
+	c.cerrar();
 	return salida;
     }
 }

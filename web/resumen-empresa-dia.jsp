@@ -5,9 +5,12 @@
     });
     function cargarResumen() {
         var datos = {
-            tipo: 'tabla-resumen-ventas-empresa',
+            tipo: 'tabla-resumen-ventas-empresa-dia',
+            fechahoy: formatFecha(new Date()),
             rutusuario: '<% out.print(session.getAttribute("rutusuario"));%>'
         };
+        console.log("Lo que se manda a java");//--------------------------------------------
+        console.log(datos);
         $.ajax({
             type: 'post',
             url: 'ReportesController',
@@ -43,7 +46,7 @@
             var acumprod = parseInt($(this)[0].acumproducto.replaceAll("\\.", ""));
             var metaprod = parseInt($(this)[0].metaproducto.replaceAll("\\.", ""));
             tab += "<td "  + ((acumprod < metaprod && acumprod > 0) ? "style='color: red;'" : "") + " >$" + formatMiles($(this)[0].acumproducto) + "</td>";
-            tab += "<td>" + $(this)[0].porcacumprod + "%</td>";
+            //tab += "<td>" + $(this)[0].porcacumprod + "%</td>";
             tab += "<td>" + $(this)[0].simulaciones + "</td>";
             tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].metasubproducto) + "</td>";
@@ -57,8 +60,8 @@
             
             
             tab += "<td " + estiloRojo + " >$" + formatMiles($(this)[0].acumsubproducto) + "</td>";
-            tab += "<td>" + $(this)[0].porcacumsubprod + "%</td>";
-            tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
+            //tab += "<td>" + $(this)[0].porcacumsubprod + "%</td>";
+            //tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
             tab += "<td>" + formatMiles($(this)[0].cantidadmes) + "</td>";
             //tab += "<td>" + $(this)[0].prima + "%</td>";
             tab += "</tr>";
@@ -85,8 +88,8 @@
             <thead>
                 <tr>
                     <th colspan="3">Campaña</th>
-                    <th colspan="5">Productos</th>
-                    <th colspan="6">Subproductos</th>
+                    <th colspan="4">Productos</th>
+                    <th colspan="4">Subproductos</th>
                 </tr>
                 <tr>
                     <th>Fecha Inicio</th>
@@ -95,13 +98,13 @@
                     <th>Nombre</th>
                     <th>$<br />Meta</th>
                     <th>$<br />Acum.</th>
-                    <th>%$<br />Cump.</th>
+                    <!-- th>%$<br />Cump.</th> <!-- fuera -->
                     <th>#<br/>Acum.</th>
                     <th>Nombre</th>
                     <th>$<br />Meta.</th>
                     <th>$<br />Acum.</th>
-                    <th>%$<br />Cump.</th>
-                    <th>#<br/>Meta</th>
+                    <!-- th>%$<br />Cump.</th> <!-- fuera -->
+                    <!-- th>#<br/>Meta</th> <!-- fuera -->
                     <th>#<br />Acum.</th>
                     <!--th>Prima Subprod.</th-->
                 </tr>

@@ -221,8 +221,13 @@
                 }
 
                 var costocuotas = parseInt(simulacion.valorcuota) * parseInt(simulacion.cuotas);
-                if (!(costocuotas > montoAprobado)) {
+                /*if (!(costocuotas > montoAprobado)) {
                     alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto aprobado ($" + formatMiles(montoAprobado) + ")");
+                    return false;
+                }*/
+                //20190825 - Se valida contra el monto simulado (No contra el monto aprobado).
+                if (!(costocuotas > simulacion.monto)) {
+                    alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto simulado ($" + formatMiles(simulacion.monto) + ")");
                     return false;
                 }
                 if (!(costocuotas <= simulacion.costototal)) {

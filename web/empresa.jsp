@@ -16,17 +16,15 @@
                     bodyDestino: 'cuerpo-tab-empresa',
                     tablaObjetivo: 'tabla-empresas'
                 };
-                traerListado(detalle);
-                $('.dataTable').DataTable().destroy();
-                $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                $('#rut').rut(
-                        {
-                            formatOn: 'keyup',
-                            validateOn: 'blur'
-                        }).on('rutInvalido', function () {
-                    mostrarAlert('alert-danger', "El rut ingresado no es válido");
-                }).on('rutValido', function () {
-                    ocultarAlert();
+                traerListado(detalle, function (resp) {
+                    $('.dataTable').DataTable().destroy();
+                    $('#cuerpo-tab-empresa').html(resp);
+                    var tab = $('#tabla-empresas').DataTable(OPCIONES_DATATABLES);
+                    //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                });
+
+                $('#rut').rut({
+                    formatOn: 'keyup'
                 });
 
             });
@@ -59,10 +57,14 @@
                             bodyDestino: 'cuerpo-tab-empresa',
                             tablaObjetivo: 'tabla-empresas'
                         };
-                        traerListado(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                        limpiar();
+                        traerListado(det, function (resp) {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-empresa').html(resp);
+                            var tab = $('#tabla-empresas').DataTable(OPCIONES_DATATABLES);
+                            //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                            limpiar();
+                        });
+
                     });
                 }
             }
@@ -100,9 +102,12 @@
                             bodyDestino: 'cuerpo-tab-empresa',
                             tablaObjetivo: 'tabla-empresas'
                         };
-                        traerListado(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        traerListado(det, function (resp) {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-empresa').html(resp);
+                            var tab = $('#tabla-empresas').DataTable(OPCIONES_DATATABLES);
+                            //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                        });
                         cancelarEdicion();
                     });
 
@@ -130,15 +135,19 @@
                             bodyDestino: 'cuerpo-tab-empresa',
                             tablaObjetivo: 'tabla-empresas'
                         };
-                        traerListado(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        traerListado(det, function (resp) {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-empresa').html(resp);
+                            var tab = $('#tabla-empresas').DataTable(OPCIONES_DATATABLES);
+                            //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                        });
                         limpiar();
                     });
                 }
             }
 
             function editar(boton) {
+                limpiar();
                 var fila = $(boton).parent().parent();
                 var rut = $($(fila.children()[0]).children()[1]).html();
                 var idEmpresa = $($(fila.children()[0]).children()[0]).val();
@@ -149,6 +158,7 @@
                 $('#edicion').removeClass('oculto');
                 $('#creacion').addClass('oculto');
                 $('#rut').attr("disabled", "disabled");
+                $('#btnInsert').removeAttr("disabled");
             }
 
             function cancelarEdicion() {
@@ -163,6 +173,7 @@
                 $('#nombre').val('');
                 $('#direccion').val('');
                 $('#hidIdEmpresa').val('');
+                ocultarAlert();
             }
 
             function validarCampos() {
@@ -189,6 +200,57 @@
                 $('#alerta').html('');
             }
 
+            function validarCampoRut() {
+                var rutfullempresa = $('#rut').val().replaceAll("\\.", "").replaceAll("-", "");
+                if ($.validateRut(rutfullempresa)) {
+                    esNuevoRut(function (esNuevo) {
+                        if (esNuevo) {
+                            $('#btnInsert').removeAttr("disabled");
+                            ocultarAlert();
+                        } else {
+                            $('#btnInsert').attr("disabled", "disabled");
+                            mostrarAlert("alert-danger", "El rut ya existe en la base de datos.");
+                        }
+                    });
+                } else {
+                    mostrarAlert("alert-danger", "El rut ingresado es inválido");
+                    $('#btnInsert').attr("disabled", "disabled");
+                }
+            }
+
+            function esNuevoRut(callback) {
+                var rutempresa = $('#rut').val().split("-")[0].replaceAll("\\.", "");
+                var datos = {
+                    tipo: 'existe-empresa',
+                    rutempresa: rutempresa
+                };
+
+                $.ajax({
+                    url: 'EmpresaController',
+                    type: 'post',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function (res) {
+                        var obj = JSON.parse(res);
+                        if (obj.estado === 'ok') {
+                            if (parseInt(obj.cantidad) === 0) {
+                                callback(true);
+                            } else {
+                                callback(false);
+                            }
+                        }
+
+                    },
+                    error: function (a, b, c) {
+                        console.log(a);
+                        console.log(b);
+                        console.log(c);
+                    }
+                });
+            }
+
+
         </script>
         <div class="container-fluid">
             <br />
@@ -205,7 +267,10 @@
                         <div class="form-group small">
                             <label for="rut">Rut</label>
                             <input type="hidden" id="hidIdEmpresa" value='' />
-                            <input type="text" id="rut" maxlength="12" class="form-control form-control-sm" />
+                            <input onblur="validarCampoRut();" type="text" id="rut" maxlength="12" class="form-control form-control-sm" />
+                        </div>
+                        <div id="alerta" class="alert oculto">
+
                         </div>
                         <div class="form-group small">
                             <label for="nombre">Nombre</label>
@@ -216,7 +281,7 @@
                             <input type="text" id="direccion" class="form-control form-control-sm" />
                         </div>
                         <div id='creacion' class="form-group small">
-                            <button onclick="insert();" type="button" class="btn btn-primary btn-sm">Insertar</button>
+                            <button id="btnInsert" disabled="disabled" onclick="insert();" type="button" class="btn btn-primary btn-sm">Insertar</button>
                             <button onclick='limpiar();' type="button" class="btn btn-default btn-sm float-right">Limpiar</button>
                         </div>
                         <div id='edicion' class="form-group oculto small">
@@ -243,11 +308,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-3">
-                    <div id="alerta" class="alert oculto">
 
-                    </div>
-                </div>
             </div>
         </div>
     </body>

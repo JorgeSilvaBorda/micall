@@ -47,8 +47,9 @@
                         var obj = JSON.parse(res);
                         if (obj.estado === 'ok') {
                             $('.dataTable').DataTable().destroy();
-                            $('#' + detalle.bodyDestino).html(obj.cuerpotabla);
-                            $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                            $('#cuerpo-tab-usuario').html(obj.cuerpotabla);
+                            var tab = $('#tabla-usuarios').DataTable(OPCIONES_DATATABLES);
+                            //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
                         } else {
                             console.log("Error");
                             console.log(obj.mensaje);
@@ -68,21 +69,16 @@
                 var dvusuario = $('#rut').val().split("-")[1];
                 //primero validar que sea rut válido.
                 if ($.validateRut(rutfullusuario)) {
-                    console.log("Rut válido");
-                    //Verificar existencia
                     esNuevoRut(function (esNuevo) {
                         if (esNuevo) {
                             $('#btnInsert').removeAttr("disabled");
-                            console.log("No existe. Se ingresa");
                             ocultarAlert();
                         } else {
-                            console.log("Ya existe");
                             $('#btnInsert').attr("disabled", "disabled");
                             mostrarAlert("alert-danger", "El rut ya existe en la base de datos.");
                         }
                     });
                 } else {
-                    console.log("No es válido");
                     mostrarAlert("alert-danger", "El rut ingresado es inválido");
                     $('#btnInsert').attr("disabled", "disabled");
                 }
@@ -271,19 +267,15 @@
                             objetivo: 'select-empresa'
                         };
                         cargarSelect(dets);
-                        det = {
+                        var det = {
                             tipo: 'carga-select-tipousuario',
                             url: 'UsuarioController',
                             objetivo: 'select-tipo-usuario'
                         };
-                        cargarSelect(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-
+                        cargarSelect(det);                        
                         cancelarEdicion();
                     });
                 }
-
             }
 
             function limpiar() {
@@ -362,14 +354,12 @@
                             objetivo: 'select-empresa'
                         };
                         cargarSelect(dets);
-                        det = {
+                        var det = {
                             tipo: 'carga-select-tipousuario',
                             url: 'UsuarioController',
                             objetivo: 'select-tipo-usuario'
                         };
                         cargarSelect(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
                         limpiar();
                     });
                 }

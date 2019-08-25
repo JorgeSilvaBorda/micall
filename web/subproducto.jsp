@@ -16,9 +16,12 @@
                     bodyDestino: 'cuerpo-tab-subproducto',
                     tablaObjetivo: 'tabla-subproductos'
                 };
-                traerListado(detalle);
-                $('.dataTable').DataTable().destroy();
-                $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                traerListado(detalle, function (resp) {
+                    $('.dataTable').DataTable().destroy();
+                    $('#cuerpo-tab-subproducto').html(resp);
+                    var tab = $('#tabla-subproductos').DataTable(OPCIONES_DATATABLES);
+                    //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                });
 
                 var det = {
                     tipo: 'carga-select-empresa',
@@ -38,9 +41,12 @@
                     bodyDestino: 'cuerpo-tab-subproducto',
                     tablaObjetivo: 'tabla-subproductos'
                 };
-                traerListado(detalle);
-                $('.dataTable').DataTable().destroy();
-                $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                traerListado(detalle, function (resp) {
+                    $('.dataTable').DataTable().destroy();
+                    $('#cuerpo-tab-subproducto').html(resp);
+                    var tab = $('#tabla-subproductos').DataTable(OPCIONES_DATATABLES);
+                    //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                });
             }
             function insert() {
                 if (validarCampos()) {
@@ -48,7 +54,7 @@
                     var codigo = $('#codigo').val();
                     var descripcion = $('#descripcion').val();
                     var prima = $('#prima').val();
-                    if (prima === '' || prima === '0' || prima == 0 || prima === null || prima === undefined) {
+                    if (prima === '' || prima === '0' || prima === 0 || prima === null || prima === undefined) {
                         prima = 0.0;
                     }
                     var subproducto = {
@@ -74,9 +80,12 @@
                             bodyDestino: 'cuerpo-tab-subproducto',
                             tablaObjetivo: 'tabla-subproductos'
                         };
-                        traerListado(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        traerListado(det, function (resp) {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-subproducto').html(resp);
+                            var tab = $('#tabla-subproductos').DataTable(OPCIONES_DATATABLES);
+                            //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                        });
                         limpiar();
                     });
 
@@ -106,6 +115,8 @@
                             if (obj.estado === 'ok') {
                                 if (parseInt(obj.cantidad) > 0) {
                                     alert('El subproducto de código: ' + subproducto.codsubproducto + ' ya existe para la empresa seleccionada.');
+                                    $('#codigo').val('');
+                                    $('#codigo').focus();
                                     $('#btnInsert').attr("disabled", "disabled");
                                 } else {
                                     $('#btnInsert').removeAttr("disabled");
@@ -171,10 +182,14 @@
                             bodyDestino: 'cuerpo-tab-subproducto',
                             tablaObjetivo: 'tabla-subproductos'
                         };
-                        traerListado(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-                        limpiar();
+                        traerListado(det, function (resp) {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-subproducto').html(resp);
+                            var tab = $('#tabla-subproductos').DataTable(OPCIONES_DATATABLES);
+                            //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                            limpiar();
+                        });
+
                     });
                 }
             }
@@ -233,9 +248,12 @@
                             bodyDestino: 'cuerpo-tab-subproducto',
                             tablaObjetivo: 'tabla-subproductos'
                         };
-                        traerListado(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        traerListado(det, function (resp) {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-subproducto').html(resp);
+                            var tab = $('#tabla-subproductos').DataTable(OPCIONES_DATATABLES);
+                            //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                        });
                     });
 
                 }

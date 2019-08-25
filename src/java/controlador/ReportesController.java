@@ -32,6 +32,9 @@ public class ReportesController extends HttpServlet {
 	    case "tabla-resumen-ventas-empresa":
 		out.print(tablaResumenVentasEmpresa(entrada));
 		break;
+	    case "tabla-resumen-ventas-empresa-dia":
+		out.print(tablaResumenVentasEmpresaDia(entrada));
+		break;
 	    case "tabla-detalle-ventas-empresa":
 		out.print(tablaDetalleVentasEmpresa(entrada));
 		break;
@@ -39,7 +42,7 @@ public class ReportesController extends HttpServlet {
 		break;
 	}
     }
-    
+
     private JSONObject cargaTablaResumenVendedor(String rutfullvendedor) {
 	JSONObject salida = new JSONObject();
 	JSONArray registros = new JSONArray();
@@ -72,21 +75,23 @@ public class ReportesController extends HttpServlet {
 	c.cerrar();
 	return salida;
     }
-    
-    private JSONObject tablaDetalleVendedor(JSONObject entrada){
+
+    private JSONObject tablaDetalleVendedor(JSONObject entrada) {
 	JSONObject salida = new JSONObject();
 	JSONArray ventas = new JSONArray();
 	String rutVendedorFull = entrada.getString("rutfullvendedor");
 	int rutVendedor = Integer.parseInt(rutVendedorFull.substring(0, rutVendedorFull.length() - 1));
-	
+
 	String query = "CALL SP_GET_VENTAS_DETALLE_VENDEDOR(" + rutVendedor + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
+	System.out.println(query);
+	DecimalFormat format = new DecimalFormat("###,###,###,###,###");
 	Conexion c = new Conexion();
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
-	try{
-	    while(rs.next()){
+	try {
+	    while (rs.next()) {
 		JSONObject venta = new JSONObject();
-                venta.put("idsimulacion", rs.getInt("IDSIMULACION"));
+		venta.put("idsimulacion", rs.getInt("IDSIMULACION"));
 		venta.put("fechasimulacion", rs.getDate("FECHASIMULACION"));
 		venta.put("rutfullcliente", rs.getString("RUTCLIENTE") + "-" + rs.getString("DVCLIENTE"));
 		venta.put("rutcliente", rs.getString("RUTCLIENTE"));
@@ -94,16 +99,16 @@ public class ReportesController extends HttpServlet {
 		venta.put("descproducto", rs.getString("DESCPRODUCTO"));
 		venta.put("codcampana", rs.getString("CODCAMPANA"));
 		venta.put("nomcampana", rs.getString("NOMCAMPANA"));
-		venta.put("monto", rs.getInt("MONTO"));
-		venta.put("meta", rs.getInt("META"));
+		venta.put("monto", format.format(rs.getDouble("MONTO")));
+		venta.put("meta", format.format(rs.getDouble("META")));
 		venta.put("cuotas", rs.getInt("CUOTAS"));
 		venta.put("empresa", rs.getString("NOMBRE"));
-                venta.put("subproductos", rs.getInt("SUBPRODUCTOS"));
+		venta.put("subproductos", rs.getInt("SUBPRODUCTOS"));
 		ventas.put(venta);
 	    }
 	    salida.put("ventas", ventas);
 	    salida.put("estado", "ok");
-	}catch (JSONException | SQLException ex) {
+	} catch (JSONException | SQLException ex) {
 	    salida.put("estado", "error");
 	    salida.put("error", ex);
 	    System.out.println("No se pudo obtener el detalle de las ventas por vendedor por fecha");
@@ -112,22 +117,22 @@ public class ReportesController extends HttpServlet {
 	c.cerrar();
 	return salida;
     }
-    
-    private JSONObject tablaResumenVentasEmpresa(JSONObject entrada){
+
+    private JSONObject tablaResumenVentasEmpresa(JSONObject entrada) {
 	JSONObject salida = new JSONObject();
 	JSONArray registros = new JSONArray();
 	int rutusuario = Integer.parseInt(entrada.getString("rutusuario"));
-	String query = "CALL SP_RESUMEN_VENTAS_EMPRESA(" + rutusuario + ")";
+	String query = "CALL SP_RESUMEN_VENTAS_EMPRESA(" + rutusuario + ", NULL)";
 	Conexion c = new Conexion();
 	c.abrir();
-        DecimalFormat format = new DecimalFormat("###,###,###,###,###");
+	DecimalFormat format = new DecimalFormat("###,###,###,###,###");
 	DecimalFormat decimales = new DecimalFormat("###,###.##");
 	ResultSet rs = c.ejecutarQuery(query);
-	try{
-	    while(rs.next()){
+	try {
+	    while (rs.next()) {
 		JSONObject registro = new JSONObject();
-		registro.put("fechafin", rs.getDate("FECHAINI"));
-		registro.put("fechaini", rs.getDate("FECHAFIN"));
+		registro.put("fechaini", rs.getDate("FECHAINI"));
+		registro.put("fechafin", rs.getDate("FECHAFIN"));
 		registro.put("codcampana", rs.getString("CODCAMPANA"));
 		registro.put("nomcampana", rs.getString("NOMCAMPANA"));
 		registro.put("codproducto", rs.getString("CODPRODUCTO"));
@@ -152,12 +157,12 @@ public class ReportesController extends HttpServlet {
 		registro.put("acumdia", rs.getInt("ACUMDIA"));
                 registro.put("fechaini", rs.getDate("FECHAINI"));
                 registro.put("fechafin", rs.getDate("FECHAFIN"));
-		*/
+		 */
 		registros.put(registro);
 	    }
 	    salida.put("registros", registros);
 	    salida.put("estado", "ok");
-	}catch (JSONException | SQLException ex) {
+	} catch (JSONException | SQLException ex) {
 	    System.out.println("No se pudo obtener el resumen del mes para la empresa.");
 	    System.out.println(ex);
 	    salida.put("estado", "error");
@@ -166,20 +171,66 @@ public class ReportesController extends HttpServlet {
 	c.cerrar();
 	return salida;
     }
-    
-    private JSONObject tablaDetalleVentasEmpresa(JSONObject entrada){
+
+    private JSONObject tablaResumenVentasEmpresaDia(JSONObject entrada) {
+	JSONObject salida = new JSONObject();
+	JSONArray registros = new JSONArray();
+	int rutusuario = Integer.parseInt(entrada.getString("rutusuario"));
+	String query = "CALL SP_RESUMEN_VENTAS_EMPRESA(" + rutusuario + ", '" + entrada.getString("fechahoy") + "')";
+	System.out.println(query);
+	Conexion c = new Conexion();
+	c.abrir();
+	DecimalFormat format = new DecimalFormat("###,###,###,###,###");
+	DecimalFormat decimales = new DecimalFormat("###,###.##");
+	ResultSet rs = c.ejecutarQuery(query);
+	try {
+	    while (rs.next()) {
+		JSONObject registro = new JSONObject();
+		registro.put("fechaini", rs.getDate("FECHAINI"));
+		registro.put("fechafin", rs.getDate("FECHAFIN"));
+		registro.put("codcampana", rs.getString("CODCAMPANA"));
+		registro.put("nomcampana", rs.getString("NOMCAMPANA"));
+		registro.put("codproducto", rs.getString("CODPRODUCTO"));
+		registro.put("descproducto", rs.getString("DESCPRODUCTO"));
+		registro.put("metaproducto", format.format(rs.getDouble("META")));
+		registro.put("acumproducto", format.format(rs.getDouble("ACUM"))); //Al día de hoy
+		registro.put("porcacumprod", decimales.format(rs.getDouble("PORCACUM")));
+		registro.put("simulaciones", rs.getInt("SIMULACIONES"));
+		registro.put("codsubproducto", rs.getString("CODSUBPRODUCTO"));
+		registro.put("descsubproducto", rs.getString("DESCSUBPRODUCTO"));
+		registro.put("metasubproducto", format.format(rs.getDouble("MONTOMETA")));
+		registro.put("acumsubproducto", format.format(rs.getDouble("ACUMDIASUBPROD"))); //Acumulado al día
+		registro.put("porcacumsubprod", decimales.format(rs.getDouble("PORCACUMMES")));
+		registro.put("cantidadmeta", rs.getInt("CANTIDADMETA"));
+		registro.put("cantidadmes", rs.getInt("CANTMES")); //Campo corresponde en esta ejecución al día, no al mes
+		registro.put("prima", decimales.format(rs.getDouble("PRIMA")));
+		registros.put(registro);
+	    }
+	    salida.put("registros", registros);
+	    salida.put("estado", "ok");
+	} catch (JSONException | SQLException ex) {
+	    System.out.println("No se pudo obtener el resumen del mes para la empresa al día de hoy.");
+	    System.out.println(ex);
+	    salida.put("estado", "error");
+	    salida.put("error", ex);
+	}
+	c.cerrar();
+	return salida;
+    }
+
+    private JSONObject tablaDetalleVentasEmpresa(JSONObject entrada) {
 	JSONObject salida = new JSONObject();
 	JSONArray ventas = new JSONArray();
 	int rutusuario = Integer.parseInt(entrada.getString("rutusuario"));
 	String query = "CALL SP_DETALLE_VENTAS_EMPRESA(" + rutusuario + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
 	Conexion c = new Conexion();
 	c.abrir();
-        DecimalFormat format = new DecimalFormat("###,###,###,###,###");
+	DecimalFormat format = new DecimalFormat("###,###,###,###,###");
 	ResultSet rs = c.ejecutarQuery(query);
-	try{
-	    while(rs.next()){
+	try {
+	    while (rs.next()) {
 		JSONObject venta = new JSONObject();
-                venta.put("idsimulacion", rs.getInt("IDSIMULACION"));
+		venta.put("idsimulacion", rs.getInt("IDSIMULACION"));
 		venta.put("fechasimulacion", rs.getDate("FECHASIMULACION"));
 		venta.put("codcampana", rs.getString("CODCAMPANA"));
 		venta.put("nomcampana", rs.getString("NOMCAMPANA"));
@@ -196,13 +247,13 @@ public class ReportesController extends HttpServlet {
 	    }
 	    salida.put("ventas", ventas);
 	    salida.put("estado", "ok");
-	}catch (JSONException | SQLException ex) {
+	} catch (JSONException | SQLException ex) {
 	    System.out.println("No se pudo obtener el detalle de las ventas para una empresa.");
 	    System.out.println(ex);
 	    salida.put("estado", "error");
 	    salida.put("estado", ex);
 	}
-	
+
 	return salida;
     }
 }

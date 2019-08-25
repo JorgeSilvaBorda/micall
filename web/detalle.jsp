@@ -14,7 +14,7 @@
                 hasta: hasta,
                 rutfullvendedor: rutfullvendedor
             };
-
+            //console.log(datos);
             $.ajax({
                 url: 'ReportesController',
                 type: 'post',

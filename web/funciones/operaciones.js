@@ -1,6 +1,6 @@
 
 
-function traerListado(detalle) {
+function traerListado(detalle, callback) {
     $.ajax({
         type: 'post',
         url: detalle.url,
@@ -11,6 +11,7 @@ function traerListado(detalle) {
             var obj = JSON.parse(res);
             if (obj.estado === 'ok') {
                 $('#' + detalle.bodyDestino).html(obj.cuerpotabla);
+                callback(obj.cuerpotabla);
             } else {
                 console.log("Error");
                 console.log(obj.mensaje);

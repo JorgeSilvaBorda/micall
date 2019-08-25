@@ -21,7 +21,11 @@
                         tipo: 'get-campanas'
                     }
                 };
-                traerListado(detalle);
+                traerListado(detalle, function (resp) {
+                    $('.dataTable').DataTable().destroy();
+                    $('#cuerpo-tab-campanas').html(resp);
+                    var tab = $('#tabla-campanas').DataTable(OPCIONES_DATATABLES);
+                });
             }
 
             function llenarSelectEmpresa() {
@@ -58,7 +62,9 @@
                         }
                     };
                     $('#cuerpo-tab-subproductos').html('');
-                    traerListado(detSubs);
+                    traerListado(detSubs, function (resp) {
+
+                    });
                 } else {
                     $('#select-producto').html('');
                 }
@@ -169,7 +175,7 @@
                 var fechaPrimerDia = new Date();
                 fechaPrimerDia.setDate(1);
                 var fec = formatFecha(fechaPrimerDia);
-                if (diffFechas(fec, campana.fechaini) !== 1) {
+                if (diffFechas(fec, $('#desde').val()) < 1) {
                     alert('La fecha de inicio de la campaña no puede ser anterior al primer día del mes en curso.');
                     return false;
                 }
@@ -232,6 +238,14 @@
                     console.log($(this));
                 }
             }
+            
+            function setFechaHasta(){
+                var fechaDesde = new Date($('#desde').val());
+                fechaDesde.setDate(fechaDesde.getDate() + 1);
+                var hastaString = formatFecha(fechaDesde);
+                
+                $('#hasta').val(hastaString);
+            }
         </script>
 
         <!-- Modal detalle -->
@@ -291,14 +305,6 @@
                 <div class="col-sm-4">
                     <form>
                         <div class="form-group small">
-                            <label for="codcampana">Código</label>
-                            <input id="codcampana" type="text" class="form-control form-control-sm" />
-                        </div>
-                        <div class="form-group small">
-                            <label for="nomcampana">Nombre</label>
-                            <input id="nomcampana" type="text" class="form-control form-control-sm" />
-                        </div>
-                        <div class="form-group small">
                             <label for="select-empresa">Empresa</label>
                             <select onchange="cargaSelectProducto();" class="form-control form-control-sm" id="select-empresa">
                             </select>
@@ -310,10 +316,20 @@
                             </select>
                         </div>
                         <div class="form-group small">
+                            <label for="codcampana">Código</label>
+                            <input id="codcampana" type="text" class="form-control form-control-sm" />
+                        </div>
+                        <div class="form-group small">
+                            <label for="nomcampana">Nombre</label>
+                            <input id="nomcampana" type="text" class="form-control form-control-sm" />
+                        </div>
+
+
+                        <div class="form-group small">
                             <div class="form-row">
                                 <div class="col">
                                     <label for="desde">Desde</label>
-                                    <input id="desde" type="date" class="form-control form-control-sm" />
+                                    <input onblur="setFechaHasta();" onchange="setFechaHasta();" id="desde" type="date" class="form-control form-control-sm" />
                                 </div>
                                 <div class="col">
                                     <label for="hasta">Hasta</label>

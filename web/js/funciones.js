@@ -1,8 +1,5 @@
 var OPCIONES_DATATABLES = {
-    "fixedHeader": {
-        header: true,
-        headerOffset: $('#navbar').outerHeight()
-    },
+
     "language": {
         "lengthMenu": "Mostrar _MENU_ registros por página",
         "zeroRecords": "Nada encontrado",
@@ -20,6 +17,11 @@ var OPCIONES_DATATABLES = {
     "drawCallback": function () {
         $('.dataTables_paginate > .pagination').addClass('pagination-sm');
     }
+};
+
+var OPCIONES_FIXED = {
+    header: true,
+    headerOffset: $('#navbar').outerHeight()
 };
 
 String.prototype.replaceAll = function (search, replacement) {
@@ -61,8 +63,8 @@ function formatMiles(valor) {
 }
 
 function diffFechas(fechaini, fechafin) {
-    var fecIni = new Date(fechaini);
-    var fecFin = new Date(fechafin);
+    var fecIni = new Date(fechaini.split("-")[0], fechaini.split("-")[2], fechaini.split("-")[2]);
+    var fecFin = new Date(fechafin.split("-")[0], fechafin.split("-")[2], fechafin.split("-")[2]);
     //var diffTime = Math.abs(fecFin.getTime() - fecIni.getTime());
     var diffTime = (fecFin.getTime() - fecIni.getTime());
     var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -81,9 +83,22 @@ function fechaIntToString(fecha) {
     return (anio + "-" + mes + "-" + dia);
 }
 
-function formatFecha(date){
-    var mes = ((date.getMonth() + 1) < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
-    var dia = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
-    var fec = date.getFullYear() + '-' + mes + '-' + dia;
+function formatFecha(date) {
+    var mesInt = date.getMonth() + 1;
+    var diaInt = date.getDate();
+    var anioInt = date.getFullYear();
+    
+    var mesString = mesInt.toString();
+    var diaString = diaInt.toString();
+    var anioString = anioInt.toString();
+    
+    if(mesInt < 10){
+        mesString = '0' + mesString;
+    }
+    if(diaInt < 10){
+        diaString = '0' + diaString;
+    }
+    
+    var fec = anioString + '-' + mesString + '-' + diaString;
     return fec;
 }
