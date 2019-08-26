@@ -9,6 +9,7 @@
         <script type="text/javascript">
             var TIPOOP = null;
             $(document).ready(function () {
+                OPCIONES_DATATABLES.buttons = false;
                 cargaSelectCampana();
                 traerRuterosEmpresa();
                 $('#select-campana').val('0');

@@ -1,8 +1,13 @@
 <%@include file="headjava.jsp" %>
 <script type="text/javascript">
     $(document).ready(function () {
-        OPCIONES_DATATABLES.buttons[0] = {title: "", extend: "excelHtml5"};
-        OPCIONES_DATATABLES.buttons[0].title = "MiCall-Res-Dia-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date());
+        var OPCIONES_EXCEL = [
+            {
+                extend: 'excelHtml5',
+                title: "MiCall-Res-Dia-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date())
+            }
+        ];
+        OPCIONES_DATATABLES.buttons = OPCIONES_EXCEL;
         cargarResumen();
     });
     function cargarResumen() {
@@ -47,7 +52,7 @@
             tab += "<td>$" + formatMiles($(this)[0].metaproducto) + "</td>";
             var acumprod = parseInt($(this)[0].acumproducto.replaceAll("\\.", ""));
             var metaprod = parseInt($(this)[0].metaproducto.replaceAll("\\.", ""));
-            tab += "<td "  + ((acumprod < metaprod && acumprod > 0) ? "style='color: red;'" : "") + " >$" + formatMiles($(this)[0].acumproducto) + "</td>";
+            tab += "<td " + ((acumprod < metaprod && acumprod > 0) ? "style='color: red;'" : "") + " >$" + formatMiles($(this)[0].acumproducto) + "</td>";
             //tab += "<td>" + $(this)[0].porcacumprod + "%</td>";
             tab += "<td>" + $(this)[0].simulaciones + "</td>";
             tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
@@ -55,12 +60,12 @@
             var estiloRojo = "";
             var metaSub = parseInt($(this)[0].metasubproducto.replaceAll("\\.", ""));
             var acumSub = parseInt($(this)[0].acumsubproducto.replaceAll("\\.", ""));
-            
-            if(acumSub > 0 && acumSub < metaSub){
+
+            if (acumSub > 0 && acumSub < metaSub) {
                 estiloRojo = "style='color: red;'";
             }
-            
-            
+
+
             tab += "<td " + estiloRojo + " >$" + formatMiles($(this)[0].acumsubproducto) + "</td>";
             //tab += "<td>" + $(this)[0].porcacumsubprod + "%</td>";
             //tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
@@ -73,8 +78,8 @@
 
     /*
      function pintarResumen(ventasDia, ventasMes) {
-        $('#totalDia').html("$" + formatMiles(ventasDia));
-        $('#totalMes').html("$" + formatMiles(ventasMes));
+     $('#totalDia').html("$" + formatMiles(ventasDia));
+     $('#totalMes').html("$" + formatMiles(ventasMes));
      }
      */
 </script>

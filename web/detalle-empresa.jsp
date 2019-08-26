@@ -6,33 +6,38 @@
             exportOptions: {
                 format: {
                     body: function (data, row, column, node) {
-                        // Strip $ from salary column to make it numeric
-                        return column === 7 ?
-                                formatExcelColCuota(data) :
-                                data;
+                        return column === 7 ? formatExcelColCuota(data) : data;
                     }
                 }
             }
         };
-        
-        function formatExcelColCuota(dato){
-            console.log("Entra: " + dato);
-            dato = dato.replaceAll("\\.", "");
-            dato = dato.replaceAll("\\$", "");
-            dato = dato.replaceAll(" ", "");
-            dato = dato.replaceAll("\$", "");
-            dato = dato.split("$")[1];
-            dato = dato.toString().trim();
-            //dato = "$" + dato;
-            //console.log("Sale: " + dato);
-            return "$ " + formatMiles(dato);
-        }
-        //OPCIONES_DATATABLES.buttons[0].title = "MiCall-Det-" + "<% //out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date());
-        OPCIONES_DATATABLES.buttons[0] = $.extend(true, {}, buttonCommon, {
-            extend: 'excelHtml5',
-            title: "MiCall-Det-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date())
-        });
+        var OPCIONES_EXCEL = [
+            $.extend( true, {}, buttonCommon, {
+                extend: 'copyHtml5',
+                title: "MiCall-Det-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date())
+            })
+            /*
+            {
+                extend: 'excelHtml5',
+                title: "MiCall-Det-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date())
+            }
+            */
+        ];
+        OPCIONES_DATATABLES.buttons = OPCIONES_EXCEL;
     });
+    // Funciones para manejo de campos excel ---------------------------------------------------------
+    function formatExcelColCuota(dato) {
+        console.log("Entra: " + dato);
+        dato = dato.replaceAll("\\.", "");
+        dato = dato.replaceAll("\\$", "");
+        dato = dato.replaceAll(" ", "");
+        dato = dato.replaceAll("\$", "");
+        dato = dato.split("$")[1];
+        dato = dato.toString().trim();
+        return "$ " + formatMiles(dato);
+    }
+    
+    // /Funciones para manejo de campos excel ---------------------------------------------------------
     function cargarDetalle() {
         if (validarCampos()) {
             var datos = {

@@ -1,11 +1,6 @@
 var OPCIONES_DATATABLES = {
     dom: 'Bfrtip',
-    buttons: [
-        {
-            extend: 'excelHtml5',
-            title: ''
-        }
-    ],
+    buttons: false,
     "language": {
         "lengthMenu": "Mostrar _MENU_ registros por página",
         "zeroRecords": "Nada encontrado",

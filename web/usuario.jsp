@@ -9,6 +9,7 @@
         <script type="text/javascript">
 
             $(document).ready(function () {
+                OPCIONES_DATATABLES.buttons = false;
                 listarUsuarios();
                 var det = {
                     tipo: 'carga-select-empresa',

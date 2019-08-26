@@ -8,6 +8,7 @@
     <body>
         <script type="text/javascript">
             $(document).ready(function () {
+                OPCIONES_DATATABLES.buttons = false;
                 //cargar select empresa
                 llenarSelectEmpresa();
                 traerCampanas();

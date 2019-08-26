@@ -8,6 +8,7 @@
     <body>
         <script type="text/javascript">
             $(document).ready(function () {
+                OPCIONES_DATATABLES.buttons = false;
                 $('.dataTable').DataTable().destroy();
                 var detalle = {
                     url: 'ProductoController',
@@ -21,8 +22,6 @@
                     $('.dataTable').DataTable().destroy();
                     $('#cuerpo-tab-producto').html(resp);
                     var tab = $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
-                    //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
-                    
                 });
 
                 var det = {
