@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import modelo.Conexion;
-import modelo.Empresa;
 
 public class EmpresaController extends HttpServlet {
 
@@ -43,12 +42,11 @@ public class EmpresaController extends HttpServlet {
     }
 
     public JSONObject crearEmpresa(JSONObject empresa) {
-	Empresa e = new Empresa(empresa.getInt("rutempresa"), empresa.getString("dvempresa"), empresa.getString("nomempresa"), empresa.getString("direccion"), empresa.getString("creacion"), empresa.getString("ultmodificacion"));
 	String query = "CALL SP_INS_EMPRESA("
-		+ e.getRut() + ", "
-		+ "'" + e.getDv() + "', "
-		+ "'" + e.getNombre() + "', "
-		+ "'" + e.getDireccion() + "')";
+		+ empresa.getInt("rutempresa") + ", "
+		+ "'" + empresa.getString("dvempresa") + "', "
+		+ "'" + empresa.getString("nomempresa") + "', "
+		+ "'" + empresa.getString("direccion") + "')";
 	Conexion c = new Conexion();
 	c.abrir();
 	c.ejecutar(query);
@@ -94,7 +92,6 @@ public class EmpresaController extends HttpServlet {
 	Conexion c = new Conexion();
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
-	String tabla = "";
 	String filas = "";
 	try {
 	    while (rs.next()) {

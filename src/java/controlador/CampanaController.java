@@ -210,7 +210,6 @@ public class CampanaController extends HttpServlet {
 		+ idempresa + ")";
 
 	Conexion c = new Conexion();
-	System.out.println("query: " + query);
 	int idCampana = 0;
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
@@ -331,7 +330,6 @@ public class CampanaController extends HttpServlet {
 		campana.put("codcampana", rs.getString("CODCAMPANA"));
 		campana.put("fechaini", rs.getDate("FECHAINI"));
 		campana.put("fechafin", rs.getDate("FECHAFIN"));
-		//campana.put("meta", rs.getInt("META"));
 		campana.put("codproducto", rs.getString("CODPRODUCTO"));
 		campana.put("descproducto", rs.getString("DESCPRODUCTO"));
 		campana.put("nomempresa", rs.getString("NOMBRE"));

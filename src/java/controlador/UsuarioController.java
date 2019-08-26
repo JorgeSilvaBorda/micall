@@ -79,7 +79,6 @@ public class UsuarioController extends HttpServlet {
 		usuario.put("idusuario", rs.getInt("IDUSUARIO"));
 		usuario.put("empresa", rs.getString("EMPRESA"));
 		cont++;
-		//salida.put("filas", cont);
 		salida.put("usuario", usuario);
 	    }
 	    salida.put("filas", cont);
@@ -115,7 +114,6 @@ public class UsuarioController extends HttpServlet {
 
     private JSONObject getUsuarios() {
 	JSONObject salida = new JSONObject();
-	//JSONArray usuarios = new JSONArray();
 	String query = "CALL SP_GET_USUARIOS()";
 	Conexion c = new Conexion();
 	c.abrir();

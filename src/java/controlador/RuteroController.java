@@ -84,7 +84,6 @@ public class RuteroController extends HttpServlet {
         Conexion c = new Conexion();
         c.abrir();
         ResultSet rs = c.ejecutarQuery(query);
-        //System.out.println(query);
         String tab = "<table id='tabla-ruteros-empresa' class='table table-sm small table-borderless table-hover table-striped'><thead>";
         tab += "<tr>";
         tab += "<th>Fecha Carga</th>";

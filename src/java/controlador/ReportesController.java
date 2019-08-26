@@ -81,9 +81,7 @@ public class ReportesController extends HttpServlet {
 	JSONArray ventas = new JSONArray();
 	String rutVendedorFull = entrada.getString("rutfullvendedor");
 	int rutVendedor = Integer.parseInt(rutVendedorFull.substring(0, rutVendedorFull.length() - 1));
-
 	String query = "CALL SP_GET_VENTAS_DETALLE_VENDEDOR(" + rutVendedor + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
-	System.out.println(query);
 	DecimalFormat format = new DecimalFormat("###,###,###,###,###");
 	Conexion c = new Conexion();
 	c.abrir();
@@ -177,7 +175,6 @@ public class ReportesController extends HttpServlet {
 	JSONArray registros = new JSONArray();
 	int rutusuario = Integer.parseInt(entrada.getString("rutusuario"));
 	String query = "CALL SP_RESUMEN_VENTAS_EMPRESA(" + rutusuario + ", '" + entrada.getString("fechahoy") + "')";
-	System.out.println(query);
 	Conexion c = new Conexion();
 	c.abrir();
 	DecimalFormat format = new DecimalFormat("###,###,###,###,###");
