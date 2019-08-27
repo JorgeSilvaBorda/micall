@@ -1,7 +1,6 @@
 <%@include file="headjava.jsp" %>
 <script type="text/javascript">
     $(document).ready(function () {
-        //cargarDetalle();
         var buttonCommon = {
             exportOptions: {
                 format: {
@@ -17,18 +16,12 @@
                 extend: 'excelHtml5',
                 title: "MiCall-Det-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date())
             })
-                    /*
-                     {
-                     extend: 'excelHtml5',
-                     title: "MiCall-Det-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date())
-                     }
-                     */
         ];
         OPCIONES_DATATABLES.buttons = OPCIONES_EXCEL;
     });
+
     // Funciones para manejo de campos excel ---------------------------------------------------------
     function formatColCuota(dato) {
-        console.log("Entra: " + dato);
         dato = dato.replaceAll("\\.", "");
         dato = dato.replaceAll("\\$", "");
         dato = dato.replaceAll(" ", "");
@@ -37,7 +30,7 @@
         dato = dato.toString().trim();
         return "$ " + formatMiles(dato);
     }
-    
+
     function formatColMonto(dato) {
         dato = dato.replaceAll("\\.", "");
         dato = dato.replaceAll("\\$", "");
@@ -47,8 +40,8 @@
         dato = dato.toString().trim();
         return "$ " + formatMiles(dato);
     }
-    
-    function limpiaCampoSubs(dato){
+
+    function limpiaCampoSubs(dato) {
         var span = $('<span></span>');
         $(span).html(dato);
         $(span).children().remove();
@@ -90,6 +83,7 @@
     }
 
     // /Funciones para manejo de campos excel ---------------------------------------------------------
+
     function cargarDetalle() {
         if (validarCampos()) {
             var datos = {
@@ -127,16 +121,11 @@
         $.each(arr, function () {
             tab += "<tr>";
             tab += "<td>" + $(this)[0].fechasimulacion + "</td>";
-            //tab += "<td>" + $(this)[0].codcampana + "</td>";
             tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
-            //tab += "<td>" + $(this)[0].codproducto + "</td>";
             tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
-            //tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
             tab += "<td>" + $.formatRut($(this)[0].rutfullvendedor) + "</td>";
             tab += "<td>" + $.formatRut($(this)[0].rutfullcliente) + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].monto) + "</td>";
-
-
             tab += "<td>" + $(this)[0].cuotas + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].valorcuota) + "</td>";
             var tdSubs = "<td>" + $(this)[0].subproductos + "</td>";
@@ -165,7 +154,6 @@
                 var obj = JSON.parse(resp);
                 console.log(obj);
                 if (obj.estado === 'ok') {
-                    //pintar popup
                     $('#cuerpo-modal-subproductos').html(armarTablaSubproductos(obj.subproductos));
                     $('#modal-subproductos').modal();
                 }
@@ -178,15 +166,11 @@
         tab += "<tr>";
         tab += "<th>Subproducto</th>";
         tab += "<th>Prima</th>";
-        //tab += "<th>Meta Monto</th>";
-        //tab += "<th>Meta Cantidad</th>";
         tab += "</tr></thead><tbody>";
         $(subproductos).each(function () {
             tab += "<tr>";
             tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
             tab += "<td>" + $(this)[0].prima + "</td>";
-            //tab += "<td>$" + formatMiles($(this)[0].montometa) + "</td>";
-            //tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
             tab += "</tr>";
         });
         tab += "</tbody></table>";
