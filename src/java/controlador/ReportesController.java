@@ -233,7 +233,7 @@ public class ReportesController extends HttpServlet {
 		venta.put("nomcampana", rs.getString("NOMCAMPANA"));
 		venta.put("codproducto", rs.getString("CODPRODUCTO"));
 		venta.put("descproducto", rs.getString("DESCPRODUCTO"));
-		venta.put("meta", format.format(rs.getDouble("META")));
+		venta.put("meta", rs.getDouble("META"));
 		venta.put("monto", rs.getInt("MONTO"));
 		venta.put("rutfullcliente", rs.getString("RUTFULLCLIENTE"));
 		venta.put("rutfullvendedor", rs.getString("RUTFULLVENDEDOR"));
