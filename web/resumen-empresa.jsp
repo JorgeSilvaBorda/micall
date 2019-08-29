@@ -46,24 +46,30 @@
             tab += "<td style='width: 38px;' >" + $(this)[0].fechafin + "</td>";
             tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
             tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
-            tab += "<td>$" + formatMiles($(this)[0].metaproducto) + "</td>";
-            var acumprod = parseInt($(this)[0].acumproducto.replaceAll("\\.", ""));
-            var metaprod = parseInt($(this)[0].metaproducto.replaceAll("\\.", ""));
-            tab += "<td " + ((acumprod < metaprod && acumprod > 0) ? "style='color: red;'" : "") + " >$" + formatMiles($(this)[0].acumproducto) + "</td>";
+            tab += "<td>$ " + formatMiles($(this)[0].metaproducto.toString().split(".")[0].replaceAll("\\.", "")) + "</td>";
+            var acumprod = parseInt($(this)[0].acumproducto.toString().split(".")[0].replaceAll("\\.", ""));
+            var metaprod = parseInt($(this)[0].metaproducto.toString().split(".")[0].replaceAll("\\.", ""));
+            tab += "<td " + ((acumprod < metaprod && acumprod > 0) ? "style='color: red;'" : "") + " >$ " + formatMiles($(this)[0].acumproducto) + "</td>";
             tab += "<td>" + $(this)[0].porcacumprod + "%</td>";
             tab += "<td>" + $(this)[0].simulaciones + "</td>";
-            tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
-            tab += "<td>$" + formatMiles($(this)[0].metasubproducto) + "</td>";
+            var desc;
+            if($(this)[0].descsubproducto === ''){
+                desc = "";
+            }else{
+                desc = "[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto;
+            }
+            tab += "<td>" + desc + "</td>";
+            tab += "<td>$ " + formatMiles($(this)[0].metasubproducto) + "</td>";
             var estiloRojo = "";
-            var metaSub = parseInt($(this)[0].metasubproducto.replaceAll("\\.", ""));
-            var acumSub = parseInt($(this)[0].acumsubproducto.replaceAll("\\.", ""));
+            var metaSub = parseInt($(this)[0].metasubproducto.toString().replaceAll("\\.", ""));
+            var acumSub = parseInt($(this)[0].acumsubproducto.toString().split(".")[0].replaceAll("\\.", ""));
 
             if (acumSub > 0 && acumSub < metaSub) {
                 estiloRojo = "style='color: red;'";
             }
 
 
-            tab += "<td " + estiloRojo + " >$" + formatMiles($(this)[0].acumsubproducto) + "</td>";
+            tab += "<td " + estiloRojo + " >$" + formatMiles(acumSub) + "</td>";
             tab += "<td>" + $(this)[0].porcacumsubprod + "%</td>";
             tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
             tab += "<td>" + formatMiles($(this)[0].cantidadmes) + "</td>";
