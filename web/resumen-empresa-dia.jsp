@@ -16,8 +16,6 @@
             fechahoy: formatFecha(new Date()),
             rutusuario: '<% out.print(session.getAttribute("rutusuario"));%>'
         };
-        console.log("Lo que se manda a java");//--------------------------------------------
-        console.log(datos);
         $.ajax({
             type: 'post',
             url: 'ReportesController',
@@ -73,13 +71,6 @@
         });
         return tab;
     }
-
-    /*
-     function pintarResumen(ventasDia, ventasMes) {
-     $('#totalDia').html("$" + formatMiles(ventasDia));
-     $('#totalMes').html("$" + formatMiles(ventasMes));
-     }
-     */
 </script>
 <br />
 <div class="row">
@@ -103,15 +94,11 @@
                     <th>Nombre</th>
                     <th>$<br />Meta</th>
                     <th>$<br />Acum.</th>
-                    <!-- th>%$<br />Cump.</th> <!-- fuera -->
                     <th>#<br/>Acum.</th>
                     <th>Nombre</th>
                     <th>$<br />Meta.</th>
                     <th>$<br />Acum.</th>
-                    <!-- th>%$<br />Cump.</th> <!-- fuera -->
-                    <!-- th>#<br/>Meta</th> <!-- fuera -->
                     <th>#<br />Acum.</th>
-                    <!--th>Prima Subprod.</th-->
                 </tr>
             </thead>
             <tbody id="cuerpo-tab-resumen-empresa">

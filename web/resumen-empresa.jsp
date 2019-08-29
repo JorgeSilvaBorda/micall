@@ -67,24 +67,13 @@
             if (acumSub > 0 && acumSub < metaSub) {
                 estiloRojo = "style='color: red;'";
             }
-
-
             tab += "<td " + estiloRojo + " >$" + formatMiles(acumSub) + "</td>";
             tab += "<td>" + $(this)[0].porcacumsubprod + "%</td>";
             tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
-            tab += "<td>" + formatMiles($(this)[0].cantidadmes) + "</td>";
-            //tab += "<td>" + $(this)[0].prima + "%</td>";
             tab += "</tr>";
         });
         return tab;
     }
-
-    /*
-     function pintarResumen(ventasDia, ventasMes) {
-     $('#totalDia').html("$" + formatMiles(ventasDia));
-     $('#totalMes').html("$" + formatMiles(ventasMes));
-     }
-     */
 </script>
 <br />
 <div class="row">
@@ -116,7 +105,6 @@
                     <th>%$<br />Cump.</th>
                     <th>#<br/>Meta</th>
                     <th>#<br />Acum.</th>
-                    <!--th>Prima Subprod.</th-->
                 </tr>
             </thead>
             <tbody id="cuerpo-tab-resumen-empresa">

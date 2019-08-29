@@ -5,7 +5,6 @@
             exportOptions: {
                 format: {
                     body: function (data, row, column, node) {
-                        //return column === 7 ? formatExcelColCuota(data) : data;
                         return formatCol(column, data);
                     }
                 }
@@ -244,16 +243,11 @@
             <thead>
                 <tr>
                     <th>Fecha</th>
-                    <!--th>Cod. Campaña</th-->
                     <th>Campaña</th>
-                    <!--th>Cod. Producto</th-->
                     <th>Producto</th>
-                    <!--th>Meta</th-->
                     <th>Rut Vendedor</th>
                     <th>Rut Cliente</th>
                     <th>Monto</th>
-
-
                     <th>Cuotas</th>
                     <th>Valor Cuota</th>
                     <th>Subproductos</th>
