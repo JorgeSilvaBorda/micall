@@ -67,9 +67,11 @@
             if (acumSub > 0 && acumSub < metaSub) {
                 estiloRojo = "style='color: red;'";
             }
-            tab += "<td " + estiloRojo + " >$" + formatMiles(acumSub) + "</td>";
+            acumSub = acumSub.toString();
+            tab += "<td " + estiloRojo + " >$ " + formatMiles(acumSub) + "</td>";
             tab += "<td>" + $(this)[0].porcacumsubprod + "%</td>";
             tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
+            tab += "<td>" + formatMiles($(this)[0].cantidadmes) + "</td>";
             tab += "</tr>";
         });
         return tab;
