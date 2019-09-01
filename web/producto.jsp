@@ -8,6 +8,8 @@
     <body>
         <script type="text/javascript">
             $(document).ready(function () {
+                OPCIONES_DATATABLES.buttons = [];
+                //$('.dataTable').DataTable().destroy();
                 var detalle = {
                     url: 'ProductoController',
                     datos: {
@@ -16,9 +18,11 @@
                     bodyDestino: 'cuerpo-tab-producto',
                     tablaObjetivo: 'tabla-productos'
                 };
-                traerListado(detalle);
-                $('.dataTable').DataTable().destroy();
-                $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                traerListado(detalle, function (resp) {
+                    $('.dataTable').DataTable().destroy();
+                    $('#cuerpo-tab-producto').html(resp);
+                    $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
+                });
 
                 var det = {
                     tipo: 'carga-select-empresa',
@@ -55,9 +59,12 @@
                             bodyDestino: 'cuerpo-tab-producto',
                             tablaObjetivo: 'tabla-productos'
                         };
-                        traerListado(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        traerListado(det, function (resp) {
+                            $('.table').DataTable().destroy();
+                            $('#cuerpo-tab-producto').html(resp);
+                            $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
+                        });
+
                         limpiar();
                     });
                 }
@@ -85,7 +92,9 @@
                             var obj = JSON.parse(res);
                             if (obj.estado === 'ok') {
                                 if (parseInt(obj.cantidad) > 0) {
-                                    alert('El producto de código: ' + producto.codigo + ' ya existe para la empresa seleccionada.');
+                                    alert('El producto de código: ' + producto.codproducto + ' ya existe para la empresa seleccionada.');
+                                    $('#codigo').val('');
+                                    $('#codigo').focus();
                                     $('#btnInsert').attr("disabled", "disabled");
                                 } else {
                                     $('#btnInsert').removeAttr("disabled");
@@ -134,7 +143,6 @@
                         url: "ProductoController",
                         datos: datos
                     };
-                    //console.log(detalle);
                     guardar(detalle, function (obj) {
                         var det = {
                             url: 'ProductoController',
@@ -144,9 +152,11 @@
                             bodyDestino: 'cuerpo-tab-producto',
                             tablaObjetivo: 'tabla-productos'
                         };
-                        traerListado(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        traerListado(det, function (resp) {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-producto').html(resp);
+                            $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
+                        });
                         limpiar();
                     });
                 }
@@ -205,9 +215,11 @@
                             bodyDestino: 'cuerpo-tab-producto',
                             tablaObjetivo: 'tabla-productos'
                         };
-                        traerListado(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                        traerListado(det, function (resp) {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-producto').html(resp);
+                            $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
+                        });
                     });
                 }
             }
@@ -221,9 +233,11 @@
                     bodyDestino: 'cuerpo-tab-producto',
                     tablaObjetivo: 'tabla-productos'
                 };
-                traerListado(det);
-                $('.dataTable').DataTable().destroy();
-                $('#' + det.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
+                traerListado(det, function (resp) {
+                    $('.dataTable').DataTable().destroy();
+                    $('#cuerpo-tab-producto').html(resp);
+                    $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
+                });
             }
         </script>
         <div class="container-fluid">

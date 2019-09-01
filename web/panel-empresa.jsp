@@ -30,7 +30,10 @@
                 <div class="col-sm-12">
                     <ul class="nav nav-tabs">
                         <li id="tab-resumen" onclick="cambiarTab(this, 'resumen-empresa');" class="nav-item">
-                            <a class="nav-link active" href="#">Resumen</a>
+                            <a class="nav-link active" href="#">Resumen Mes</a>
+                        </li>
+                        <li id="tab-resumen" onclick="cambiarTab(this, 'resumen-empresa-dia');" class="nav-item">
+                            <a class="nav-link active" href="#">Resumen Día</a>
                         </li>
                         <li onclick="cambiarTab(this, 'detalle-empresa');" class="nav-item">
                             <a class="nav-link" href="#">Detalle</a>

@@ -1,6 +1,7 @@
 <%@include file="headjava.jsp" %>
 <script type="text/javascript">
     $('#document').ready(function () {
+        OPCIONES_DATATABLES.buttons = [];
         cargarTabla();
     });
 

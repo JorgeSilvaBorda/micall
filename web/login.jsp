@@ -99,10 +99,12 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-4"></div>
+                <div style="background-image:url('./img/logo.png'); background-size: 220px 200px; background-repeat: no-repeat; background-position: center;" class="col-sm-4">
+                    
+                </div>
                 <div class="col-sm-4">
                     <h2>Login usuario</h2>
-                    <form>
+                    <form  >
                         <div class="form-group">
                             <label for="usuario">Usuario</label>
                             <input type="text" class="form-control small" id="usuario" name="usuario" />

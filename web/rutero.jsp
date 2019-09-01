@@ -7,7 +7,9 @@
     </head>
     <body>
         <script type="text/javascript">
+            var TIPOOP = null;
             $(document).ready(function () {
+               OPCIONES_DATATABLES.buttons = [];
                 cargaSelectCampana();
                 traerRuterosEmpresa();
                 $('#select-campana').val('0');
@@ -17,74 +19,116 @@
             var RUTERO = null;
             var NOMARCHIVO = "";
             document.getElementById('archivo').onchange = function () {
-                var cont = 1;
-                var log = [];
-                var file = this.files[0];
+                if (TIPOOP === 'ingreso') {
+                    var cont = 1;
+                    var file = this.files[0];
 
-                NOMARCHIVO = file;
-                var reader = new FileReader();
-                reader.onload = function () { //Acá convertir a tabla
-                    ERRORES = 0;
-                    MENSAJES = [];
-                    var lineas = this.result.split("\n");
-                    var rutero = {
-                        nomarchivo: NOMARCHIVO.name,
-                        idcampana: $('#select-campana').val(),
-                        registros: 0,
-                        filas: []
-                    };
-                    for (var i = 1; i < lineas.length; i++) { //Comienza en 1. La primera línea es cabecera
-                        if (lineas[i].length > 10) {
-                            var linea = lineas[i].split(";");
-                            var rutcliente = linea[0];
-                            var dvcliente = linea[1];
+                    NOMARCHIVO = file;
+                    var reader = new FileReader();
+                    reader.onload = function () { //Acá convertir a tabla
+                        ERRORES = 0;
+                        MENSAJES = [];
+                        var lineas = this.result.split("\n");
+                        var rutero = {
+                            nomarchivo: NOMARCHIVO.name,
+                            idcampana: $('#select-campana').val(),
+                            registros: 0,
+                            filas: []
+                        };
+                        for (var i = 1; i < lineas.length; i++) { //Comienza en 1. La primera línea es cabecera
+                            if (lineas[i].length > 10) {
+                                var linea = lineas[i].split(";");
+                                var rutcliente = linea[0];
+                                var dvcliente = linea[1];
 
-                            var nombres = linea[2];
-                            var apellidos = linea[3];
-                            var genero = linea[4];
-                            var fechaNacInt = linea[5].toString();
-                            var fechanac = fechaNacInt;
-                            var direccion = linea[6];
-                            var comuna = linea[7];
-                            var region = linea[8];
-                            var codigopostal = linea[9];
-                            var email = linea[10];
-                            var montoaprobado = linea[11];
-                            var fono1 = parseInt(linea[12]);
-                            var fono2 = parseInt(linea[13]);
-                            var fono3 = parseInt(linea[14]);
+                                var nombres = linea[2];
+                                var apellidos = linea[3];
+                                var genero = linea[4];
+                                var fechaNacInt = linea[5].toString();
+                                var fechanac = fechaNacInt;
+                                var direccion = linea[6];
+                                var comuna = linea[7];
+                                var region = linea[8];
+                                var codigopostal = linea[9];
+                                var email = linea[10];
+                                var montoaprobado = linea[11];
+                                var fono1 = parseInt(linea[12]);
+                                var fono2 = parseInt(linea[13]);
+                                var fono3 = parseInt(linea[14]);
 
-                            var filaRutero = {
-                                rutcliente: parseInt(rutcliente),
-                                dvcliente: dvcliente,
-                                nombres: nombres,
-                                apellidos: apellidos,
-                                genero: genero,
-                                fechanac: fechanac,
-                                direccion: direccion.replaceAll("'", "''"),
-                                comuna: comuna,
-                                region: region,
-                                codigopostal: parseInt(codigopostal),
-                                email: email,
-                                montoaprobado: montoaprobado,
-                                fono1: fono1,
-                                fono2: fono2,
-                                fono3: fono3,
-                                posicion: i
-                            };
-                            if (validarFila(filaRutero)) {
-                                rutero.filas.push(filaRutero);
-                                rutero.registros++;
-                            } else {
-                                ERRORES++;
+                                var filaRutero = {
+                                    rutcliente: parseInt(rutcliente),
+                                    dvcliente: dvcliente,
+                                    nombres: nombres,
+                                    apellidos: apellidos,
+                                    genero: genero,
+                                    fechanac: fechanac,
+                                    direccion: direccion.replaceAll("'", "''"),
+                                    comuna: comuna,
+                                    region: region,
+                                    codigopostal: parseInt(codigopostal),
+                                    email: email,
+                                    montoaprobado: montoaprobado,
+                                    fono1: fono1,
+                                    fono2: fono2,
+                                    fono3: fono3,
+                                    posicion: i
+                                };
+                                if (validarFila(filaRutero)) {
+                                    rutero.filas.push(filaRutero);
+                                    rutero.registros++;
+                                } else {
+                                    ERRORES++;
+                                }
                             }
+                            cont++;
                         }
-                        cont++;
-                    }
-                    RUTERO = rutero;
-                    armarTablaRutero(rutero);
-                };
-                reader.readAsText(file, 'UTF-8');
+                        RUTERO = rutero;
+                        armarTablaRutero(rutero);
+                    };
+                    reader.readAsText(file, 'UTF-8');
+                } else if (TIPOOP === 'eliminacion') {
+                    var cont = 1;
+                    var file = this.files[0];
+
+                    NOMARCHIVO = file;
+                    var reader = new FileReader();
+                    reader.onload = function () { //Acá convertir a tabla
+                        ERRORES = 0;
+                        MENSAJES = [];
+                        var lineas = this.result.split("\n");
+                        var rutero = {
+                            nomarchivo: NOMARCHIVO.name,
+                            idcampana: $('#select-campana').val(),
+                            registros: 0,
+                            filas: []
+                        };
+                        for (var i = 1; i < lineas.length; i++) { //Comienza en 1. La primera línea es cabecera
+                            if (lineas[i].length > 10) {
+                                var linea = lineas[i].split(";");
+                                var rutcliente = linea[0];
+                                var dvcliente = linea[1];
+                                var filaRutero = {
+                                    rutcliente: parseInt(rutcliente),
+                                    dvcliente: dvcliente,
+                                    posicion: i
+                                };
+                                if (validarFilaEliminacion(filaRutero)) {
+                                    rutero.filas.push(filaRutero);
+                                    rutero.registros++;
+                                } else {
+                                    ERRORES++;
+                                }
+                            }
+                            cont++;
+                        }
+                        RUTERO = rutero;
+                        armarTablaRuteroEliminacion(rutero);
+                    };
+                    reader.readAsText(file, 'UTF-8');
+                }else if(TIPOOP === null){
+                    alert("Debe seleccionar el tipo de operación para la carga del rutero.");
+                }
             };
 
             function traerRuterosEmpresa() {
@@ -102,13 +146,35 @@
                     success: function (resp) {
                         var obj = JSON.parse(resp);
                         if (obj.estado === 'ok') {
-                            console.log(obj);
                             $('.dataTable').DataTable().destroy();
                             $('#contenido-ruteros').html(obj.tabla);
                             $('#tabla-ruteros-empresa').DataTable(OPCIONES_DATATABLES);
                         }
                     }
                 });
+            }
+
+            function validarFilaEliminacion(filarutero) {
+                var mensaje = [];
+                var SALIDA = true;
+                var rutfullcliente = filarutero.rutcliente.toString() + filarutero.dvcliente.toString();
+                if (filarutero.rutcliente.length < 7 || filarutero.rutcliente.length > 8) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El largo del rut no puede ser menor a 7 ni mayor que 8 dígitos.");
+                    SALIDA = false;
+                }
+                if (isNaN(filarutero.rutcliente)) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El rut debe ser numérico.");
+                    SALIDA = false;
+                }
+                if (!$.validateRut(rutfullcliente)) {
+                    mensaje.push("[Fila " + filarutero.posicion + "]El dígito verificador no corresponde al rut.");
+                    SALIDA = false;
+                }
+                if (!SALIDA) {
+                    MENSAJES.push(mensaje);
+                }
+
+                return SALIDA;
             }
 
             function validarFila(filarutero) {
@@ -219,7 +285,43 @@
                     tabDetalle += "</tr>";
                 }
                 tabDetalle += "</tbody></table>";
+                $('.dataTable').DataTable().destroy();
                 $('#tabla-rutero').html(tabDetalle + "<br />" + tab);
+                $('#tab-rutero').DataTable(OPCIONES_DATATABLES);
+                $('#tabla-ruteros-empresa').DataTable(OPCIONES_DATATABLES);
+            }
+            
+            function armarTablaRuteroEliminacion(rutero) {
+                var tab = "<table style='width: 200px;' id='tab-rutero' class='table table-sm small table-striped table-condensed table-hover'><thead>";
+                tab += "<tr>";
+                tab += "<th style='width: 50px;' >RUTCLIENTE</th>";
+                tab += "<th style='width: 20px;' >DVCLIENTE</th>";
+                tab += "</tr>";
+                tab += "</thead>";
+                tab += "<tbody>";
+                $(rutero.filas).each(function (i) {
+                    tab += "<tr>";
+                    tab += "<td>" + $(this)[0].rutcliente + "</td>";
+                    tab += "<td>" + $(this)[0].dvcliente + "</td>";
+                    tab += "</tr>";
+                });
+                tab += "</tbody></table>";
+
+                var tabDetalle = "<table style='border: none; border-collapse: collapse;'><tbody><tr>";
+                tabDetalle += "<td>Registros procesados</td>";
+                tabDetalle += "<td>" + rutero.registros + "</td>";
+                tabDetalle += "</tr>";
+                if (ERRORES > 0) {
+                    tabDetalle += "<tr>";
+                    tabDetalle += "<td>Registros con problemas</td>";
+                    tabDetalle += "<td>" + ERRORES + " <button class='btn btn-sm btn-warning' type='button' onclick='mostrarErrores();'>Detalle</button></td>";
+                    tabDetalle += "</tr>";
+                }
+                tabDetalle += "</tbody></table>";
+                $('.dataTable').DataTable().destroy();
+                $('#tabla-rutero').html(tabDetalle + "<br />" + tab);
+                $('#tab-rutero').DataTable(OPCIONES_DATATABLES);
+                $('#tabla-ruteros-empresa').DataTable(OPCIONES_DATATABLES);
             }
 
             function mostrarErrores() {
@@ -243,12 +345,14 @@
                     modo = 'del-rutero';
                 }
                 if (validarInsert()) {
+                    var idusuario = '<% out.print(session.getAttribute("idusuario")); %>';
                     if (ERRORES > 0) {
                         if (confirm('El rutero cargado presenta errores. Está seguro de que desea cargar únicamente los registros buenos?')) {
                             var detalle = {
                                 url: 'RuteroController',
                                 datos: {
                                     tipo: modo,
+                                    idusuario: parseInt(idusuario),
                                     rutero: RUTERO
                                 }
                             };
@@ -256,12 +360,14 @@
                                 traerRuterosEmpresa();
                                 limpiar();
                             });
+
                         }
                     } else {
                         var detalle = {
                             url: 'RuteroController',
                             datos: {
                                 tipo: modo,
+                                idusuario: parseInt(idusuario),
                                 rutero: RUTERO
                             }
                         };
@@ -317,6 +423,19 @@
                 RUTERO = null;
                 NOMARCHIVO = "";
             }
+
+            function habilitarCarga() {
+                if (parseInt($('#select-tipo').val()) === 1) {
+                    TIPOOP = 'ingreso';
+                    $('#archivo').removeAttr("disabled");
+                } else if (parseInt($('#select-tipo').val()) === 2) {
+                    TIPOOP = 'eliminacion';
+                    $('#archivo').removeAttr("disabled");
+                } else if (parseInt($('#select-tipo').val()) === 0) {
+                    TIPOOP = null;
+                    $('#archivo').attr("disabled", "disabled");
+                }
+            }
         </script>
         <!-- The Modal -->
         <div class="modal" id="modal-errores">
@@ -360,18 +479,19 @@
                             <select  id="select-campana" class="form-control form-control-sm" >
                             </select>
                         </div>
-                        <div class="form-group-small">
-                            <label for="archivo">Archivo rutero</label>
-                            <input type="file" class="form-control form-control-sm" id="archivo" />
-                        </div>
                         <div class="form-group small">
                             <label for="select-tipo">Operación</label>
-                            <select  id="select-tipo" class="form-control form-control-sm" >
+                            <select onchange="habilitarCarga();" id="select-tipo" class="form-control form-control-sm" >
                                 <option value='0'>Seleccione</option>
                                 <option value='1'>Ingreso</option>
                                 <option value='2'>Eliminación</option>
                             </select>
                         </div>
+                        <div class="form-group-small">
+                            <label for="archivo">Archivo rutero</label>
+                            <input type="file" disabled="disabled" class="form-control form-control-sm" id="archivo" />
+                        </div>
+
                         <br />
                         <div id='creacion' class="form-group small">
                             <button id="btnInsert" onclick="insert();" type="button" class="btn btn-primary btn-sm">Ingresar</button>
