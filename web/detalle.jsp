@@ -1,6 +1,6 @@
 <%@include file="headjava.jsp" %>
 <script type="text/javascript">
-
+    OPCIONES_DATATABLES.buttons = [];
     function buscar() {
         if (validarCampos()) {
             var desde = $('#desde').val();
