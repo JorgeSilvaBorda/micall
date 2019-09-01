@@ -9,6 +9,7 @@
     <body>
         <script type="text/javascript">
             $(document).ready(function () {
+                OPCIONES_DATATABLES.buttons = [];
                 $('#rut').val('<% out.print(session.getAttribute("rutusuario").toString() + session.getAttribute("dvusuario").toString());%>');
                 $('#rut').val($.formatRut($('#rut').val()));
             });

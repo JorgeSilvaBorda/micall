@@ -14,7 +14,7 @@
     <body>
         <script type="text/javascript">
             $(document).ready(function () {
-                OPCIONES_DATATABLES.buttons = false;
+                OPCIONES_DATATABLES.buttons = [];
                 cargarSimulaciones();
                 cargaSelectEmpresa();
                 $('#rutcliente').rut(
