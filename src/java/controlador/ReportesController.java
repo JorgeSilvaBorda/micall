@@ -81,9 +81,7 @@ public class ReportesController extends HttpServlet {
 	JSONArray ventas = new JSONArray();
 	String rutVendedorFull = entrada.getString("rutfullvendedor");
 	int rutVendedor = Integer.parseInt(rutVendedorFull.substring(0, rutVendedorFull.length() - 1));
-
 	String query = "CALL SP_GET_VENTAS_DETALLE_VENDEDOR(" + rutVendedor + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
-	System.out.println(query);
 	DecimalFormat format = new DecimalFormat("###,###,###,###,###");
 	Conexion c = new Conexion();
 	c.abrir();
@@ -137,27 +135,23 @@ public class ReportesController extends HttpServlet {
 		registro.put("nomcampana", rs.getString("NOMCAMPANA"));
 		registro.put("codproducto", rs.getString("CODPRODUCTO"));
 		registro.put("descproducto", rs.getString("DESCPRODUCTO"));
-		registro.put("metaproducto", format.format(rs.getDouble("META")));
-		registro.put("acumproducto", format.format(rs.getDouble("ACUM")));
+		//registro.put("metaproducto", format.format(rs.getDouble("META")));
+		registro.put("metaproducto", rs.getDouble("META"));
+		//registro.put("acumproducto", format.format(rs.getDouble("ACUM")));
+		registro.put("acumproducto", rs.getDouble("ACUM"));
+		
 		registro.put("porcacumprod", decimales.format(rs.getDouble("PORCACUM")));
 		registro.put("simulaciones", rs.getInt("SIMULACIONES"));
 		registro.put("codsubproducto", rs.getString("CODSUBPRODUCTO"));
 		registro.put("descsubproducto", rs.getString("DESCSUBPRODUCTO"));
-		registro.put("metasubproducto", format.format(rs.getDouble("MONTOMETA")));
-		registro.put("acumsubproducto", format.format(rs.getDouble("ACUMMES")));
+		//registro.put("metasubproducto", format.format(rs.getDouble("MONTOMETA")));
+		registro.put("metasubproducto", rs.getDouble("MONTOMETA"));
+		//registro.put("acumsubproducto", format.format(rs.getDouble("ACUMMES")));
+		registro.put("acumsubproducto", rs.getDouble("ACUMMES"));
 		registro.put("porcacumsubprod", decimales.format(rs.getDouble("PORCACUMMES")));
 		registro.put("cantidadmeta", rs.getInt("CANTIDADMETA"));
 		registro.put("cantidadmes", rs.getInt("CANTMES"));
 		registro.put("prima", decimales.format(rs.getDouble("PRIMA")));
-		/*
-		registro.put("meta", format.format(rs.getDouble("META")));
-		registro.put("montoacum", rs.getInt("MONTOACUM"));
-		registro.put("porcacum", rs.getInt("PORCACUM"));
-		registro.put("cantidad", rs.getInt("CANTIDAD"));
-		registro.put("acumdia", rs.getInt("ACUMDIA"));
-                registro.put("fechaini", rs.getDate("FECHAINI"));
-                registro.put("fechafin", rs.getDate("FECHAFIN"));
-		 */
 		registros.put(registro);
 	    }
 	    salida.put("registros", registros);
@@ -177,7 +171,6 @@ public class ReportesController extends HttpServlet {
 	JSONArray registros = new JSONArray();
 	int rutusuario = Integer.parseInt(entrada.getString("rutusuario"));
 	String query = "CALL SP_RESUMEN_VENTAS_EMPRESA(" + rutusuario + ", '" + entrada.getString("fechahoy") + "')";
-	System.out.println(query);
 	Conexion c = new Conexion();
 	c.abrir();
 	DecimalFormat format = new DecimalFormat("###,###,###,###,###");
@@ -192,14 +185,14 @@ public class ReportesController extends HttpServlet {
 		registro.put("nomcampana", rs.getString("NOMCAMPANA"));
 		registro.put("codproducto", rs.getString("CODPRODUCTO"));
 		registro.put("descproducto", rs.getString("DESCPRODUCTO"));
-		registro.put("metaproducto", format.format(rs.getDouble("META")));
-		registro.put("acumproducto", format.format(rs.getDouble("ACUM"))); //Al día de hoy
+		registro.put("metaproducto", rs.getDouble("META"));
+		registro.put("acumproducto", rs.getDouble("ACUM")); //Al día de hoy
 		registro.put("porcacumprod", decimales.format(rs.getDouble("PORCACUM")));
 		registro.put("simulaciones", rs.getInt("SIMULACIONES"));
 		registro.put("codsubproducto", rs.getString("CODSUBPRODUCTO"));
 		registro.put("descsubproducto", rs.getString("DESCSUBPRODUCTO"));
-		registro.put("metasubproducto", format.format(rs.getDouble("MONTOMETA")));
-		registro.put("acumsubproducto", format.format(rs.getDouble("ACUMDIASUBPROD"))); //Acumulado al día
+		registro.put("metasubproducto", rs.getDouble("MONTOMETA"));
+		registro.put("acumsubproducto", rs.getDouble("ACUMDIASUBPROD")); //Acumulado al día
 		registro.put("porcacumsubprod", decimales.format(rs.getDouble("PORCACUMMES")));
 		registro.put("cantidadmeta", rs.getInt("CANTIDADMETA"));
 		registro.put("cantidadmes", rs.getInt("CANTMES")); //Campo corresponde en esta ejecución al día, no al mes
@@ -236,7 +229,7 @@ public class ReportesController extends HttpServlet {
 		venta.put("nomcampana", rs.getString("NOMCAMPANA"));
 		venta.put("codproducto", rs.getString("CODPRODUCTO"));
 		venta.put("descproducto", rs.getString("DESCPRODUCTO"));
-		venta.put("meta", format.format(rs.getDouble("META")));
+		venta.put("meta", rs.getDouble("META"));
 		venta.put("monto", rs.getInt("MONTO"));
 		venta.put("rutfullcliente", rs.getString("RUTFULLCLIENTE"));
 		venta.put("rutfullvendedor", rs.getString("RUTFULLVENDEDOR"));

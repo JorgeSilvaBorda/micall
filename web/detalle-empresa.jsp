@@ -1,38 +1,88 @@
 <%@include file="headjava.jsp" %>
 <script type="text/javascript">
     $(document).ready(function () {
-        //cargarDetalle();
         var buttonCommon = {
             exportOptions: {
                 format: {
                     body: function (data, row, column, node) {
-                        // Strip $ from salary column to make it numeric
-                        return column === 7 ?
-                                formatExcelColCuota(data) :
-                                data;
+                        return formatCol(column, data);
                     }
                 }
             }
         };
-        
-        function formatExcelColCuota(dato){
-            console.log("Entra: " + dato);
-            dato = dato.replaceAll("\\.", "");
-            dato = dato.replaceAll("\\$", "");
-            dato = dato.replaceAll(" ", "");
-            dato = dato.replaceAll("\$", "");
-            dato = dato.split("$")[1];
-            dato = dato.toString().trim();
-            //dato = "$" + dato;
-            //console.log("Sale: " + dato);
-            return "$ " + formatMiles(dato);
-        }
-        //OPCIONES_DATATABLES.buttons[0].title = "MiCall-Det-" + "<% //out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date());
-        OPCIONES_DATATABLES.buttons[0] = $.extend(true, {}, buttonCommon, {
-            extend: 'excelHtml5',
-            title: "MiCall-Det-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date())
-        });
+        var OPCIONES_EXCEL = [
+            $.extend(true, {}, buttonCommon, {
+                extend: 'excelHtml5',
+                title: "MiCall-Det-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date())
+            })
+        ];
+        OPCIONES_DATATABLES.buttons = OPCIONES_EXCEL;
     });
+
+    // Funciones para manejo de campos excel ---------------------------------------------------------
+    function formatColCuota(dato) {
+        dato = dato.replaceAll("\\.", "");
+        dato = dato.replaceAll("\\$", "");
+        dato = dato.replaceAll(" ", "");
+        dato = dato.replaceAll("\$", "");
+        dato = dato.split("$")[1];
+        dato = dato.toString().trim();
+        return "$ " + formatMiles(dato);
+    }
+
+    function formatColMonto(dato) {
+        dato = dato.replaceAll("\\.", "");
+        dato = dato.replaceAll("\\$", "");
+        dato = dato.replaceAll(" ", "");
+        dato = dato.replaceAll("\$", "");
+        dato = dato.split("$")[1];
+        dato = dato.toString().trim();
+        return "$ " + formatMiles(dato);
+    }
+
+    function limpiaCampoSubs(dato) {
+        var span = $('<span></span>');
+        $(span).html(dato);
+        $(span).children().remove();
+        return $(span).text().trim();
+    }
+
+    function formatCol(num, dato) {
+        switch (num) {
+            case 0:
+                return dato;
+                break;
+            case 1:
+                return dato;
+                break;
+            case 2:
+                return dato;
+                break;
+            case 3:
+                return dato;
+                break;
+            case 4:
+                return dato;
+                break;
+            case 5:
+                return formatColMonto(dato);
+                break;
+            case 6:
+                return dato;
+                break;
+            case 7:
+                return formatColCuota(dato);
+                break;
+            case 8:
+                return limpiaCampoSubs(dato);
+                break;
+            default:
+                break;
+        }
+    }
+
+    // /Funciones para manejo de campos excel ---------------------------------------------------------
+
     function cargarDetalle() {
         if (validarCampos()) {
             var datos = {
@@ -70,16 +120,11 @@
         $.each(arr, function () {
             tab += "<tr>";
             tab += "<td>" + $(this)[0].fechasimulacion + "</td>";
-            //tab += "<td>" + $(this)[0].codcampana + "</td>";
             tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
-            //tab += "<td>" + $(this)[0].codproducto + "</td>";
             tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
-            //tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
             tab += "<td>" + $.formatRut($(this)[0].rutfullvendedor) + "</td>";
             tab += "<td>" + $.formatRut($(this)[0].rutfullcliente) + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].monto) + "</td>";
-
-
             tab += "<td>" + $(this)[0].cuotas + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].valorcuota) + "</td>";
             var tdSubs = "<td>" + $(this)[0].subproductos + "</td>";
@@ -108,7 +153,6 @@
                 var obj = JSON.parse(resp);
                 console.log(obj);
                 if (obj.estado === 'ok') {
-                    //pintar popup
                     $('#cuerpo-modal-subproductos').html(armarTablaSubproductos(obj.subproductos));
                     $('#modal-subproductos').modal();
                 }
@@ -121,15 +165,11 @@
         tab += "<tr>";
         tab += "<th>Subproducto</th>";
         tab += "<th>Prima</th>";
-        //tab += "<th>Meta Monto</th>";
-        //tab += "<th>Meta Cantidad</th>";
         tab += "</tr></thead><tbody>";
         $(subproductos).each(function () {
             tab += "<tr>";
             tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
             tab += "<td>" + $(this)[0].prima + "</td>";
-            //tab += "<td>$" + formatMiles($(this)[0].montometa) + "</td>";
-            //tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
             tab += "</tr>";
         });
         tab += "</tbody></table>";
@@ -203,16 +243,11 @@
             <thead>
                 <tr>
                     <th>Fecha</th>
-                    <!--th>Cod. Campaña</th-->
                     <th>Campaña</th>
-                    <!--th>Cod. Producto</th-->
                     <th>Producto</th>
-                    <!--th>Meta</th-->
                     <th>Rut Vendedor</th>
                     <th>Rut Cliente</th>
                     <th>Monto</th>
-
-
                     <th>Cuotas</th>
                     <th>Valor Cuota</th>
                     <th>Subproductos</th>

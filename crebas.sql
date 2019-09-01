@@ -1,17 +1,3 @@
--- phpMyAdmin SQL Dump
--- version 4.7.9
--- https://www.phpmyadmin.net/
---
--- Servidor: 127.0.0.1:3307
--- Tiempo de generación: 25-08-2019 a las 22:20:45
--- Versión del servidor: 10.2.14-MariaDB
--- Versión de PHP: 5.6.35
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
-START TRANSACTION;
-SET time_zone = "+00:00";
-
 --
 -- Base de datos: `micall`
 --
@@ -1567,23 +1553,7 @@ CREATE TABLE IF NOT EXISTS `CAMPANA` (
   `META` bigint(20) NOT NULL,
   PRIMARY KEY (`IDCAMPANA`),
   KEY `FK_RELATIONSHIP_6` (`IDPRODUCTO`)
-) ENGINE=MyISAM AUTO_INCREMENT=34 DEFAULT CHARSET=latin1;
-
---
--- Volcado de datos para la tabla `CAMPANA`
---
-
-INSERT INTO `CAMPANA` (`IDCAMPANA`, `IDPRODUCTO`, `NOMCAMPANA`, `CODCAMPANA`, `FECHAINI`, `FECHAFIN`, `META`) VALUES
-(22, 13, 'Super Avance Efectivo', 'CAMP-AV20190810', '2019-08-01', '2019-08-31', 10000000),
-(23, 14, 'Campaña Avance Especial Agosto', 'CAMP_AVA_ESP_201908', '2019-08-01', '2019-08-31', 4000000000),
-(24, 13, 'Campaña agosto superavance ', 'CENCO-001', '2019-08-01', '2019-08-31', 100000000),
-(26, 13, 'Campaña Agosto 001 Pruebas', 'CAMP-001-AGO-PRUEBAS', '2019-08-01', '2019-08-30', 100000000),
-(27, 15, 'Campaña Agosto 002 Pruebas', 'CAMP-002-AGO-PRUEBAS', '2019-08-01', '2019-08-31', 200000000),
-(28, 15, 'Campaña Avance Normal', 'CAM-AV-NORM', '2019-08-01', '2019-08-31', 100000000),
-(29, 20, 'Campaña Super Avance Full', 'CAMP-SAV-FULL', '2019-09-01', '2019-09-29', 200000000),
-(30, 22, 'Campaña de Súper Avance', 'CAMP_SAV', '2019-09-01', '2019-09-30', 2500000000),
-(32, 27, 'Campaña Avance', 'CAMP_AVANCE', '2019-09-01', '2019-09-30', 300000000),
-(33, 24, 'Campaña Avance Tasa Especial', 'CAMP_AVANCE_TE', '2019-08-01', '2019-08-31', 50000000);
+);
 
 -- --------------------------------------------------------
 
@@ -1599,26 +1569,7 @@ CREATE TABLE IF NOT EXISTS `CAMPANASUBPRODUCTO` (
   `CANTIDADMETA` int(11) DEFAULT NULL,
   KEY `FK_RELATIONSHIP_7` (`IDCAMPANA`),
   KEY `FK_RELATIONSHIP_8` (`IDSUBPRODUCTO`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
---
--- Volcado de datos para la tabla `CAMPANASUBPRODUCTO`
---
-
-INSERT INTO `CAMPANASUBPRODUCTO` (`IDCAMPANA`, `IDSUBPRODUCTO`, `MONTOMETA`, `CANTIDADMETA`) VALUES
-(22, 13, 1000000, 1000),
-(22, 14, 1666666, 500),
-(22, 15, 3333000, 1500),
-(23, 13, 10000000, 1000),
-(23, 14, 5000000, 500),
-(23, 15, 100000, 100),
-(24, 13, 2600000, 1200),
-(24, 14, 3400000, 2000),
-(26, 14, 4000000, 2000),
-(26, 16, 3000000, 1200),
-(26, 17, 2500000, 1000),
-(32, 20, 1000000, 100),
-(33, 19, 500000, 500);
+);
 
 -- --------------------------------------------------------
 
@@ -1636,20 +1587,14 @@ CREATE TABLE IF NOT EXISTS `EMPRESA` (
   `CREACION` datetime NOT NULL,
   `ULTMODIFICACION` datetime NOT NULL,
   PRIMARY KEY (`IDEMPRESA`)
-) ENGINE=MyISAM AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
+);
 
 --
 -- Volcado de datos para la tabla `EMPRESA`
 --
 
-INSERT INTO `EMPRESA` (`IDEMPRESA`, `RUTEMPRESA`, `DVEMPRESA`, `NOMBRE`, `DIRECCION`, `CREACION`, `ULTMODIFICACION`) VALUES
-(1, 11111111, '1', 'Administración Interna', 'Sin dirección', '2019-07-25 10:25:20', '2019-08-24 16:19:43'),
-(9, 78159800, '3', 'CENCOSUD', 'Av Apoquindo 6410, of. 605, Las Condes', '2019-08-10 09:13:19', '2019-08-24 16:19:27'),
-(10, 99999999, '9', 'Empresa prueba', 'Dirección empresa', '2019-08-10 12:17:39', '2019-08-10 12:17:39'),
-(11, 78159800, '3', 'INTESIS S.A.', 'Av. Eliodoro Yañez 2238, Providencia, Santiago', '2019-08-24 16:05:02', '2019-08-24 17:48:49'),
-(12, 76083145, 'K', ' XMS', 'Av Apoquindo 6410, oficina 605, Las Condes', '2019-08-24 16:27:34', '2019-08-24 16:27:34'),
-(13, 76881870, '3', 'Tutorial SPA', 'Morandé 345, Santiago Centro', '2019-08-24 16:30:13', '2019-08-24 16:35:04'),
-(14, 76530256, '0', 'Apside SPA', 'Las Acacias 1575, Villa Alemana', '2019-08-24 16:31:57', '2019-08-24 16:31:57');
+INSERT INTO `EMPRESA` (`RUTEMPRESA`, `DVEMPRESA`, `NOMBRE`, `DIRECCION`, `CREACION`, `ULTMODIFICACION`) VALUES
+(11111111, '1', 'Administración Interna', 'Sin dirección', '2019-07-25 10:25:20', '2019-08-24 16:19:43');
 
 -- --------------------------------------------------------
 
@@ -1665,27 +1610,7 @@ CREATE TABLE IF NOT EXISTS `PRODUCTO` (
   `DESCPRODUCTO` varchar(100) NOT NULL,
   PRIMARY KEY (`IDPRODUCTO`),
   KEY `FK_RELATIONSHIP_5` (`IDEMPRESA`)
-) ENGINE=MyISAM AUTO_INCREMENT=30 DEFAULT CHARSET=latin1;
-
---
--- Volcado de datos para la tabla `PRODUCTO`
---
-
-INSERT INTO `PRODUCTO` (`IDPRODUCTO`, `CODPRODUCTO`, `IDEMPRESA`, `DESCPRODUCTO`) VALUES
-(13, 'SAV_NORMAL', 9, 'Super Avance Normal'),
-(14, 'SAV_ESP', 9, 'Super Avance Tasa Especial'),
-(15, 'AVA_NORMAL', 9, 'AVANCE NORMAL'),
-(17, 'SAV_NORMAL', 11, 'Super Avance Normal Full'),
-(18, 'SAV_NORMAL', 13, 'Super Avance Normal'),
-(19, 'SAV_NORMAL', 14, 'Super Avance Normal'),
-(20, 'SAV_NORMAL_FULL', 9, 'Super Avance Normal Full'),
-(21, 'SAV_NORMAL_FULL', 14, 'Super AVance Normal Full'),
-(22, 'SAV_NORMAL_FULL', 12, 'Super Avance Normal Full'),
-(23, 'SAV_ESP', 14, 'Super Avance Tasa Especial'),
-(24, 'SAV_ESP', 13, 'Super Avance Tasa Especial'),
-(25, 'SAV_ESP', 12, 'Super Avance Especial'),
-(27, 'AVA_NORMAL', 14, 'Avance Normal'),
-(29, 'AVA_NORMAL', 12, 'Avance Normal ');
+);
 
 -- --------------------------------------------------------
 
@@ -1719,176 +1644,8 @@ CREATE TABLE IF NOT EXISTS `RUTERO` (
   KEY `FK_RELATIONSHIP_12` (`IDCAMPANA`),
   KEY `IDUSUARIO` (`IDUSUARIO`),
   KEY `IDRUTERO` (`IDRUTERO`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+);
 
---
--- Volcado de datos para la tabla `RUTERO`
---
-
-INSERT INTO `RUTERO` (`IDRUTERO`, `IDCAMPANA`, `RUT`, `DV`, `NOMBRES`, `APELLIDOS`, `GENERO`, `FECHANAC`, `DIRECCION`, `COMUNA`, `REGION`, `CODIGOPOSTAL`, `EMAIL`, `MONTOAPROBADO`, `FONO1`, `FONO2`, `FONO3`, `NOMARCHIVO`, `FECHACARGA`, `TIPOOPERACION`, `IDUSUARIO`) VALUES
-(3, 26, 11948618, '1', 'Owen Booker', 'Bonner Mann', 'M', '1991-12-21', 'Apdo.:900-2789 Cras Av.', 'Empedrado', 'Maule', 283212, 'id.ante.Nunc@lobortisquama.edu', 8250523, 973585349, 247112892, 260823789, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 40641475, '2', 'Hilel Oliver', 'Carpenter Macdonald', 'F', '1987-01-26', 'Apdo.:867-3307 Consectetuer Carretera', 'Providencia', 'RM', 47907, 'ultrices.mauris@mollis.net', 9350291, 346485264, 806508611, 253775172, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 5269251, '2', 'Lucius Newton', 'Fox Romero', 'M', '1999-09-15', '647-2866 Lacinia Avda.', 'Talca', 'VII', 728388, 'Morbi.vehicula@venenatisvel.co.uk', 6190967, 584121763, 433292597, 713189803, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 46606752, '0', 'Darius Mckee', 'Langley Figueroa', 'F', '1989-01-06', 'Apdo.:252-9252 Eget Ctra.', 'Yumbel', 'VII', 530595, 'at.augue.id@laciniaatiaculis.org', 2925106, 917903153, 203549876, 249128546, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 21024502, '2', 'Raphael Stone', 'Blanchard Neal', 'M', '1997-10-05', '2585 Praesent Carretera', 'Ovalle', 'Coquimbo', 487316, 'Quisque@Seddiam.co.uk', 9198866, 295090801, 692903138, 438764178, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 31316968, '5', 'Lance Parker', 'Barnes Valencia', 'F', '1993-05-13', '609-7512 Orci, Carretera', 'Paine', 'Metropolitana de Santiago', 210328, 'elementum.lorem@enimconsequatpurus.com', 4503061, 123889543, 999148155, 154329839, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 12741790, '3', 'Adrian Tyler', 'Shepherd Abbott', 'F', '1986-06-26', '807-3759 Mauris Avenida', 'San Bernardo', 'Metropolitana de Santiago', 913786, 'ac@habitant.com', 4878060, 381953968, 258857499, 223225576, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 7532039, '6', 'Kamal Stafford', 'Hickman Rios', 'F', '1992-01-05', '332-1514 Dignissim Avenida', 'Paiguano', 'IV', 211954, 'ultrices@nectempus.co.uk', 2757253, 826961204, 883300522, 492274100, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 46298247, 'K', 'Kennedy Maynard', 'Ferrell Doyle', 'F', '1986-03-27', '769-9163 Malesuada Av.', 'Talagante', 'Metropolitana de Santiago', 516811, 'lacus@Aliquam.net', 1356880, 510333388, 296607020, 122748151, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 24850673, '3', 'Marshall Britt', 'Merrill Good', 'F', '1988-11-08', '251 Arcu. Ctra.', 'Cerro Navia', 'RM', 767820, 'pede.et.risus@metusInlorem.ca', 2900523, 523635565, 470838571, 656607309, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 19475304, '7', 'Aristotle Heath', 'Bishop Stevens', 'M', '2000-01-02', '860-1326 Sit ', 'Coquimbo', 'IV', 771325, 'sapien.molestie.orci@dolordapibus.com', 1126448, 571350999, 511119881, 255533629, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 36426421, '6', 'Cullen Alvarez', 'Clemons Carrillo', 'M', '1989-11-14', '436 A, Avda.', 'Nancagua', 'VI', 581442, 'gravida@Nullamlobortis.ca', 2292001, 616960171, 208302545, 745982762, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 18074302, '2', 'Aristotle Cooley', 'Nelson Wilson', 'M', '1991-02-25', '2095 Facilisis Avenida', 'San Bernardo', 'RM', 15797, 'est.ac@Nunc.edu', 8340921, 669838441, 928282311, 375265257, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 27814958, '7', 'Nathan Hubbard', 'Cox Yates', 'F', '1987-03-24', '2056 Amet, Avenida', 'Lo Espejo', 'Metropolitana de Santiago', 307925, 'vel.mauris.Integer@turpisIn.co.uk', 3036149, 501968758, 240043421, 315047448, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 12037714, '0', 'Zeph Edwards', 'Bartlett Meyer', 'F', '1991-09-18', '385-4001 Consectetuer Ctra.', 'Cerro Navia', 'RM', 386210, 'sed.orci@volutpatNulla.co.uk', 7326797, 230251943, 925666906, 272045428, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 42851097, '6', 'Dante Wilder', 'Rasmussen Rosa', 'F', '1993-01-10', '3121 Vestibulum Calle', 'San Bernardo', 'Metropolitana de Santiago', 2167, 'Nulla.facilisi.Sed@egestas.edu', 5006776, 354178819, 379036809, 792576956, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 19617135, '5', 'Donovan Cherry', 'Pickett Matthews', 'F', '1991-08-30', '149-334 Amet Ctra.', 'Illapel', 'Coquimbo', 330624, 'ultrices@sed.org', 5597853, 687672498, 603043391, 889049109, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 9530317, 'K', 'Tyrone Blevins', 'Bonner Carter', 'F', '1990-01-23', 'Apdo.:205-5783 Orci. Avenida', 'Pirque', 'Metropolitana de Santiago', 182727, 'convallis.ante@ipsumcursus.edu', 2244853, 347460463, 691173493, 647717423, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 9346659, '4', 'Connor Morris', 'Owens Pollard', 'F', '2000-08-25', '6181 Fermentum Avda.', 'Dalcahue', 'Los Lagos', 69110, 'posuere.cubilia@neque.edu', 5410613, 442002110, 913863680, 118624000, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 50122764, '1', 'Perry Cooke', 'Hopper Nunez', 'M', '2000-05-09', '7632 Varius C/', 'La Reina', 'RM', 178667, 'tincidunt.congue.turpis@viverraMaecenasiaculis.edu', 8573464, 829080892, 551166133, 450616924, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 21577240, '3', 'Conan Bell', 'Schmidt Keith', 'M', '1997-02-26', '4165 Eu Avda.', 'Villa Alegre', 'VII', 497391, 'Quisque@tellus.com', 8852779, 257706685, 317186448, 194422135, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 32478200, '1', 'Sawyer Faulkner', 'Golden Burris', 'M', '1986-10-11', '5084 Lacinia. C/', 'Isla de Maipo', 'Metropolitana de Santiago', 802772, 'gravida@neque.net', 1732503, 549814424, 160690247, 859548397, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 17323637, '9', 'Yuli Watson', 'Kline Norton', 'M', '2000-05-03', '196-6875 Non Carretera', 'Quilicura', 'RM', 825373, 'dolor.Fusce.feugiat@ametconsectetuer.ca', 6237595, 898432075, 346924221, 289513184, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 29781886, '4', 'Hamilton Jackson', 'Serrano Crosby', 'F', '1989-08-06', '745 Sociosqu ', 'Padre Hurtado', 'RM', 899534, 'eros@Duis.edu', 5129734, 488389967, 615971809, 773564880, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 37496235, '3', 'Burton Whitney', 'Hughes Sanders', 'F', '1994-10-28', '2322 Dis ', 'San Felipe', 'V', 184659, 'lobortis.quam.a@egetipsumSuspendisse.org', 1318927, 510084248, 851231608, 758018864, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 32105668, '7', 'Hakeem Hansen', 'Townsend Villarreal', 'F', '1989-04-30', '397-1571 Purus. Ctra.', 'Curarrehue', 'IX', 745518, 'Sed.congue@velitinaliquet.com', 7403903, 537281731, 647055105, 444515976, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 12319901, '4', 'Walker Mckenzie', 'Carrillo Clements', 'F', '1997-09-29', '724-303 Phasellus Avda.', 'Cerrillos', 'RM', 643232, 'ligula.tortor.dictum@famesac.co.uk', 8448373, 777678537, 485014077, 717380763, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 13387419, '4', 'Wang Fulton', 'Larson Gilbert', 'M', '2000-11-27', '533 Purus ', 'Parral', 'VII', 206077, 'sapien@Nullaeuneque.co.uk', 4697347, 133139553, 984402245, 837819058, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 13797589, '0', 'John Tillman', 'Bender Holland', 'M', '1999-05-25', '4656 Pede, Carretera', 'Lo Espejo', 'RM', 712694, 'condimentum.eget.volutpat@Nullam.ca', 4486013, 255714723, 661868222, 672859090, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 41747453, '6', 'Edward Alvarez', 'Lyons Sosa', 'M', '1992-12-03', '771 Mi, Carretera', 'Huechuraba', 'Metropolitana de Santiago', 471594, 'nisl.sem@dictumultriciesligula.edu', 6791205, 113935669, 671281288, 554046172, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 49853940, '8', 'Xavier Schwartz', 'Stout Willis', 'M', '1997-10-08', '984-1918 Nisi C.', 'Colchane', 'I', 898520, 'dictum@ac.ca', 4204270, 858942650, 975800779, 606958818, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 44085353, '6', 'Kennan Chandler', 'Sawyer Lowery', 'F', '1986-10-05', '691-9345 Arcu. Carretera', 'Sierra Gorda', 'Antofagasta', 260450, 'nec.cursus@ornarelectusjusto.co.uk', 8590927, 737817813, 938620621, 474315208, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 41924203, '9', 'Kaseem Hurst', 'Ayers Mayer', 'F', '1990-12-17', '4035 Sed Calle', 'Pelluhue', 'VII', 109293, 'magnis@ridiculusmusProin.org', 8662100, 125306572, 538019535, 639777633, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 26585164, '9', 'Lawrence Vaughan', 'Allen Moore', 'F', '1989-12-18', '622-2763 Urna. C.', 'Las Condes', 'Metropolitana de Santiago', 440443, 'Vivamus.euismod@feugiatnec.com', 5162788, 854772553, 186605551, 538025293, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 12566210, '2', 'Ivan Spence', 'Vance Blackwell', 'F', '1986-04-30', '229-4422 Nibh. Ctra.', 'MaipÃº', 'Metropolitana de Santiago', 182953, 'consequat.dolor@Donecconsectetuermauris.com', 6173326, 377928463, 199801682, 661024137, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 28083441, '6', 'Jerome Vincent', 'Drake Dotson', 'F', '1988-09-20', '2005 Placerat, Av.', 'Mejillones', 'Antofagasta', 260002, 'ipsum.dolor.sit@iaculisquispede.org', 5758586, 665611988, 126375836, 287590738, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 31542065, '2', 'Elijah Garza', 'Atkinson Turner', 'M', '1996-03-29', '9168 Lacinia Avda.', 'Punta Arenas', 'XII', 704919, 'amet.consectetuer.adipiscing@mi.org', 3603436, 656269571, 994339650, 328996152, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 11356819, '4', 'Walker Burch', 'Patterson Walters', 'M', '1992-09-27', '6747 Ullamcorper, Avenida', 'La Cisterna', 'RM', 301828, 'varius@elit.ca', 7959229, 111464560, 756043384, 774194491, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(3, 26, 39025580, '2', 'Brenden Clark', 'Carlson Owens', 'M', '1986-02-26', '533-7814 Eu, Carretera', 'Isla de Maipo', 'RM', 853211, 'natoque.penatibus@neque.co.uk', 6739477, 626220995, 407188041, 571695489, 'RUTERO_1.csv', '2019-08-17 12:58:07', 'INS', 19),
-(4, 27, 11948618, '1', 'Owen Booker', 'Bonner Mann', 'M', '1991-12-21', 'Apdo.:900-2789 Cras Av.', 'Empedrado', 'Maule', 283212, 'id.ante.Nunc@lobortisquama.edu', 8250523, 973585349, 247112892, 260823789, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 40641475, '2', 'Hilel Oliver', 'Carpenter Macdonald', 'F', '1987-01-26', 'Apdo.:867-3307 Consectetuer Carretera', 'Providencia', 'RM', 47907, 'ultrices.mauris@mollis.net', 9350291, 346485264, 806508611, 253775172, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 5269251, '2', 'Lucius Newton', 'Fox Romero', 'M', '1999-09-15', '647-2866 Lacinia Avda.', 'Talca', 'VII', 728388, 'Morbi.vehicula@venenatisvel.co.uk', 6190967, 584121763, 433292597, 713189803, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 46606752, '0', 'Darius Mckee', 'Langley Figueroa', 'F', '1989-01-06', 'Apdo.:252-9252 Eget Ctra.', 'Yumbel', 'VII', 530595, 'at.augue.id@laciniaatiaculis.org', 2925106, 917903153, 203549876, 249128546, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 21024502, '2', 'Raphael Stone', 'Blanchard Neal', 'M', '1997-10-05', '2585 Praesent Carretera', 'Ovalle', 'Coquimbo', 487316, 'Quisque@Seddiam.co.uk', 9198866, 295090801, 692903138, 438764178, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 31316968, '5', 'Lance Parker', 'Barnes Valencia', 'F', '1993-05-13', '609-7512 Orci, Carretera', 'Paine', 'Metropolitana de Santiago', 210328, 'elementum.lorem@enimconsequatpurus.com', 4503061, 123889543, 999148155, 154329839, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 12741790, '3', 'Adrian Tyler', 'Shepherd Abbott', 'F', '1986-06-26', '807-3759 Mauris Avenida', 'San Bernardo', 'Metropolitana de Santiago', 913786, 'ac@habitant.com', 4878060, 381953968, 258857499, 223225576, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 7532039, '6', 'Kamal Stafford', 'Hickman Rios', 'F', '1992-01-05', '332-1514 Dignissim Avenida', 'Paiguano', 'IV', 211954, 'ultrices@nectempus.co.uk', 2757253, 826961204, 883300522, 492274100, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 46298247, 'K', 'Kennedy Maynard', 'Ferrell Doyle', 'F', '1986-03-27', '769-9163 Malesuada Av.', 'Talagante', 'Metropolitana de Santiago', 516811, 'lacus@Aliquam.net', 1356880, 510333388, 296607020, 122748151, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 24850673, '3', 'Marshall Britt', 'Merrill Good', 'F', '1988-11-08', '251 Arcu. Ctra.', 'Cerro Navia', 'RM', 767820, 'pede.et.risus@metusInlorem.ca', 2900523, 523635565, 470838571, 656607309, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 19475304, '7', 'Aristotle Heath', 'Bishop Stevens', 'M', '2000-01-02', '860-1326 Sit ', 'Coquimbo', 'IV', 771325, 'sapien.molestie.orci@dolordapibus.com', 1126448, 571350999, 511119881, 255533629, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 36426421, '6', 'Cullen Alvarez', 'Clemons Carrillo', 'M', '1989-11-14', '436 A, Avda.', 'Nancagua', 'VI', 581442, 'gravida@Nullamlobortis.ca', 2292001, 616960171, 208302545, 745982762, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 18074302, '2', 'Aristotle Cooley', 'Nelson Wilson', 'M', '1991-02-25', '2095 Facilisis Avenida', 'San Bernardo', 'RM', 15797, 'est.ac@Nunc.edu', 8340921, 669838441, 928282311, 375265257, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 27814958, '7', 'Nathan Hubbard', 'Cox Yates', 'F', '1987-03-24', '2056 Amet, Avenida', 'Lo Espejo', 'Metropolitana de Santiago', 307925, 'vel.mauris.Integer@turpisIn.co.uk', 3036149, 501968758, 240043421, 315047448, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 12037714, '0', 'Zeph Edwards', 'Bartlett Meyer', 'F', '1991-09-18', '385-4001 Consectetuer Ctra.', 'Cerro Navia', 'RM', 386210, 'sed.orci@volutpatNulla.co.uk', 7326797, 230251943, 925666906, 272045428, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 42851097, '6', 'Dante Wilder', 'Rasmussen Rosa', 'F', '1993-01-10', '3121 Vestibulum Calle', 'San Bernardo', 'Metropolitana de Santiago', 2167, 'Nulla.facilisi.Sed@egestas.edu', 5006776, 354178819, 379036809, 792576956, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 19617135, '5', 'Donovan Cherry', 'Pickett Matthews', 'F', '1991-08-30', '149-334 Amet Ctra.', 'Illapel', 'Coquimbo', 330624, 'ultrices@sed.org', 5597853, 687672498, 603043391, 889049109, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 9530317, 'K', 'Tyrone Blevins', 'Bonner Carter', 'F', '1990-01-23', 'Apdo.:205-5783 Orci. Avenida', 'Pirque', 'Metropolitana de Santiago', 182727, 'convallis.ante@ipsumcursus.edu', 2244853, 347460463, 691173493, 647717423, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 9346659, '4', 'Connor Morris', 'Owens Pollard', 'F', '2000-08-25', '6181 Fermentum Avda.', 'Dalcahue', 'Los Lagos', 69110, 'posuere.cubilia@neque.edu', 5410613, 442002110, 913863680, 118624000, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 50122764, '1', 'Perry Cooke', 'Hopper Nunez', 'M', '2000-05-09', '7632 Varius C/', 'La Reina', 'RM', 178667, 'tincidunt.congue.turpis@viverraMaecenasiaculis.edu', 8573464, 829080892, 551166133, 450616924, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 21577240, '3', 'Conan Bell', 'Schmidt Keith', 'M', '1997-02-26', '4165 Eu Avda.', 'Villa Alegre', 'VII', 497391, 'Quisque@tellus.com', 8852779, 257706685, 317186448, 194422135, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 32478200, '1', 'Sawyer Faulkner', 'Golden Burris', 'M', '1986-10-11', '5084 Lacinia. C/', 'Isla de Maipo', 'Metropolitana de Santiago', 802772, 'gravida@neque.net', 1732503, 549814424, 160690247, 859548397, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 17323637, '9', 'Yuli Watson', 'Kline Norton', 'M', '2000-05-03', '196-6875 Non Carretera', 'Quilicura', 'RM', 825373, 'dolor.Fusce.feugiat@ametconsectetuer.ca', 6237595, 898432075, 346924221, 289513184, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 29781886, '4', 'Hamilton Jackson', 'Serrano Crosby', 'F', '1989-08-06', '745 Sociosqu ', 'Padre Hurtado', 'RM', 899534, 'eros@Duis.edu', 5129734, 488389967, 615971809, 773564880, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 37496235, '3', 'Burton Whitney', 'Hughes Sanders', 'F', '1994-10-28', '2322 Dis ', 'San Felipe', 'V', 184659, 'lobortis.quam.a@egetipsumSuspendisse.org', 1318927, 510084248, 851231608, 758018864, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 32105668, '7', 'Hakeem Hansen', 'Townsend Villarreal', 'F', '1989-04-30', '397-1571 Purus. Ctra.', 'Curarrehue', 'IX', 745518, 'Sed.congue@velitinaliquet.com', 7403903, 537281731, 647055105, 444515976, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 12319901, '4', 'Walker Mckenzie', 'Carrillo Clements', 'F', '1997-09-29', '724-303 Phasellus Avda.', 'Cerrillos', 'RM', 643232, 'ligula.tortor.dictum@famesac.co.uk', 8448373, 777678537, 485014077, 717380763, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 13387419, '4', 'Wang Fulton', 'Larson Gilbert', 'M', '2000-11-27', '533 Purus ', 'Parral', 'VII', 206077, 'sapien@Nullaeuneque.co.uk', 4697347, 133139553, 984402245, 837819058, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 13797589, '0', 'John Tillman', 'Bender Holland', 'M', '1999-05-25', '4656 Pede, Carretera', 'Lo Espejo', 'RM', 712694, 'condimentum.eget.volutpat@Nullam.ca', 4486013, 255714723, 661868222, 672859090, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 41747453, '6', 'Edward Alvarez', 'Lyons Sosa', 'M', '1992-12-03', '771 Mi, Carretera', 'Huechuraba', 'Metropolitana de Santiago', 471594, 'nisl.sem@dictumultriciesligula.edu', 6791205, 113935669, 671281288, 554046172, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 49853940, '8', 'Xavier Schwartz', 'Stout Willis', 'M', '1997-10-08', '984-1918 Nisi C.', 'Colchane', 'I', 898520, 'dictum@ac.ca', 4204270, 858942650, 975800779, 606958818, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 44085353, '6', 'Kennan Chandler', 'Sawyer Lowery', 'F', '1986-10-05', '691-9345 Arcu. Carretera', 'Sierra Gorda', 'Antofagasta', 260450, 'nec.cursus@ornarelectusjusto.co.uk', 8590927, 737817813, 938620621, 474315208, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 41924203, '9', 'Kaseem Hurst', 'Ayers Mayer', 'F', '1990-12-17', '4035 Sed Calle', 'Pelluhue', 'VII', 109293, 'magnis@ridiculusmusProin.org', 8662100, 125306572, 538019535, 639777633, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 26585164, '9', 'Lawrence Vaughan', 'Allen Moore', 'F', '1989-12-18', '622-2763 Urna. C.', 'Las Condes', 'Metropolitana de Santiago', 440443, 'Vivamus.euismod@feugiatnec.com', 5162788, 854772553, 186605551, 538025293, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 12566210, '2', 'Ivan Spence', 'Vance Blackwell', 'F', '1986-04-30', '229-4422 Nibh. Ctra.', 'MaipÃº', 'Metropolitana de Santiago', 182953, 'consequat.dolor@Donecconsectetuermauris.com', 6173326, 377928463, 199801682, 661024137, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 28083441, '6', 'Jerome Vincent', 'Drake Dotson', 'F', '1988-09-20', '2005 Placerat, Av.', 'Mejillones', 'Antofagasta', 260002, 'ipsum.dolor.sit@iaculisquispede.org', 5758586, 665611988, 126375836, 287590738, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 31542065, '2', 'Elijah Garza', 'Atkinson Turner', 'M', '1996-03-29', '9168 Lacinia Avda.', 'Punta Arenas', 'XII', 704919, 'amet.consectetuer.adipiscing@mi.org', 3603436, 656269571, 994339650, 328996152, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 11356819, '4', 'Walker Burch', 'Patterson Walters', 'M', '1992-09-27', '6747 Ullamcorper, Avenida', 'La Cisterna', 'RM', 301828, 'varius@elit.ca', 7959229, 111464560, 756043384, 774194491, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(4, 27, 39025580, '2', 'Brenden Clark', 'Carlson Owens', 'M', '1986-02-26', '533-7814 Eu, Carretera', 'Isla de Maipo', 'RM', 853211, 'natoque.penatibus@neque.co.uk', 6739477, 626220995, 407188041, 571695489, 'RUTERO_1.csv', '2019-08-17 12:59:04', 'INS', 19),
-(5, 26, 11948618, '1', 'Owen Booker', 'Bonner Mann', 'M', '1991-12-21', 'Apdo.:900-2789 Cras Av.', 'Empedrado', 'Maule', 283212, 'id.ante.Nunc@lobortisquama.edu', 8250523, 973585349, 247112892, 260823789, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 40641475, '2', 'Hilel Oliver', 'Carpenter Macdonald', 'F', '1987-01-26', 'Apdo.:867-3307 Consectetuer Carretera', 'Providencia', 'RM', 47907, 'ultrices.mauris@mollis.net', 9350291, 346485264, 806508611, 253775172, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 5269251, '2', 'Lucius Newton', 'Fox Romero', 'M', '1999-09-15', '647-2866 Lacinia Avda.', 'Talca', 'VII', 728388, 'Morbi.vehicula@venenatisvel.co.uk', 6190967, 584121763, 433292597, 713189803, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 46606752, '0', 'Darius Mckee', 'Langley Figueroa', 'F', '1989-01-06', 'Apdo.:252-9252 Eget Ctra.', 'Yumbel', 'VII', 530595, 'at.augue.id@laciniaatiaculis.org', 2925106, 917903153, 203549876, 249128546, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 21024502, '2', 'Raphael Stone', 'Blanchard Neal', 'M', '1997-10-05', '2585 Praesent Carretera', 'Ovalle', 'Coquimbo', 487316, 'Quisque@Seddiam.co.uk', 9198866, 295090801, 692903138, 438764178, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 31316968, '5', 'Lance Parker', 'Barnes Valencia', 'F', '1993-05-13', '609-7512 Orci, Carretera', 'Paine', 'Metropolitana de Santiago', 210328, 'elementum.lorem@enimconsequatpurus.com', 4503061, 123889543, 999148155, 154329839, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 12741790, '3', 'Adrian Tyler', 'Shepherd Abbott', 'F', '1986-06-26', '807-3759 Mauris Avenida', 'San Bernardo', 'Metropolitana de Santiago', 913786, 'ac@habitant.com', 4878060, 381953968, 258857499, 223225576, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 7532039, '6', 'Kamal Stafford', 'Hickman Rios', 'F', '1992-01-05', '332-1514 Dignissim Avenida', 'Paiguano', 'IV', 211954, 'ultrices@nectempus.co.uk', 2757253, 826961204, 883300522, 492274100, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 46298247, 'K', 'Kennedy Maynard', 'Ferrell Doyle', 'F', '1986-03-27', '769-9163 Malesuada Av.', 'Talagante', 'Metropolitana de Santiago', 516811, 'lacus@Aliquam.net', 1356880, 510333388, 296607020, 122748151, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 24850673, '3', 'Marshall Britt', 'Merrill Good', 'F', '1988-11-08', '251 Arcu. Ctra.', 'Cerro Navia', 'RM', 767820, 'pede.et.risus@metusInlorem.ca', 2900523, 523635565, 470838571, 656607309, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 19475304, '7', 'Aristotle Heath', 'Bishop Stevens', 'M', '2000-01-02', '860-1326 Sit ', 'Coquimbo', 'IV', 771325, 'sapien.molestie.orci@dolordapibus.com', 1126448, 571350999, 511119881, 255533629, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 36426421, '6', 'Cullen Alvarez', 'Clemons Carrillo', 'M', '1989-11-14', '436 A, Avda.', 'Nancagua', 'VI', 581442, 'gravida@Nullamlobortis.ca', 2292001, 616960171, 208302545, 745982762, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 18074302, '2', 'Aristotle Cooley', 'Nelson Wilson', 'M', '1991-02-25', '2095 Facilisis Avenida', 'San Bernardo', 'RM', 15797, 'est.ac@Nunc.edu', 8340921, 669838441, 928282311, 375265257, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 27814958, '7', 'Nathan Hubbard', 'Cox Yates', 'F', '1987-03-24', '2056 Amet, Avenida', 'Lo Espejo', 'Metropolitana de Santiago', 307925, 'vel.mauris.Integer@turpisIn.co.uk', 3036149, 501968758, 240043421, 315047448, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 12037714, '0', 'Zeph Edwards', 'Bartlett Meyer', 'F', '1991-09-18', '385-4001 Consectetuer Ctra.', 'Cerro Navia', 'RM', 386210, 'sed.orci@volutpatNulla.co.uk', 7326797, 230251943, 925666906, 272045428, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 42851097, '6', 'Dante Wilder', 'Rasmussen Rosa', 'F', '1993-01-10', '3121 Vestibulum Calle', 'San Bernardo', 'Metropolitana de Santiago', 2167, 'Nulla.facilisi.Sed@egestas.edu', 5006776, 354178819, 379036809, 792576956, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 19617135, '5', 'Donovan Cherry', 'Pickett Matthews', 'F', '1991-08-30', '149-334 Amet Ctra.', 'Illapel', 'Coquimbo', 330624, 'ultrices@sed.org', 5597853, 687672498, 603043391, 889049109, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 9530317, 'K', 'Tyrone Blevins', 'Bonner Carter', 'F', '1990-01-23', 'Apdo.:205-5783 Orci. Avenida', 'Pirque', 'Metropolitana de Santiago', 182727, 'convallis.ante@ipsumcursus.edu', 2244853, 347460463, 691173493, 647717423, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 9346659, '4', 'Connor Morris', 'Owens Pollard', 'F', '2000-08-25', '6181 Fermentum Avda.', 'Dalcahue', 'Los Lagos', 69110, 'posuere.cubilia@neque.edu', 5410613, 442002110, 913863680, 118624000, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 50122764, '1', 'Perry Cooke', 'Hopper Nunez', 'M', '2000-05-09', '7632 Varius C/', 'La Reina', 'RM', 178667, 'tincidunt.congue.turpis@viverraMaecenasiaculis.edu', 8573464, 829080892, 551166133, 450616924, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 21577240, '3', 'Conan Bell', 'Schmidt Keith', 'M', '1997-02-26', '4165 Eu Avda.', 'Villa Alegre', 'VII', 497391, 'Quisque@tellus.com', 8852779, 257706685, 317186448, 194422135, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 32478200, '1', 'Sawyer Faulkner', 'Golden Burris', 'M', '1986-10-11', '5084 Lacinia. C/', 'Isla de Maipo', 'Metropolitana de Santiago', 802772, 'gravida@neque.net', 1732503, 549814424, 160690247, 859548397, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 17323637, '9', 'Yuli Watson', 'Kline Norton', 'M', '2000-05-03', '196-6875 Non Carretera', 'Quilicura', 'RM', 825373, 'dolor.Fusce.feugiat@ametconsectetuer.ca', 6237595, 898432075, 346924221, 289513184, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 29781886, '4', 'Hamilton Jackson', 'Serrano Crosby', 'F', '1989-08-06', '745 Sociosqu ', 'Padre Hurtado', 'RM', 899534, 'eros@Duis.edu', 5129734, 488389967, 615971809, 773564880, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 37496235, '3', 'Burton Whitney', 'Hughes Sanders', 'F', '1994-10-28', '2322 Dis ', 'San Felipe', 'V', 184659, 'lobortis.quam.a@egetipsumSuspendisse.org', 1318927, 510084248, 851231608, 758018864, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 32105668, '7', 'Hakeem Hansen', 'Townsend Villarreal', 'F', '1989-04-30', '397-1571 Purus. Ctra.', 'Curarrehue', 'IX', 745518, 'Sed.congue@velitinaliquet.com', 7403903, 537281731, 647055105, 444515976, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 12319901, '4', 'Walker Mckenzie', 'Carrillo Clements', 'F', '1997-09-29', '724-303 Phasellus Avda.', 'Cerrillos', 'RM', 643232, 'ligula.tortor.dictum@famesac.co.uk', 8448373, 777678537, 485014077, 717380763, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 13387419, '4', 'Wang Fulton', 'Larson Gilbert', 'M', '2000-11-27', '533 Purus ', 'Parral', 'VII', 206077, 'sapien@Nullaeuneque.co.uk', 4697347, 133139553, 984402245, 837819058, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 13797589, '0', 'John Tillman', 'Bender Holland', 'M', '1999-05-25', '4656 Pede, Carretera', 'Lo Espejo', 'RM', 712694, 'condimentum.eget.volutpat@Nullam.ca', 4486013, 255714723, 661868222, 672859090, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 41747453, '6', 'Edward Alvarez', 'Lyons Sosa', 'M', '1992-12-03', '771 Mi, Carretera', 'Huechuraba', 'Metropolitana de Santiago', 471594, 'nisl.sem@dictumultriciesligula.edu', 6791205, 113935669, 671281288, 554046172, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 49853940, '8', 'Xavier Schwartz', 'Stout Willis', 'M', '1997-10-08', '984-1918 Nisi C.', 'Colchane', 'I', 898520, 'dictum@ac.ca', 4204270, 858942650, 975800779, 606958818, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 44085353, '6', 'Kennan Chandler', 'Sawyer Lowery', 'F', '1986-10-05', '691-9345 Arcu. Carretera', 'Sierra Gorda', 'Antofagasta', 260450, 'nec.cursus@ornarelectusjusto.co.uk', 8590927, 737817813, 938620621, 474315208, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 41924203, '9', 'Kaseem Hurst', 'Ayers Mayer', 'F', '1990-12-17', '4035 Sed Calle', 'Pelluhue', 'VII', 109293, 'magnis@ridiculusmusProin.org', 8662100, 125306572, 538019535, 639777633, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 26585164, '9', 'Lawrence Vaughan', 'Allen Moore', 'F', '1989-12-18', '622-2763 Urna. C.', 'Las Condes', 'Metropolitana de Santiago', 440443, 'Vivamus.euismod@feugiatnec.com', 5162788, 854772553, 186605551, 538025293, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 12566210, '2', 'Ivan Spence', 'Vance Blackwell', 'F', '1986-04-30', '229-4422 Nibh. Ctra.', 'MaipÃº', 'Metropolitana de Santiago', 182953, 'consequat.dolor@Donecconsectetuermauris.com', 6173326, 377928463, 199801682, 661024137, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 28083441, '6', 'Jerome Vincent', 'Drake Dotson', 'F', '1988-09-20', '2005 Placerat, Av.', 'Mejillones', 'Antofagasta', 260002, 'ipsum.dolor.sit@iaculisquispede.org', 5758586, 665611988, 126375836, 287590738, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 31542065, '2', 'Elijah Garza', 'Atkinson Turner', 'M', '1996-03-29', '9168 Lacinia Avda.', 'Punta Arenas', 'XII', 704919, 'amet.consectetuer.adipiscing@mi.org', 3603436, 656269571, 994339650, 328996152, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 11356819, '4', 'Walker Burch', 'Patterson Walters', 'M', '1992-09-27', '6747 Ullamcorper, Avenida', 'La Cisterna', 'RM', 301828, 'varius@elit.ca', 7959229, 111464560, 756043384, 774194491, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(5, 26, 39025580, '2', 'Brenden Clark', 'Carlson Owens', 'M', '1986-02-26', '533-7814 Eu, Carretera', 'Isla de Maipo', 'RM', 853211, 'natoque.penatibus@neque.co.uk', 6739477, 626220995, 407188041, 571695489, 'RUTERO_1.csv', '2019-08-17 12:59:17', 'INS', 19),
-(6, 27, 11948618, '1', 'Owen Booker', 'Bonner Mann', 'M', '1991-12-21', 'Apdo.:900-2789 Cras Av.', 'Empedrado', 'Maule', 283212, 'id.ante.Nunc@lobortisquama.edu', 0, 973585349, 247112892, 260823789, 'RUTERO_DEL_1.csv', '2019-08-17 13:00:00', 'DEL', 19),
-(6, 27, 40641475, '2', 'Hilel Oliver', 'Carpenter Macdonald', 'F', '1987-01-26', 'Apdo.:867-3307 Consectetuer Carretera', 'Providencia', 'RM', 47907, 'ultrices.mauris@mollis.net', 0, 346485264, 806508611, 253775172, 'RUTERO_DEL_1.csv', '2019-08-17 13:00:00', 'DEL', 19),
-(7, 23, 11948618, '1', 'Owen Booker', 'Bonner Mann', 'M', '1991-12-21', 'Apdo.:900-2789 Cras Av.', 'Empedrado', 'Maule', 283212, 'id.ante.Nunc@lobortisquama.edu', 8250523, 973585349, 247112892, 260823789, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 40641475, '2', 'Hilel Oliver', 'Carpenter Macdonald', 'F', '1987-01-26', 'Apdo.:867-3307 Consectetuer Carretera', 'Providencia', 'RM', 47907, 'ultrices.mauris@mollis.net', 9350291, 346485264, 806508611, 253775172, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 5269251, '2', 'Lucius Newton', 'Fox Romero', 'M', '1999-09-15', '647-2866 Lacinia Avda.', 'Talca', 'VII', 728388, 'Morbi.vehicula@venenatisvel.co.uk', 6190967, 584121763, 433292597, 713189803, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 46606752, '0', 'Darius Mckee', 'Langley Figueroa', 'F', '1989-01-06', 'Apdo.:252-9252 Eget Ctra.', 'Yumbel', 'VII', 530595, 'at.augue.id@laciniaatiaculis.org', 2925106, 917903153, 203549876, 249128546, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 21024502, '2', 'Raphael Stone', 'Blanchard Neal', 'M', '1997-10-05', '2585 Praesent Carretera', 'Ovalle', 'Coquimbo', 487316, 'Quisque@Seddiam.co.uk', 9198866, 295090801, 692903138, 438764178, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 31316968, '5', 'Lance Parker', 'Barnes Valencia', 'F', '1993-05-13', '609-7512 Orci, Carretera', 'Paine', 'Metropolitana de Santiago', 210328, 'elementum.lorem@enimconsequatpurus.com', 4503061, 123889543, 999148155, 154329839, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 12741790, '3', 'Adrian Tyler', 'Shepherd Abbott', 'F', '1986-06-26', '807-3759 Mauris Avenida', 'San Bernardo', 'Metropolitana de Santiago', 913786, 'ac@habitant.com', 4878060, 381953968, 258857499, 223225576, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 7532039, '6', 'Kamal Stafford', 'Hickman Rios', 'F', '1992-01-05', '332-1514 Dignissim Avenida', 'Paiguano', 'IV', 211954, 'ultrices@nectempus.co.uk', 2757253, 826961204, 883300522, 492274100, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 46298247, 'K', 'Kennedy Maynard', 'Ferrell Doyle', 'F', '1986-03-27', '769-9163 Malesuada Av.', 'Talagante', 'Metropolitana de Santiago', 516811, 'lacus@Aliquam.net', 1356880, 510333388, 296607020, 122748151, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 24850673, '3', 'Marshall Britt', 'Merrill Good', 'F', '1988-11-08', '251 Arcu. Ctra.', 'Cerro Navia', 'RM', 767820, 'pede.et.risus@metusInlorem.ca', 2900523, 523635565, 470838571, 656607309, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 19475304, '7', 'Aristotle Heath', 'Bishop Stevens', 'M', '2000-01-02', '860-1326 Sit ', 'Coquimbo', 'IV', 771325, 'sapien.molestie.orci@dolordapibus.com', 1126448, 571350999, 511119881, 255533629, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 36426421, '6', 'Cullen Alvarez', 'Clemons Carrillo', 'M', '1989-11-14', '436 A, Avda.', 'Nancagua', 'VI', 581442, 'gravida@Nullamlobortis.ca', 2292001, 616960171, 208302545, 745982762, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 18074302, '2', 'Aristotle Cooley', 'Nelson Wilson', 'M', '1991-02-25', '2095 Facilisis Avenida', 'San Bernardo', 'RM', 15797, 'est.ac@Nunc.edu', 8340921, 669838441, 928282311, 375265257, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 27814958, '7', 'Nathan Hubbard', 'Cox Yates', 'F', '1987-03-24', '2056 Amet, Avenida', 'Lo Espejo', 'Metropolitana de Santiago', 307925, 'vel.mauris.Integer@turpisIn.co.uk', 3036149, 501968758, 240043421, 315047448, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 12037714, '0', 'Zeph Edwards', 'Bartlett Meyer', 'F', '1991-09-18', '385-4001 Consectetuer Ctra.', 'Cerro Navia', 'RM', 386210, 'sed.orci@volutpatNulla.co.uk', 7326797, 230251943, 925666906, 272045428, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 42851097, '6', 'Dante Wilder', 'Rasmussen Rosa', 'F', '1993-01-10', '3121 Vestibulum Calle', 'San Bernardo', 'Metropolitana de Santiago', 2167, 'Nulla.facilisi.Sed@egestas.edu', 5006776, 354178819, 379036809, 792576956, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 19617135, '5', 'Donovan Cherry', 'Pickett Matthews', 'F', '1991-08-30', '149-334 Amet Ctra.', 'Illapel', 'Coquimbo', 330624, 'ultrices@sed.org', 5597853, 687672498, 603043391, 889049109, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 9530317, 'K', 'Tyrone Blevins', 'Bonner Carter', 'F', '1990-01-23', 'Apdo.:205-5783 Orci. Avenida', 'Pirque', 'Metropolitana de Santiago', 182727, 'convallis.ante@ipsumcursus.edu', 2244853, 347460463, 691173493, 647717423, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 9346659, '4', 'Connor Morris', 'Owens Pollard', 'F', '2000-08-25', '6181 Fermentum Avda.', 'Dalcahue', 'Los Lagos', 69110, 'posuere.cubilia@neque.edu', 5410613, 442002110, 913863680, 118624000, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 50122764, '1', 'Perry Cooke', 'Hopper Nunez', 'M', '2000-05-09', '7632 Varius C/', 'La Reina', 'RM', 178667, 'tincidunt.congue.turpis@viverraMaecenasiaculis.edu', 8573464, 829080892, 551166133, 450616924, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 21577240, '3', 'Conan Bell', 'Schmidt Keith', 'M', '1997-02-26', '4165 Eu Avda.', 'Villa Alegre', 'VII', 497391, 'Quisque@tellus.com', 8852779, 257706685, 317186448, 194422135, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 32478200, '1', 'Sawyer Faulkner', 'Golden Burris', 'M', '1986-10-11', '5084 Lacinia. C/', 'Isla de Maipo', 'Metropolitana de Santiago', 802772, 'gravida@neque.net', 1732503, 549814424, 160690247, 859548397, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 17323637, '9', 'Yuli Watson', 'Kline Norton', 'M', '2000-05-03', '196-6875 Non Carretera', 'Quilicura', 'RM', 825373, 'dolor.Fusce.feugiat@ametconsectetuer.ca', 6237595, 898432075, 346924221, 289513184, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 29781886, '4', 'Hamilton Jackson', 'Serrano Crosby', 'F', '1989-08-06', '745 Sociosqu ', 'Padre Hurtado', 'RM', 899534, 'eros@Duis.edu', 5129734, 488389967, 615971809, 773564880, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 37496235, '3', 'Burton Whitney', 'Hughes Sanders', 'F', '1994-10-28', '2322 Dis ', 'San Felipe', 'V', 184659, 'lobortis.quam.a@egetipsumSuspendisse.org', 1318927, 510084248, 851231608, 758018864, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 32105668, '7', 'Hakeem Hansen', 'Townsend Villarreal', 'F', '1989-04-30', '397-1571 Purus. Ctra.', 'Curarrehue', 'IX', 745518, 'Sed.congue@velitinaliquet.com', 7403903, 537281731, 647055105, 444515976, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 12319901, '4', 'Walker Mckenzie', 'Carrillo Clements', 'F', '1997-09-29', '724-303 Phasellus Avda.', 'Cerrillos', 'RM', 643232, 'ligula.tortor.dictum@famesac.co.uk', 8448373, 777678537, 485014077, 717380763, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 13387419, '4', 'Wang Fulton', 'Larson Gilbert', 'M', '2000-11-27', '533 Purus ', 'Parral', 'VII', 206077, 'sapien@Nullaeuneque.co.uk', 4697347, 133139553, 984402245, 837819058, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 13797589, '0', 'John Tillman', 'Bender Holland', 'M', '1999-05-25', '4656 Pede, Carretera', 'Lo Espejo', 'RM', 712694, 'condimentum.eget.volutpat@Nullam.ca', 4486013, 255714723, 661868222, 672859090, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 41747453, '6', 'Edward Alvarez', 'Lyons Sosa', 'M', '1992-12-03', '771 Mi, Carretera', 'Huechuraba', 'Metropolitana de Santiago', 471594, 'nisl.sem@dictumultriciesligula.edu', 6791205, 113935669, 671281288, 554046172, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 49853940, '8', 'Xavier Schwartz', 'Stout Willis', 'M', '1997-10-08', '984-1918 Nisi C.', 'Colchane', 'I', 898520, 'dictum@ac.ca', 4204270, 858942650, 975800779, 606958818, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 44085353, '6', 'Kennan Chandler', 'Sawyer Lowery', 'F', '1986-10-05', '691-9345 Arcu. Carretera', 'Sierra Gorda', 'Antofagasta', 260450, 'nec.cursus@ornarelectusjusto.co.uk', 8590927, 737817813, 938620621, 474315208, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 41924203, '9', 'Kaseem Hurst', 'Ayers Mayer', 'F', '1990-12-17', '4035 Sed Calle', 'Pelluhue', 'VII', 109293, 'magnis@ridiculusmusProin.org', 8662100, 125306572, 538019535, 639777633, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 26585164, '9', 'Lawrence Vaughan', 'Allen Moore', 'F', '1989-12-18', '622-2763 Urna. C.', 'Las Condes', 'Metropolitana de Santiago', 440443, 'Vivamus.euismod@feugiatnec.com', 5162788, 854772553, 186605551, 538025293, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 12566210, '2', 'Ivan Spence', 'Vance Blackwell', 'F', '1986-04-30', '229-4422 Nibh. Ctra.', 'MaipÃº', 'Metropolitana de Santiago', 182953, 'consequat.dolor@Donecconsectetuermauris.com', 6173326, 377928463, 199801682, 661024137, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 28083441, '6', 'Jerome Vincent', 'Drake Dotson', 'F', '1988-09-20', '2005 Placerat, Av.', 'Mejillones', 'Antofagasta', 260002, 'ipsum.dolor.sit@iaculisquispede.org', 5758586, 665611988, 126375836, 287590738, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 31542065, '2', 'Elijah Garza', 'Atkinson Turner', 'M', '1996-03-29', '9168 Lacinia Avda.', 'Punta Arenas', 'XII', 704919, 'amet.consectetuer.adipiscing@mi.org', 3603436, 656269571, 994339650, 328996152, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 11356819, '4', 'Walker Burch', 'Patterson Walters', 'M', '1992-09-27', '6747 Ullamcorper, Avenida', 'La Cisterna', 'RM', 301828, 'varius@elit.ca', 7959229, 111464560, 756043384, 774194491, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(7, 23, 39025580, '2', 'Brenden Clark', 'Carlson Owens', 'M', '1986-02-26', '533-7814 Eu, Carretera', 'Isla de Maipo', 'RM', 853211, 'natoque.penatibus@neque.co.uk', 6739477, 626220995, 407188041, 571695489, 'RUTERO_1.csv', '2019-08-19 21:54:42', 'INS', 19),
-(8, 26, 12741790, '3', 'Adrian Tyler', 'Shepherd Abbott', 'F', '1986-06-26', '807-3759 Mauris Avenida', 'San Bernardo', 'Metropolitana de Santiago', 913786, 'ac@habitant.com', 0, 381953968, 258857499, 223225576, 'RUTERO_4.csv', '2019-08-24 23:06:44', 'DEL', 19),
-(9, 26, 12741790, '3', 'Adrian Tyler', 'Shepherd Abbott', 'F', '1986-06-26', '807-3759 Mauris Avenida', 'San Bernardo', 'Metropolitana de Santiago', 913786, 'ac@habitant.com', 0, 381953968, 258857499, 223225576, 'RUTERO_4.csv', '2019-08-24 23:29:12', 'DEL', 19),
-(10, 26, 12741790, '3', 'Adrian Tyler', 'Shepherd Abbott', 'F', '1986-06-26', '807-3759 Mauris Avenida', 'San Bernardo', 'Metropolitana de Santiago', 913786, 'ac@habitant.com', 0, 381953968, 258857499, 223225576, 'RUTERO_4.csv', '2019-08-25 16:57:35', 'DEL', 19);
-
--- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `RUTEROID`
@@ -1899,23 +1656,7 @@ CREATE TABLE IF NOT EXISTS `RUTEROID` (
   `IDRUTERO` bigint(20) NOT NULL AUTO_INCREMENT,
   `FECHACREACION` datetime DEFAULT NULL,
   PRIMARY KEY (`IDRUTERO`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
-
---
--- Volcado de datos para la tabla `RUTEROID`
---
-
-INSERT INTO `RUTEROID` (`IDRUTERO`, `FECHACREACION`) VALUES
-(1, '2019-08-17 16:38:21'),
-(2, '2019-08-17 16:53:58'),
-(3, '2019-08-17 12:58:07'),
-(4, '2019-08-17 12:59:04'),
-(5, '2019-08-17 12:59:17'),
-(6, '2019-08-17 13:00:00'),
-(7, '2019-08-19 21:54:42'),
-(8, '2019-08-24 23:06:44'),
-(9, '2019-08-24 23:29:12'),
-(10, '2019-08-25 16:57:35');
+);
 
 -- --------------------------------------------------------
 
@@ -1943,20 +1684,7 @@ CREATE TABLE IF NOT EXISTS `SIMULACION` (
   `COMISION` int(11) NOT NULL,
   PRIMARY KEY (`IDSIMULACION`),
   KEY `FK_RELATIONSHIP_9` (`IDCAMPANA`)
-) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
-
---
--- Volcado de datos para la tabla `SIMULACION`
---
-
-INSERT INTO `SIMULACION` (`IDSIMULACION`, `IDCAMPANA`, `FECHASIMULACION`, `RUTVENDEDOR`, `DVVENDEDOR`, `RUTCLIENTE`, `DVCLIENTE`, `MONTO`, `CUOTAS`, `VALORCUOTA`, `TASAINTERES`, `TASAANUAL`, `CAE`, `VENCIMIENTO`, `COSTOTOTAL`, `COMISION`) VALUES
-(6, 24, '2019-08-10 11:49:37', 16355662, '6', 11948618, '1', 8250523, 12, 200000, '1.20', '12.00', '12.00', '2019-09-10', 10000000, 100000),
-(7, 24, '2019-08-11 01:31:16', 16355662, '6', 11948618, '1', 8573464, 12, 800000, '1.20', '14.39', '12.20', '2019-12-01', 9700000, 200000),
-(8, 24, '2019-08-11 02:13:23', 16355662, '6', 11948618, '1', 8250523, 12, 700000, '1.20', '14.39', '12.10', '2019-12-01', 9000000, 200000),
-(9, 23, '2019-08-25 12:43:49', 13096208, '4', 11948618, '1', 8573464, 24, 450000, '1.00', '12.00', '23.50', '2019-09-30', 10800000, 4000),
-(10, 23, '2019-08-25 14:01:11', 13096208, '4', 7532039, '6', 8573464, 24, 400000, '1.40', '16.80', '25.67', '2019-09-30', 9600000, 2000),
-(11, 26, '2019-08-25 14:33:32', 13096208, '4', 46298247, 'K', 8573464, 36, 300000, '1.70', '20.40', '26.76', '2019-08-30', 10800000, 0),
-(12, 23, '2019-08-25 16:17:34', 13096208, '4', 46298247, 'k', 5000000, 24, 250000, '1.80', '21.60', '34.50', '2019-09-30', 6000000, 0);
+);
 
 -- --------------------------------------------------------
 
@@ -1970,22 +1698,7 @@ CREATE TABLE IF NOT EXISTS `SIMULACIONSUBPRODUCTO` (
   `IDSUBPRODUCTO` int(11) NOT NULL,
   KEY `FK_RELATIONSHIP_10` (`IDSIMULACION`),
   KEY `FK_RELATIONSHIP_11` (`IDSUBPRODUCTO`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
---
--- Volcado de datos para la tabla `SIMULACIONSUBPRODUCTO`
---
-
-INSERT INTO `SIMULACIONSUBPRODUCTO` (`IDSIMULACION`, `IDSUBPRODUCTO`) VALUES
-(6, 14),
-(8, 13),
-(8, 14),
-(10, 13),
-(10, 14),
-(10, 15),
-(11, 14),
-(11, 17),
-(12, 13);
+);
 
 -- --------------------------------------------------------
 
@@ -2002,24 +1715,7 @@ CREATE TABLE IF NOT EXISTS `SUBPRODUCTO` (
   `PRIMA` decimal(5,2) NOT NULL,
   PRIMARY KEY (`IDSUBPRODUCTO`),
   KEY `FK_RELATIONSHIP_4` (`IDEMPRESA`)
-) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
-
---
--- Volcado de datos para la tabla `SUBPRODUCTO`
---
-
-INSERT INTO `SUBPRODUCTO` (`IDSUBPRODUCTO`, `IDEMPRESA`, `CODSUBPRODUCTO`, `DESCSUBPRODUCTO`, `PRIMA`) VALUES
-(13, 9, 'SDES_0_20_UF', 'Seguro de Desgravamen', '0.70'),
-(14, 9, 'SCES_BASE', 'Seguro de Cesantía Basico', '0.25'),
-(15, 9, 'SVENTA_FIJA', 'Seguro de Venta Fija Mas Asistencia Urgencia', '0.02'),
-(16, 9, 'SV-001-PRUEBAS', 'Seguro de vida 01 - Pruebas', '0.80'),
-(17, 9, 'SD-001-PRUEBAS', 'Seguro desgravamen 01 Pruebas', '0.90'),
-(18, 13, 'SEG_CESA', 'Seguro de Cesantía', '1.30'),
-(19, 13, 'SEG_DESG', 'Seguro Desgravamen', '1.00'),
-(20, 14, 'SEG_CESA', 'Seguro de Cesantía', '1.50'),
-(21, 14, 'SEG_DESG', 'Seguro Desgravamen', '1.60'),
-(22, 12, 'SEG_DESG', 'Seguro Desgravamen', '2.00'),
-(23, 12, 'SEG_CESA', 'Seguro de Cesantía', '1.00');
+);
 
 -- --------------------------------------------------------
 
@@ -2032,16 +1728,16 @@ CREATE TABLE IF NOT EXISTS `TIPOUSUARIO` (
   `IDTIPOUSUARIO` int(11) NOT NULL AUTO_INCREMENT,
   `DESCTIPOUSUARIO` varchar(50) NOT NULL,
   PRIMARY KEY (`IDTIPOUSUARIO`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+);
 
 --
 -- Volcado de datos para la tabla `TIPOUSUARIO`
 --
 
-INSERT INTO `TIPOUSUARIO` (`IDTIPOUSUARIO`, `DESCTIPOUSUARIO`) VALUES
-(1, 'Administrador'),
-(2, 'Cliente Empresa'),
-(3, 'Ejecutivo Ventas');
+INSERT INTO `TIPOUSUARIO` (`DESCTIPOUSUARIO`) VALUES
+('Administrador'),
+('Cliente Empresa'),
+('Ejecutivo Ventas');
 
 -- --------------------------------------------------------
 
@@ -2065,23 +1761,12 @@ CREATE TABLE IF NOT EXISTS `USUARIO` (
   PRIMARY KEY (`IDUSUARIO`),
   KEY `FK_RELATIONSHIP_1` (`IDTIPOUSUARIO`),
   KEY `FK_RELATIONSHIP_2` (`IDEMPRESA`)
-) ENGINE=MyISAM AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
+) ;
 
 --
 -- Volcado de datos para la tabla `USUARIO`
 --
 
-INSERT INTO `USUARIO` (`IDUSUARIO`, `IDEMPRESA`, `IDTIPOUSUARIO`, `RUTUSUARIO`, `DVUSUARIO`, `NOMUSUARIO`, `APPATERNO`, `APMATERNO`, `ESTADO`, `ULTMODIFICACION`, `PASSWORD`) VALUES
-(1, 1, 1, 11111111, '1', 'Administrador', 'Interno', 'Empresa interna', 1, '2019-08-06 00:00:00', '5f4dcc3b5aa765d61d8327deb882cf99'),
-(16, 9, 2, 12653633, 'k', 'Jaime Antonio', 'Seaman', 'Ramirez', 1, '2019-08-10 09:45:54', '5f4dcc3b5aa765d61d8327deb882cf99'),
-(19, 9, 2, 11364757, '4', 'Peter Gerhard', 'Franz', 'Salas', 1, '2019-08-10 09:54:17', 'dc41e701f21731c11abf3b7a883d61ec'),
-(11, 1, 3, 13096208, '4', 'Jessica Carolina', 'Pereira', 'Guerrero', 1, '2019-08-10 09:32:15', '5f4dcc3b5aa765d61d8327deb882cf99'),
-(20, 9, 2, 7043594, '2', 'VICTOR', 'SANTIBAÑEZ', 'rubilar', 1, '2019-08-10 09:56:12', '5f4dcc3b5aa765d61d8327deb882cf99'),
-(17, 1, 3, 2222222, '2', 'Ejecutivo', 'Ventas', 'Pruebas', 1, '2019-08-10 09:46:34', '5f4dcc3b5aa765d61d8327deb882cf99'),
-(21, 1, 3, 16355662, '6', 'Jorge', 'Silva', 'Borda', 1, '2019-08-24 17:45:44', '5f4dcc3b5aa765d61d8327deb882cf99'),
-(22, 10, 2, 88888888, '8', 'Cliente', 'Empresa', 'Algo', 1, '2019-08-10 12:20:43', '5f4dcc3b5aa765d61d8327deb882cf99'),
-(23, 1, 3, 55555555, '5', 'Ejecutivo', 'Ventas', 'Pruebas', 1, '2019-08-11 00:37:26', '5f4dcc3b5aa765d61d8327deb882cf99'),
-(24, 1, 1, 33333333, '3', 'Usuario', 'Pruebas', 'validaciones', 1, '2019-08-13 10:24:07', '5f4dcc3b5aa765d61d8327deb882cf99'),
-(25, 1, 1, 7063672, '7', 'Jorge Antonio', 'Silva', 'Peralta', 1, '2019-08-24 17:48:25', '5f4dcc3b5aa765d61d8327deb882cf99'),
-(26, 12, 2, 19678957, 'K', 'Peter ', 'Franz', 'Ercilla', 1, '2019-08-24 20:21:12', '5f4dcc3b5aa765d61d8327deb882cf99');
+INSERT INTO `USUARIO` (`IDEMPRESA`, `IDTIPOUSUARIO`, `RUTUSUARIO`, `DVUSUARIO`, `NOMUSUARIO`, `APPATERNO`, `APMATERNO`, `ESTADO`, `ULTMODIFICACION`, `PASSWORD`) VALUES
+(1, 1, 11364757, '4', 'Peter Gerhard', 'Franz', 'Salas', 1, '2019-08-10 09:54:17', 'dc41e701f21731c11abf3b7a883d61ec');
 COMMIT;

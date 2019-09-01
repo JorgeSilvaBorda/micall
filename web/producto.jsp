@@ -8,7 +8,8 @@
     <body>
         <script type="text/javascript">
             $(document).ready(function () {
-                $('.dataTable').DataTable().destroy();
+                OPCIONES_DATATABLES.buttons = [];
+                //$('.dataTable').DataTable().destroy();
                 var detalle = {
                     url: 'ProductoController',
                     datos: {
@@ -20,9 +21,7 @@
                 traerListado(detalle, function (resp) {
                     $('.dataTable').DataTable().destroy();
                     $('#cuerpo-tab-producto').html(resp);
-                    var tab = $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
-                    //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
-                    
+                    $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
                 });
 
                 var det = {
@@ -63,8 +62,7 @@
                         traerListado(det, function (resp) {
                             $('.table').DataTable().destroy();
                             $('#cuerpo-tab-producto').html(resp);
-                            var tab = $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
-                            //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                            $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
                         });
 
                         limpiar();
@@ -145,7 +143,6 @@
                         url: "ProductoController",
                         datos: datos
                     };
-                    //console.log(detalle);
                     guardar(detalle, function (obj) {
                         var det = {
                             url: 'ProductoController',
@@ -158,8 +155,7 @@
                         traerListado(det, function (resp) {
                             $('.dataTable').DataTable().destroy();
                             $('#cuerpo-tab-producto').html(resp);
-                             var tab = $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
-                             //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                            $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
                         });
                         limpiar();
                     });
@@ -222,8 +218,7 @@
                         traerListado(det, function (resp) {
                             $('.dataTable').DataTable().destroy();
                             $('#cuerpo-tab-producto').html(resp);
-                            var tab = $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
-                            //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                            $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
                         });
                     });
                 }
@@ -241,8 +236,7 @@
                 traerListado(det, function (resp) {
                     $('.dataTable').DataTable().destroy();
                     $('#cuerpo-tab-producto').html(resp);
-                    var tab = $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
-                    //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                    $('#tabla-productos').DataTable(OPCIONES_DATATABLES);
                 });
             }
         </script>
