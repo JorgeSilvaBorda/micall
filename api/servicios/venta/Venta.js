@@ -13,6 +13,7 @@ var server = app.listen(defaultConfig.puerto, function() {
         user: defaultConfig.bdUser,
         password: defaultConfig.bdPassword,
         database: defaultConfig.baseDatos,
+        port: defaultConfig.bdPort
     });
     connection.connect();
 
@@ -118,10 +119,38 @@ app.post('/rec-simulacion', function(req, res){
         user: defaultConfig.bdUser,
         password: defaultConfig.bdPassword,
         database: defaultConfig.baseDatos,
+        port: defaultConfig.bdPort
     });
 
     connection.query(query, function(error, results, fields){
-        
+
+        var simulacion = {
+            idsimulacion: results[0][0].IDSIMULACION,
+            idcampana: results[0][0].IDCAMPANA,
+            fechasimulacion: results[0][0].FECHASIMULACION,
+            rutvendedor: results[0][0].RUTVENDEDOR,
+            dvvendedor: results[0][0].DVVENDEDOR,
+            rutcliente: results[0][0].RUTCLIENTE,
+            dvcliente: results[0][0].DVCLIENTE,
+            monto: results[0][0].MONTO,
+            cuotas: results[0][0].CUOTAS,
+            valorcuota: results[0][0].VALORCUOTA,
+            tasainteres: results[0][0].TASAINTERES,
+            tasaanual: results[0][0].TASAANUAL,
+            cae: results[0][0].CAE,
+            vencimiento: results[0][0].VENCIMIENTO,
+            costototal: results[0][0].COSTOTOTAL,
+            comision: results[0][0].COMISION,
+            codcampana: results[0][0].CODCAMPANA,
+            nomcampana: results[0][0].NOMCAMPANA,
+            codproducto: results[0][0].CODPRODUCTO,
+            descproducto: results[0][0].DESCPRODUCTO,
+            rutempresa: results[0][0].RUTEMPRESA,
+            dvempresa: results[0][0].DVEMPRESA,
+            nomempresa: results[0][0].NOMEMPRESA,
+            idsubproducto: results[0][0].IDSUBPRODUCTO
+        };
+        /*
         var simulacion = {
             idsimulacion: results[0][0].IDSIMULACION,
             idcampana: results[0][0].IDCAMPANA,
@@ -148,17 +177,15 @@ app.post('/rec-simulacion', function(req, res){
             nomempresa: results[0][0].NOMEMPRESA,
             subproductos: []
         }; 
-        for(var i = 0; i < results.length; i++){
-            var subproducto = {
-                idsubproducto: results[0][i].IDSUBPRODUCTO,
-                codsubproducto: results[0][i].CODSUBPRODUCTO,
-                descsubproducto: results[0][i].DESCSUBPRODUCTO,
-                prima: results[0][i].PRIMA,
-            };
-            simulacion.subproductos.push(subproducto);
-            
+        */
+        //console.log(results[0]);
+        if(results[0][0].IDSUBPRODUCTO !== null){
+            //Tiene al menos uno. Iniciar for en '
         }
-        res.send(simulacion);
+        console.log(simulacion);
+        //res.send(simulacion);
+        
+       res.send({});
     });
     connection.end();
 
@@ -185,6 +212,7 @@ function insertarSimulacion(simulacion, callback){
             user: defaultConfig.bdUser,
             password: defaultConfig.bdPassword,
             database: defaultConfig.baseDatos,
+            port: defaultConfig.bdPort
         });
         var query = "CALL SP_INS_SIMULACION_API(" + simulacion.rutvendedor + ", '" + simulacion.dvvendedor + "', " + simulacion.rutcliente + ", '" + simulacion.dvcliente + "', " + simulacion.monto + ", " + simulacion.cuotas + ", " + simulacion.valorcuota + ", " + simulacion.tasainteres + ", " + simulacion.tasaanual + ", " + simulacion.cae + ", '" + simulacion.vencimiento + "', " + simulacion.costototal + ", " + simulacion.comision + ", '" + simulacion.codcampana + "', " + simulacion.rutempresa + ")";
         connection.query(query, function(error, results, fields){
@@ -197,6 +225,7 @@ function insertarSimulacion(simulacion, callback){
                     user: defaultConfig.bdUser,
                     password: defaultConfig.bdPassword,
                     database: defaultConfig.baseDatos,
+                    port: defaultConfig.bdPort
                 });
                 var query2 = "CALL SP_INS_SIMULACION_SUBPRODUCTO_API(" + liid + ", '" + simulacion.subproductos[i] + "', " + simulacion.rutempresa + ")";
                 connection2.query(query2, function(error, results, fields){
@@ -222,6 +251,7 @@ function validarSimulacion(simulacion, callback){
             user: defaultConfig.bdUser,
             password: defaultConfig.bdPassword,
             database: defaultConfig.baseDatos,
+            port: defaultConfig.bdPort
         });
         var query = "CALL SP_VALIDA_SIMULACION_API('" + simulacion.codcampana + "', " + simulacion.rutcliente + ")";
 

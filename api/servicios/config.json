@@ -2,8 +2,8 @@
     "dev": {
         "puerto": 5555,
         "bdServer": "localhost",
-        "bdPort": 3306,
-        "baseDatos": "micall",
+        "bdPort": 3307,
+        "baseDatos": "micalltest",
         "bdUser": "root",
         "bdPassword": ""
     },
