@@ -1,6 +1,6 @@
 <%@include file="headjava.jsp" %>
 <script type="text/javascript">
-
+    OPCIONES_DATATABLES.buttons = [];
     function buscar() {
         if (validarCampos()) {
             var desde = $('#desde').val();
@@ -14,7 +14,7 @@
                 hasta: hasta,
                 rutfullvendedor: rutfullvendedor
             };
-
+            //console.log(datos);
             $.ajax({
                 url: 'ReportesController',
                 type: 'post',
@@ -82,15 +82,15 @@
         tab += "<tr>";
         tab += "<th>Subproducto</th>";
         tab += "<th>Prima</th>";
-        tab += "<th>Meta Monto</th>";
-        tab += "<th>Meta Cantidad</th>";
+        //tab += "<th>Meta Monto</th>";
+        //tab += "<th>Meta Cantidad</th>";
         tab += "</tr></thead><tbody>";
         $(subproductos).each(function () {
             tab += "<tr>";
             tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
             tab += "<td>" + $(this)[0].prima + "</td>";
-            tab += "<td>$" + formatMiles($(this)[0].montometa) + "</td>";
-            tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
+            //tab += "<td>$" + formatMiles($(this)[0].montometa) + "</td>";
+            //tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
             tab += "</tr>";
         });
         tab += "</tbody></table>";

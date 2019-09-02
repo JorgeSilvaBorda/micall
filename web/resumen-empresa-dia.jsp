@@ -1,18 +1,19 @@
 <%@include file="headjava.jsp" %>
 <script type="text/javascript">
     $(document).ready(function () {
-        cargarResumen();
         var OPCIONES_EXCEL = [
             {
                 extend: 'excelHtml5',
-                title: "MiCall-Res-Mes-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date())
+                title: "MiCall-Res-Dia-" + "<% out.print(session.getAttribute("empresa")); %>" + "-" + formatFecha(new Date())
             }
         ];
         OPCIONES_DATATABLES.buttons = OPCIONES_EXCEL;
+        cargarResumen();
     });
     function cargarResumen() {
         var datos = {
-            tipo: 'tabla-resumen-ventas-empresa',
+            tipo: 'tabla-resumen-ventas-empresa-dia',
+            fechahoy: formatFecha(new Date()),
             rutusuario: '<% out.print(session.getAttribute("rutusuario"));%>'
         };
         $.ajax({
@@ -46,31 +47,25 @@
             tab += "<td style='width: 38px;' >" + $(this)[0].fechafin + "</td>";
             tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
             tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
-            tab += "<td>$ " + formatMiles($(this)[0].metaproducto.toString().split(".")[0].replaceAll("\\.", "")) + "</td>";
+            tab += "<td>$ " + formatMiles($(this)[0].metaproducto.toString().split(".")[0]) + "</td>";
             var acumprod = parseInt($(this)[0].acumproducto.toString().split(".")[0].replaceAll("\\.", ""));
             var metaprod = parseInt($(this)[0].metaproducto.toString().split(".")[0].replaceAll("\\.", ""));
-            tab += "<td " + ((acumprod < metaprod && acumprod > 0) ? "style='color: red;'" : "") + " >$ " + formatMiles($(this)[0].acumproducto) + "</td>";
-            tab += "<td>" + $(this)[0].porcacumprod + "%</td>";
+            tab += "<td " + ((acumprod < metaprod && acumprod > 0) ? "style='color: red;'" : "") + " >$ " + formatMiles($(this)[0].acumproducto.toString().split(".")[0]) + "</td>";
             tab += "<td>" + $(this)[0].simulaciones + "</td>";
-            var desc;
-            if($(this)[0].descsubproducto === ''){
-                desc = "";
-            }else{
+            var desc = "";
+            if($(this)[0].descsubproducto !== ''){
                 desc = "[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto;
             }
             tab += "<td>" + desc + "</td>";
-            tab += "<td>$ " + formatMiles($(this)[0].metasubproducto) + "</td>";
+            tab += "<td>$ " + formatMiles($(this)[0].metasubproducto.toString().split(".")[0]) + "</td>";
             var estiloRojo = "";
-            var metaSub = parseInt($(this)[0].metasubproducto.toString().replaceAll("\\.", ""));
+            var metaSub = parseInt($(this)[0].metasubproducto.toString().split(".")[0].replaceAll("\\.", ""));
             var acumSub = parseInt($(this)[0].acumsubproducto.toString().split(".")[0].replaceAll("\\.", ""));
 
             if (acumSub > 0 && acumSub < metaSub) {
                 estiloRojo = "style='color: red;'";
             }
-            acumSub = acumSub.toString();
-            tab += "<td " + estiloRojo + " >$ " + formatMiles(acumSub) + "</td>";
-            tab += "<td>" + $(this)[0].porcacumsubprod + "%</td>";
-            tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
+            tab += "<td " + estiloRojo + " >$ " + formatMiles($(this)[0].acumsubproducto.toString().split(".")[0]) + "</td>";
             tab += "<td>" + formatMiles($(this)[0].cantidadmes) + "</td>";
             tab += "</tr>";
         });
@@ -89,8 +84,8 @@
             <thead>
                 <tr>
                     <th colspan="3">Campaña</th>
-                    <th colspan="5">Productos</th>
-                    <th colspan="6">Subproductos</th>
+                    <th colspan="4">Productos</th>
+                    <th colspan="4">Subproductos</th>
                 </tr>
                 <tr>
                     <th>Fecha Inicio</th>
@@ -99,13 +94,10 @@
                     <th>Nombre</th>
                     <th>$<br />Meta</th>
                     <th>$<br />Acum.</th>
-                    <th>%$<br />Cump.</th>
                     <th>#<br/>Acum.</th>
                     <th>Nombre</th>
                     <th>$<br />Meta.</th>
                     <th>$<br />Acum.</th>
-                    <th>%$<br />Cump.</th>
-                    <th>#<br/>Meta</th>
                     <th>#<br />Acum.</th>
                 </tr>
             </thead>

@@ -14,6 +14,7 @@
     <body>
         <script type="text/javascript">
             $(document).ready(function () {
+                OPCIONES_DATATABLES.buttons = [];
                 cargarSimulaciones();
                 cargaSelectEmpresa();
                 $('#rutcliente').rut(
@@ -154,20 +155,22 @@
             }
 
             function validarCampos() {
+                calcTasaAnual();
+                
                 var simulacion = {
                     idcampana: $('#hidIdCampana').val(),
                     rutvendedor: '<% out.print(session.getAttribute("rutusuario")); %>',
                     dvvendedor: '<% out.print(session.getAttribute("dvusuario"));%>',
                     rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", ""),
                     dvcliente: $('#rutcliente').val().split("-")[1],
-                    monto: $('#montoaprobado').val().replaceAll("\\.", ""),
+                    monto: parseInt($('#montoaprobado').val().replaceAll("\\.", "")),
                     cuotas: $('#cuotas').val().replaceAll("\\.", ""),
                     valorcuota: $('#valorcuota').val().replaceAll("\\.", ""),
                     tasainteres: $('#tasainteres').val(),
                     tasaanual: $('#tasaanual').val(),
                     cae: $('#cae').val(),
                     vencimiento: $('#vencimiento').val(),
-                    costototal: $('#costototal').val().replaceAll("\\.", ""),
+                    costototal: parseInt($('#costototal').val().replaceAll("\\.", "")),
                     comision: $('#comision').val().replaceAll("\\.", ""),
                     subproductos: []
                 };
@@ -219,12 +222,28 @@
                 }
 
                 var costocuotas = parseInt(simulacion.valorcuota) * parseInt(simulacion.cuotas);
-                if (!(costocuotas > montoAprobado)) {
+                /*if (!(costocuotas > montoAprobado)) {
                     alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto aprobado ($" + formatMiles(montoAprobado) + ")");
+                    return false;
+                }*/
+                //20190825 - Se valida contra el monto simulado (No contra el monto aprobado).
+                if (!(costocuotas > simulacion.monto)) {
+                    alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto simulado ($" + formatMiles(simulacion.monto) + ")");
                     return false;
                 }
                 if (!(costocuotas <= simulacion.costototal)) {
                     alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser menor o igual al costo total ($" + formatMiles(simulacion.costototal) + ")");
+                    return false;
+                }
+                var tasa = parseFloat($('#tasainteres').val().replaceAll(",", "."));
+                if(tasa < 0.01){
+                    alert("Debe ingresar una tasa de interés válida");
+                    return false;
+                }
+                
+                var tasaAnual = parseFloat($('#tasaanuual').val());
+                if(tasaAnual < 0.001){
+                    alert("La tasa anual no pede ser menor a 0.001");
                     return false;
                 }
 
@@ -275,7 +294,8 @@
                     });
                 }
             }
-
+            
+            /*
             function calcTasaAnual() {
                 var tasa = parseFloat($('#tasainteres').val().replaceAll(",", "."));
                 var tasaAnual = (tasa * 12).toString();
@@ -289,9 +309,50 @@
                     decimales = tasaAnual.split(".")[1];
                     enteros = tasaAnual.split(".")[0];
                 }
+                if(tasaAnual.indexOf(".") === -1 && tasaAnual.indexOf(",") === -1){
+                    if(!isNaN(tasaAnual)){
+                        
+                    }
+                }
 
                 decimales = decimales.substring(0, 2);
                 $('#tasaanual').val(enteros + "." + decimales);
+            }
+            */
+            
+            function calcTasaAnual(){
+                var valido = false;
+                /**
+                 * Inicializar en '0.0'.
+                 * Cualquier error no controlado la dejará por defecto en cero.
+                 * Validador debe controlar que sea mayor a 0.01
+                 */
+                
+                var tasainteres = $('#tasainteres').val().toString();
+                if(tasainteres.indexOf(".") === -1 && tasainteres.indexOf(",") === -1){
+                    //validar isNaN
+                    if(isNaN(tasainteres)){//##1
+                        //console.log("Tasa interés no numérica");
+                        $('#tasaanual').val(0.0); //
+                    }else{
+                        var tasaA = parseFloat(tasainteres) * 12;
+                        tasaA = Number((parseFloat(tasaA)).toFixed(2)); //Incorporados como redondeo
+                        $('#tasaanual').val(tasaA);
+                        valido = true;
+                    }
+                }else{
+                    if(tasainteres.indexOf(",") !== -1){
+                        tasainteres = tasainteres.relaceAll(",", ".");
+                    }
+                    
+                    var tasaA = parseFloat(tasainteres) * 12;
+                    tasaA = Number((parseFloat(tasaA)).toFixed(2)); //Incorporados como redondeo
+                    $('#tasaanual').val(tasaA);
+                    valido = true;
+                }
+                if(!valido){
+                    $('#tasaanual').val(0.0);
+                }
             }
             
             function verSubproductosVendidos(idsimulacion){

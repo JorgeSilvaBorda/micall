@@ -7,16 +7,10 @@
     </head>
     <body>
         <script type="text/javascript">
+
             $(document).ready(function () {
-                var detalle = {
-                    url: 'UsuarioController',
-                    datos: {
-                        tipo: 'get-usuarios'
-                    },
-                    bodyDestino: 'cuerpo-tab-usuario',
-                    tablaObjetivo: 'tabla-usuarios'
-                };
-                traerListado(detalle);
+                OPCIONES_DATATABLES.buttons = [];
+                listarUsuarios();
                 var det = {
                     tipo: 'carga-select-empresa',
                     url: 'EmpresaController',
@@ -29,22 +23,67 @@
                     objetivo: 'select-tipo-usuario'
                 };
                 cargarSelect(det);
-                $('.dataTable').DataTable().destroy();
-                $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
                 $('#rut').rut({
-                    formatOn: 'keyup',
-                    validateOn: 'blur'
-                }).on('rutInvalido', function () {
-                    $('#btnInsert').attr("disabled", "disabled");
-                    mostrarAlert('alert-danger', "El rut ingresado no es válido");
-                    
-                }).on('rutValido', function () {
-                    $('#btnInsert').removeAttr("disabled");
-                    existeUsuario();
-                    ocultarAlert();
+                    formatOn: 'keyup'
                 });
 
             });
+
+            function listarUsuarios() {
+                var detalle = {
+                    url: 'UsuarioController',
+                    datos: {
+                        tipo: 'get-usuarios'
+                    },
+                    bodyDestino: 'cuerpo-tab-usuario',
+                    tablaObjetivo: 'tabla-usuarios'
+                };
+                $.ajax({
+                    type: 'post',
+                    url: detalle.url,
+                    data: {
+                        datos: JSON.stringify(detalle.datos)
+                    },
+                    success: function (res) {
+                        var obj = JSON.parse(res);
+                        if (obj.estado === 'ok') {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-usuario').html(obj.cuerpotabla);
+                            var tab = $('#tabla-usuarios').DataTable(OPCIONES_DATATABLES);
+                            //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                        } else {
+                            console.log("Error");
+                            console.log(obj.mensaje);
+                        }
+                    },
+                    error: function (a, b, c) {
+                        console.log(a);
+                        console.log(b);
+                        console.log(c);
+                    }
+                });
+            }
+
+            function validarCampoRut() {
+                var rutfullusuario = $('#rut').val().replaceAll("\\.", "").replaceAll("-", "");
+                var rutusuario = $('#rut').val().replaceAll("\\.", "").split("-")[0];
+                var dvusuario = $('#rut').val().split("-")[1];
+                //primero validar que sea rut válido.
+                if ($.validateRut(rutfullusuario)) {
+                    esNuevoRut(function (esNuevo) {
+                        if (esNuevo) {
+                            $('#btnInsert').removeAttr("disabled");
+                            ocultarAlert();
+                        } else {
+                            $('#btnInsert').attr("disabled", "disabled");
+                            mostrarAlert("alert-danger", "El rut ya existe en la base de datos.");
+                        }
+                    });
+                } else {
+                    mostrarAlert("alert-danger", "El rut ingresado es inválido");
+                    $('#btnInsert').attr("disabled", "disabled");
+                }
+            }
 
             function modalCambiar(boton) {
                 var fila = $(boton).parent().parent();
@@ -91,7 +130,7 @@
                 });
             }
 
-            function existeUsuario() {
+            function esNuevoRut(callback) {
                 var rutusuario = $('#rut').val().split("-")[0].replaceAll("\\.", "");
                 var datos = {
                     tipo: 'existe-usuario',
@@ -108,10 +147,9 @@
                         var obj = JSON.parse(res);
                         if (obj.estado === 'ok') {
                             if (parseInt(obj.cantidad) === 0) {
-                                $('#btnInsert').removeAttr("disabled");
+                                callback(true);
                             } else {
-                                alert("El rut de usuario que intenta ingresar ya existe.");
-                                $('#btnInsert').attr("disabled", "disabled");
+                                callback(false);
                             }
                         }
 
@@ -145,15 +183,7 @@
                     };
 
                     insertar(detalles, function (obj) {
-                        var detalle = {
-                            url: 'UsuarioController',
-                            datos: {
-                                tipo: 'get-usuarios'
-                            },
-                            bodyDestino: 'cuerpo-tab-usuario',
-                            tablaObjetivo: 'tabla-usuarios'
-                        };
-                        traerListado(detalle);
+                        listarUsuarios();
                         var det = {
                             tipo: 'carga-select-empresa',
                             url: 'EmpresaController',
@@ -231,40 +261,29 @@
                     };
 
                     guardar(detalle, function (obj) {
-                        var det = {
-                            url: 'UsuarioController',
-                            datos: {
-                                tipo: 'get-usuarios'
-                            },
-                            bodyDestino: 'cuerpo-tab-usuario',
-                            tablaObjetivo: 'tabla-usuarios'
-                        };
-                        traerListado(det);
+                        listarUsuarios();
                         var dets = {
                             tipo: 'carga-select-empresa',
                             url: 'EmpresaController',
                             objetivo: 'select-empresa'
                         };
                         cargarSelect(dets);
-                        det = {
+                        var det = {
                             tipo: 'carga-select-tipousuario',
                             url: 'UsuarioController',
                             objetivo: 'select-tipo-usuario'
                         };
-                        cargarSelect(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
-
+                        cargarSelect(det);                        
                         cancelarEdicion();
                     });
                 }
-
             }
 
             function limpiar() {
                 $('#select-tipo-usuario option').removeAttr("selected");
                 $('#select-empresa option').removeAttr("selected");
                 $('#select-empresa').val('0');
+                $('#select-empresa').removeAttr("disabled");
                 $('#select-tipo-usuario').val('0');
                 $('#nombres').val('');
                 $('#rut').val('');
@@ -329,29 +348,19 @@
                     };
 
                     eliminar(detalle, function (obj) {
-                        var det = {
-                            url: 'UsuarioController',
-                            datos: {
-                                tipo: 'get-usuarios'
-                            },
-                            bodyDestino: 'cuerpo-tab-usuario',
-                            tablaObjetivo: 'tabla-usuarios'
-                        };
-                        traerListado(det);
+                        listarUsuarios();
                         var dets = {
                             tipo: 'carga-select-empresa',
                             url: 'EmpresaController',
                             objetivo: 'select-empresa'
                         };
                         cargarSelect(dets);
-                        det = {
+                        var det = {
                             tipo: 'carga-select-tipousuario',
                             url: 'UsuarioController',
                             objetivo: 'select-tipo-usuario'
                         };
                         cargarSelect(det);
-                        $('.dataTable').DataTable().destroy();
-                        $('#' + detalle.tablaObjetivo).DataTable(OPCIONES_DATATABLES);
                         limpiar();
                     });
                 }
@@ -433,7 +442,7 @@
                         </div>
                         <div class="form-group small">
                             <label for="rut">Rut</label>
-                            <input id="rut" type="text" class="form-control form-control-sm" /> 
+                            <input onblur="validarCampoRut();" id="rut" type="text" class="form-control form-control-sm" /> 
                         </div>
                         <div id="alerta" class="alert oculto">
 

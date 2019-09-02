@@ -21,21 +21,28 @@ public class RuteroController extends HttpServlet {
         response.setContentType("text/html; charset=UTF-8");
         switch (entrada.getString("tipo")) {
             case "ins-rutero":
-                out.print(insRutero(entrada.getJSONObject("rutero")));
+                out.print(insRutero(entrada.getJSONObject("rutero"), entrada.getInt("idusuario")));
                 break;
             case "traer-ruteros-empresa":
                 out.print(traerRuterosEmpresa(entrada.getInt("rutempresa")));
                 break;
             case "del-rutero":
-                out.print(delRutero(entrada.getJSONObject("rutero")));
+                out.print(delRutero(entrada.getJSONObject("rutero"), entrada.getInt("idusuario")));
                 break;
             default:
                 break;
         }
     }
 
-    private JSONObject insRutero(JSONObject rutero) {
+    private JSONObject insRutero(JSONObject rutero, int idusuario) {
+        JSONObject ruteroid = getIdNewRutero();
         JSONObject salida = new JSONObject();
+        if(ruteroid.getInt("idrutero") == 0){
+            salida.put("estado", "error");
+            salida.put("mensaje", "No se puede obtener el ID de Rutero");
+            return salida;
+        }
+        
         int idcampana = rutero.getInt("idcampana");
         Iterator i = rutero.getJSONArray("filas").iterator();
         while (i.hasNext()) {
@@ -57,7 +64,10 @@ public class RuteroController extends HttpServlet {
                     + fila.getInt("fono1") + ","
                     + fila.getInt("fono2") + ","
                     + fila.getInt("fono3") + ","
-                    + "'" + fila.getString("nomarchivo") + "')";
+                    + "'" + rutero.getString("nomarchivo") + "',"
+                    + "'INS',"
+                    + idusuario + ","
+                    + ruteroid.getInt("idrutero") + ")";
             Conexion c = new Conexion();
             c.abrir();
             c.ejecutar(query);
@@ -74,13 +84,13 @@ public class RuteroController extends HttpServlet {
         Conexion c = new Conexion();
         c.abrir();
         ResultSet rs = c.ejecutarQuery(query);
-        //System.out.println(query);
         String tab = "<table id='tabla-ruteros-empresa' class='table table-sm small table-borderless table-hover table-striped'><thead>";
         tab += "<tr>";
         tab += "<th>Fecha Carga</th>";
         tab += "<th>Campaña</th>";
         tab += "<th>Registros</th>";
         tab += "<th>Archivo</th>";
+        tab += "<th>Tipo Operación</th>";
         tab += "</tr></thead><tbody>";
         try {
             while (rs.next()) {
@@ -89,6 +99,7 @@ public class RuteroController extends HttpServlet {
                 tab += "<td>[" + rs.getString("CODCAMPANA") + "] " + rs.getString("NOMCAMPANA") + "</td>";
                 tab += "<td>" + rs.getInt("CANT") + "</td>";
                 tab += "<td>" + rs.getString("NOMARCHIVO") + "</td>";
+                tab += "<td>" + rs.getString("DESCOPERACION") + "</td>";
                 tab += "</tr>";
             }
             salida.put("tabla", tab);
@@ -104,21 +115,53 @@ public class RuteroController extends HttpServlet {
         return salida;
     }
 
-    private JSONObject delRutero(JSONObject rutero) {
+    private JSONObject delRutero(JSONObject rutero, int idusuario) {
+        JSONObject ruteroid = getIdNewRutero();
         JSONObject salida = new JSONObject();
+        if(ruteroid.getInt("idrutero") == 0){
+            salida.put("estado", "error");
+            salida.put("mensaje", "No se puede obtener el ID de Rutero");
+            return salida;
+        }
         int idcampana = rutero.getInt("idcampana");
         Iterator i = rutero.getJSONArray("filas").iterator();
         while (i.hasNext()) {
             JSONObject fila = (JSONObject) i.next();
             String query = "CALL SP_DEL_FILA_RUTERO("
                     + idcampana + ","
-                    + fila.getInt("rutcliente") + ")";
+                    + fila.getInt("rutcliente") + ","
+                    + "'" + rutero.getString("nomarchivo") + "',"
+                    + "'DEL',"
+                    + idusuario + ","
+                    + ruteroid.getInt("idrutero") + ")";
             Conexion c = new Conexion();
             c.abrir();
             c.ejecutar(query);
             c.cerrar();
         }
         salida.put("estado", "ok");
+        return salida;
+    }
+    
+    private JSONObject getIdNewRutero(){
+        String query = "CALL SP_GET_ID_RUTERO()";
+        Conexion c = new Conexion();
+        c.abrir();
+        JSONObject salida = new JSONObject();
+        ResultSet rs = c.ejecutarQuery(query);
+        try {
+            while(rs.next()){
+                salida.put("idrutero", rs.getInt("IDRUTERO"));
+                salida.put("fechacreacion", rs.getDate("FECHACREACION"));
+            }
+            return salida;
+        } catch (SQLException ex) {
+            System.out.println("No se pudo obtener el IDRUTERO");
+            System.out.println(ex);
+            salida.put("fechacreacion", "1900-01-01");
+            salida.put("idrutero", 0);
+        }
+        c.cerrar();
         return salida;
     }
 

@@ -136,7 +136,6 @@ public class SimulacionController extends HttpServlet {
     }
     
     private JSONObject getSubproductosSimulacion(int idsimulacion){
-        System.out.println("Entra a buscar detalle");
         JSONObject salida = new JSONObject();
         String query = "CALL SP_GET_SUBPRODUCTOS_SIMULACION(" + idsimulacion + ")";
         Conexion c = new Conexion();

@@ -8,6 +8,11 @@
 %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <script type="text/javascript">
+    
+    $(document).ready(function(){
+        OPCIONES_FIXED.headerOffset = $('#navbar').outerHeight();
+    });
+    
     function cerrar() {
         window.location.href = "login.jsp";
     }
@@ -25,8 +30,8 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12">
-            <nav class="navbar small navbar-expand-sm navbar-light bg-light fixed-top"><img src='img/logo.jpg' height="40" width='50' />
-                <a class="navbar-brand" href="#"><% if(session.getAttribute("idtipousuario").toString().equals("3")){out.print("MiCall");}else{out.print(session.getAttribute("empresa"));} %></a>
+            <nav id="navbar" class="navbar small navbar-expand-sm navbar-light bg-light fixed-top"><img src='img/logo.png' height="60" width='62' />
+                <a class="navbar-brand" href="#">&nbsp;&nbsp;&nbsp;&nbsp;<% if(session.getAttribute("idtipousuario").toString().equals("3")){out.print("MiCall");}else{out.print(session.getAttribute("empresa"));} %></a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#contenidoNavbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>

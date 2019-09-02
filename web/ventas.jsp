@@ -8,6 +8,7 @@
     <body>
 	<script type="text/javascript">
             $(document).ready(function(){
+                OPCIONES_DATATABLES.buttons = [];
                 var anio = formatFecha(new Date()).split("-")[0];
                 var mes = formatFecha(new Date()).split("-")[1];
                 $('#aniomes').html(anio.toString() + "-" + mes.toString());
