@@ -49,8 +49,7 @@
                         if (obj.estado === 'ok') {
                             $('.dataTable').DataTable().destroy();
                             $('#cuerpo-tab-usuario').html(obj.cuerpotabla);
-                            var tab = $('#tabla-usuarios').DataTable(OPCIONES_DATATABLES);
-                            //new $.fn.dataTable.FixedHeader(tab, OPCIONES_FIXED);
+                            $('#tabla-usuarios').DataTable(OPCIONES_DATATABLES);
                         } else {
                             console.log("Error");
                             console.log(obj.mensaje);

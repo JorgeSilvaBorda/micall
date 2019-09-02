@@ -150,7 +150,7 @@ public class SimulacionController extends HttpServlet {
                 sub.put("idempresa", rs.getInt("IDEMPRESA"));
                 sub.put("codsubproducto", rs.getString("CODSUBPRODUCTO"));
                 sub.put("descsubproducto", rs.getString("DESCSUBPRODUCTO"));
-                sub.put("prima", rs.getDouble("PRIMA"));
+                sub.put("prima", Double.toString(rs.getDouble("PRIMA")));
                 sub.put("montometa", rs.getInt("MONTOMETA"));
                 sub.put("cantidadmeta", rs.getInt("CANTIDADMETA"));
                 subproductos.put(sub);

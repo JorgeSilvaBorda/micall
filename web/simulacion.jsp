@@ -46,7 +46,9 @@
                         rutvendedor: parseInt('<% out.print(session.getAttribute("rutusuario")); %>')
                     }
                 };
-                traerListado(detalle);
+                traerListado(detalle, function(cuerpotabla){
+                
+                });
             }
 
             function armarModalCampanas(campanas) {
