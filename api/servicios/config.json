@@ -1,11 +1,11 @@
 {
     "dev": {
         "puerto": 5555,
-        "bdServer": "localhost",
+        "bdServer": "192.168.10.30",
         "bdPort": 3306,
         "baseDatos": "micall",
         "bdUser": "root",
-        "bdPassword": ""
+        "bdPassword": "micall5454"
     },
     "prod": {
         "puerto": 5555,
