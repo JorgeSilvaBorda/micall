@@ -36,7 +36,6 @@ public class VentaController extends HttpServlet {
     
     private JSONObject insVenta(int idsimulacion, int rutcliente, int rutvendedor){
         String query = "CALL SP_INS_VENTA(" + idsimulacion + ", " + rutcliente + ", " + rutvendedor + ")";
-        System.out.println(query);
         Conexion c = new Conexion();
         c.abrir();
         c.ejecutar(query);
