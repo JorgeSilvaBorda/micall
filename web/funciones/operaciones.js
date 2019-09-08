@@ -4,6 +4,7 @@ function traerListado(detalle, callback) {
     $.ajax({
         type: 'post',
         url: detalle.url,
+        cache: false,
         data: {
             datos: JSON.stringify(detalle.datos)
         },

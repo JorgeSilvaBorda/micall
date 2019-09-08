@@ -39,6 +39,7 @@ function getDateHoy(sep) {
 }
 
 function formatMilesInput(input) {
+    input.value = input.value.toString();
     var num = input.value.replace(/\./g, "");
     if (!isNaN(num)) {
         num = num.toString().split("").reverse().join("").replace(/(?=\d*\.?)(\d{3})/g, '$1.');
