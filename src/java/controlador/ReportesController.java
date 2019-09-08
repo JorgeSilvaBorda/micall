@@ -32,8 +32,8 @@ public class ReportesController extends HttpServlet {
 	    case "tabla-resumen-ventas-empresa":
 		out.print(tablaResumenVentasEmpresa(entrada));
 		break;
-	    case "tabla-resumen-ventas-empresa-dia":
-		out.print(tablaResumenVentasEmpresaDia(entrada));
+	    case "tabla-resumen-simulaciones-empresa-dia":
+		out.print(tablaResumenSimulacionesEmpresaDia(entrada));
 		break;
 	    case "tabla-detalle-ventas-empresa":
 		out.print(tablaDetalleVentasEmpresa(entrada));
@@ -166,7 +166,7 @@ public class ReportesController extends HttpServlet {
 	return salida;
     }
 
-    private JSONObject tablaResumenVentasEmpresaDia(JSONObject entrada) {
+    private JSONObject tablaResumenSimulacionesEmpresaDia(JSONObject entrada) {
 	JSONObject salida = new JSONObject();
 	JSONArray registros = new JSONArray();
 	int rutusuario = Integer.parseInt(entrada.getString("rutusuario"));

@@ -31,6 +31,9 @@ public class VentaController extends HttpServlet {
                         Integer.parseInt(request.getSession().getAttribute("rutusuario").toString())
                         ));
                 break;
+            case "get-resmen-ventas-empresa-dia":
+                out.print(getResumenVentasEmpresaDia(entrada.getInt("idempresa")));
+                break;
         }
     }
     
@@ -55,4 +58,9 @@ public class VentaController extends HttpServlet {
         return salida;
     }
 
+    private JSONObject getResumenVentasEmpresaDia(int idempresa){
+        JSONObject salida = new JSONObject();
+        
+        return salida;
+    }
 }
