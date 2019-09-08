@@ -15,7 +15,7 @@
         <script type="text/javascript">
             $(document).ready(function () {
                 OPCIONES_DATATABLES.buttons = [];
-                cargarSimulaciones();
+                //cargarSimulaciones(); //Quitado para no buscar al inicio.
                 cargaSelectEmpresa();
                 $('#rutcliente').rut(
                         {
@@ -28,6 +28,75 @@
                 });
             });
 
+            function marcarme(idsimulacion, operacion) {
+                switch (operacion) {
+                    case "vender":
+                        vender(idsimulacion);
+                        break;
+                    case "quitar":
+                        quitar(idsimulacion);
+                        break;
+                }
+            }
+
+            function vender(idsimulacion) {
+                var datos = {
+                    tipo: 'ins-venta',
+                    idsimulacion: idsimulacion,
+                    rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", "")
+                };
+
+                $.ajax({
+                    url: "VentaController",
+                    type: 'post',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function (response) {
+                        var obj = JSON.parse(response);
+                        if (obj.estado === 'ok') {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-simulacion').html(obj.cuerpotabla);
+                            $('#tabla-simulaciones').DataTable(OPCIONES_DATATABLES);
+                        }
+                    },
+                    error: function (a, b, c) {
+                        console.log(a);
+                        console.log(b);
+                        console.log(c);
+                    }
+                });
+            }
+
+            function quitar(idventa) {
+                var datos = {
+                    tipo: 'del-venta',
+                    idventa: idventa,
+                    rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", "")
+                };
+
+                $.ajax({
+                    url: "VentaController",
+                    type: 'post',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function (response) {
+                        var obj = JSON.parse(response);
+                        if (obj.estado === 'ok') {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-simulacion').html(obj.cuerpotabla);
+                            $('#tabla-simulaciones').DataTable(OPCIONES_DATATABLES);
+                        }
+                    },
+                    error: function (a, b, c) {
+                        console.log(a);
+                        console.log(b);
+                        console.log(c);
+                    }
+                });
+            }
+
             function cargaSelectEmpresa() {
                 var det = {
                     tipo: 'carga-select-empresa',
@@ -38,16 +107,21 @@
             }
 
             function cargarSimulaciones() {
+                $('#cuerpo-tab-simulacion').html("");
+                var rutcliente = $('#rutcliente').val().split("-")[0].replaceAll("\\.", "");
                 var detalle = {
                     url: 'SimulacionController',
                     bodyDestino: 'cuerpo-tab-simulacion',
                     datos: {
-                        tipo: 'get-simulaciones-rutvendedor',
+                        tipo: 'get-simulaciones-rutvendedor-rutcliente',
+                        rutcliente: rutcliente,
                         rutvendedor: parseInt('<% out.print(session.getAttribute("rutusuario")); %>')
                     }
                 };
-                traerListado(detalle, function(cuerpotabla){
-                
+                traerListado(detalle, function (cuerpotabla) {
+                    $('.dataTable').DataTable().destroy();
+                    //console.log(cuerpotabla);
+                    $('#tabla-simulaciones').DataTable(OPCIONES_DATATABLES);
                 });
             }
 
@@ -109,6 +183,7 @@
                         var obj = JSON.parse(res);
                         if (obj.estado === 'ok') {
                             pintarDatos(obj.campana, obj.cuerpotabla);
+                            cargarSimulaciones();
                             $('#montoaprobado').focus();
                             $('#btnCerrarModal').click();
                         } else {
@@ -120,7 +195,7 @@
             }
 
             function buscar() {
-                if($('#select-empresa').val() === '0'){
+                if ($('#select-empresa').val() === '0') {
                     alert("Debe seleccionar la empresa para la que se desea simular.");
                     return false;
                 }
@@ -144,9 +219,11 @@
                             if (obj.campanas.length > 1) {
                                 //Son varias campañas para el rut. Escoger...
                                 armarModalCampanas(obj.campanas);
+                                //Las simulaciones para el rut en este caso, se cargan en: seleccionarCampana()
                             } else {
                                 pintarDatos(obj.campanas[0], obj.cuerpotabla);
                                 $('#montoaprobado').focus();
+                                cargarSimulaciones(); //Cuando es campaña única, se cargan las simulaciones hechas previamente al rut
                             }
 
                         } else {
@@ -158,7 +235,7 @@
 
             function validarCampos() {
                 calcTasaAnual();
-                
+
                 var simulacion = {
                     idcampana: $('#hidIdCampana').val(),
                     rutvendedor: '<% out.print(session.getAttribute("rutusuario")); %>',
@@ -225,26 +302,26 @@
 
                 var costocuotas = parseInt(simulacion.valorcuota) * parseInt(simulacion.cuotas);
                 /*if (!(costocuotas > montoAprobado)) {
-                    alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto aprobado ($" + formatMiles(montoAprobado) + ")");
-                    return false;
-                }*/
+                 alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto aprobado ($" + formatMiles(montoAprobado) + ")");
+                 return false;
+                 }*/
                 //20190825 - Se valida contra el monto simulado (No contra el monto aprobado).
                 if (!(costocuotas > simulacion.monto)) {
                     alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto simulado ($" + formatMiles(simulacion.monto) + ")");
                     return false;
                 }
-                if (!(costocuotas <= simulacion.costototal)) {
+                if ((costocuotas > simulacion.costototal)) {
                     alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser menor o igual al costo total ($" + formatMiles(simulacion.costototal) + ")");
                     return false;
                 }
                 var tasa = parseFloat($('#tasainteres').val().replaceAll(",", "."));
-                if(tasa < 0.01){
+                if (tasa < 0.01) {
                     alert("Debe ingresar una tasa de interés válida");
                     return false;
                 }
-                
+
                 var tasaAnual = parseFloat($('#tasaanuual').val());
-                if(tasaAnual < 0.001){
+                if (tasaAnual < 0.001) {
                     alert("La tasa anual no pede ser menor a 0.001");
                     return false;
                 }
@@ -296,82 +373,57 @@
                     });
                 }
             }
-            
-            /*
-            function calcTasaAnual() {
-                var tasa = parseFloat($('#tasainteres').val().replaceAll(",", "."));
-                var tasaAnual = (tasa * 12).toString();
-                var decimales = "";
-                var enteros = "";
-                if (tasaAnual.indexOf(",") !== -1) {
-                    decimales = tasaAnual.split(",")[1];
-                    enteros = tasaAnual.split(",")[0];
-                }
-                if (tasaAnual.indexOf(".") !== -1) {
-                    decimales = tasaAnual.split(".")[1];
-                    enteros = tasaAnual.split(".")[0];
-                }
-                if(tasaAnual.indexOf(".") === -1 && tasaAnual.indexOf(",") === -1){
-                    if(!isNaN(tasaAnual)){
-                        
-                    }
-                }
 
-                decimales = decimales.substring(0, 2);
-                $('#tasaanual').val(enteros + "." + decimales);
-            }
-            */
-            
-            function calcTasaAnual(){
+            function calcTasaAnual() {
                 var valido = false;
                 /**
                  * Inicializar en '0.0'.
                  * Cualquier error no controlado la dejará por defecto en cero.
                  * Validador debe controlar que sea mayor a 0.01
                  */
-                
+
                 var tasainteres = $('#tasainteres').val().toString();
-                if(tasainteres.indexOf(".") === -1 && tasainteres.indexOf(",") === -1){
+                if (tasainteres.indexOf(".") === -1 && tasainteres.indexOf(",") === -1) {
                     //validar isNaN
-                    if(isNaN(tasainteres)){//##1
+                    if (isNaN(tasainteres)) {//##1
                         //console.log("Tasa interés no numérica");
                         $('#tasaanual').val(0.0); //
-                    }else{
+                    } else {
                         var tasaA = parseFloat(tasainteres) * 12;
                         tasaA = Number((parseFloat(tasaA)).toFixed(2)); //Incorporados como redondeo
                         $('#tasaanual').val(tasaA);
                         valido = true;
                     }
-                }else{
-                    if(tasainteres.indexOf(",") !== -1){
+                } else {
+                    if (tasainteres.indexOf(",") !== -1) {
                         tasainteres = tasainteres.relaceAll(",", ".");
                     }
-                    
+
                     var tasaA = parseFloat(tasainteres) * 12;
                     tasaA = Number((parseFloat(tasaA)).toFixed(2)); //Incorporados como redondeo
                     $('#tasaanual').val(tasaA);
                     valido = true;
                 }
-                if(!valido){
+                if (!valido) {
                     $('#tasaanual').val(0.0);
                 }
             }
-            
-            function verSubproductosVendidos(idsimulacion){
+
+            function verSubproductosVendidos(idsimulacion) {
                 var datos = {
                     tipo: 'get-subproductos-simulacion',
                     idsimulacion: idsimulacion
                 };
-                
+
                 $.ajax({
                     type: 'post',
                     url: 'SimulacionController',
                     data: {
                         datos: JSON.stringify(datos)
                     },
-                    success: function(resp){
+                    success: function (resp) {
                         var obj = JSON.parse(resp);
-                        if(obj.estado === 'ok'){
+                        if (obj.estado === 'ok') {
                             //pintar popup
                             $('#cuerpo-modal-subproductos').html(armarTablaSubproductos(obj.subproductos));
                             $('#modal-subproductos').modal();
@@ -379,8 +431,8 @@
                     }
                 });
             }
-            
-            function armarTablaSubproductos(subproductos){
+
+            function armarTablaSubproductos(subproductos) {
                 var tab = "<table id='tab-subproductos' class='table-sm small' style='border: none; border-collapse: collapse;'><thead>";
                 tab += "<tr>";
                 tab += "<th>Subproducto</th>";
@@ -388,17 +440,17 @@
                 tab += "<th>Meta Monto</th>";
                 tab += "<th>Meta Cantidad</th>";
                 tab += "</tr></thead><tbody>";
-                $(subproductos).each(function(){
+                $(subproductos).each(function () {
                     tab += "<tr>";
                     tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
-                        tab += "<td>" + $(this)[0].prima + "</td>";
-                        tab += "<td>$" + formatMiles($(this)[0].montometa) + "</td>";
-                        tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
-                        tab += "</tr>";
-                    });
-                    tab += "</tbody></table>";
-                    return tab;
-                }
+                    tab += "<td>" + $(this)[0].prima + "</td>";
+                    tab += "<td>$" + formatMiles($(this)[0].montometa) + "</td>";
+                    tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
+                    tab += "</tr>";
+                });
+                tab += "</tbody></table>";
+                return tab;
+            }
 
             function pintarDatos(campana, subproductos) {
                 $('#hidIdCampana').val(campana.idcampana);
@@ -434,7 +486,7 @@
                 $('#direccion').html('');
                 $('#montoaprobado').val('');
                 $('#montometa').html('');
-                $('#rutcliente').val('');
+                //$('#rutcliente').val(''); //No limpiar RutCliente 
 
                 //Limpieza de inputs
                 $('#valorcuota').val('');
@@ -487,7 +539,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="modal fade" id="modal-subproductos">
                 <div class="modal-dialog modal-lg" >
                     <div class="modal-content">
@@ -511,7 +563,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <input type='hidden' id='hidIdCampana' value='' />
             <input type='hidden' id='hidMontoAprobado' value='' />
             <br />
@@ -546,7 +598,6 @@
                     </form>
 
                 </div>
-
                 <div class='col-sm-6'>
                     <table id='tab-detalles' class='table-sm small' style='border: none; border-collapse: collapse;'>
                         <tr>
@@ -650,7 +701,6 @@
                             <button onclick='limpiar();' type="button" class="btn btn-default btn-sm float-right">Limpiar</button>
                         </div>
                     </div>
-
                 </div>
                 <div class='col-sm-4'>
                     <span style='font-weight: bold;'>Subproductos</span>
@@ -682,11 +732,13 @@
                                 <th>Empresa</th>
                                 <th>Rut cliente</th>
                                 <th>Nombres</th>
+                                <th>Campaña</th>
                                 <th>Código producto</th>
                                 <th>Producto</th>
                                 <th>Monto</th>
                                 <th>Cuotas</th>
                                 <th>Subproductos</th>
+                                <th>Venta</th>
                             </tr>
                         </thead>
                         <tbody id="cuerpo-tab-simulacion">
