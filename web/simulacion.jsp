@@ -120,7 +120,6 @@
                 };
                 traerListado(detalle, function (cuerpotabla) {
                     $('.dataTable').DataTable().destroy();
-                    //console.log(cuerpotabla);
                     $('#tabla-simulaciones').DataTable(OPCIONES_DATATABLES);
                 });
             }
@@ -159,7 +158,6 @@
                     tab += "<td>" + descproducto + "</td>";
                     tab += "<td><button onclick='seleccionarCampana(" + idcampana + ", " + idempresa + ");' type='button' class='btn btn-sm btn-default'>Seleccionar</button></td>";
                     tab += "</tr>";
-                    //console.log(campanas);
                 });
 
                 tab += "</tbody></table>";
@@ -235,7 +233,6 @@
 
             function validarCampos() {
                 calcTasaAnual();
-
                 var simulacion = {
                     idcampana: $('#hidIdCampana').val(),
                     rutvendedor: '<% out.print(session.getAttribute("rutusuario")); %>',
@@ -301,10 +298,6 @@
                 }
 
                 var costocuotas = parseInt(simulacion.valorcuota) * parseInt(simulacion.cuotas);
-                /*if (!(costocuotas > montoAprobado)) {
-                 alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto aprobado ($" + formatMiles(montoAprobado) + ")");
-                 return false;
-                 }*/
                 //20190825 - Se valida contra el monto simulado (No contra el monto aprobado).
                 if (!(costocuotas > simulacion.monto)) {
                     alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto simulado ($" + formatMiles(simulacion.monto) + ")");
