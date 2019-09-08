@@ -26,17 +26,17 @@ public class ReportesController extends HttpServlet {
 	    case "carga-tab-resumen-vendedor":
 		out.print(cargaTablaResumenVendedor(entrada.getString("rutfullvendedor")));
 		break;
-	    case "tabla-detalle-ventas-vendedor":
+	    case "tabla-detalle-simulaciones-vendedor":
 		out.print(tablaDetalleVendedor(entrada));
 		break;
-	    case "tabla-resumen-ventas-empresa":
-		out.print(tablaResumenVentasEmpresa(entrada));
+	    case "tabla-resumen-simulaciones-empresa":
+		out.print(tablaResumenSimulacionesEmpresa(entrada));
 		break;
 	    case "tabla-resumen-simulaciones-empresa-dia":
 		out.print(tablaResumenSimulacionesEmpresaDia(entrada));
 		break;
-	    case "tabla-detalle-ventas-empresa":
-		out.print(tablaDetalleVentasEmpresa(entrada));
+	    case "tabla-detalle-simulaciones-empresa":
+		out.print(tablaDetalleSimulacionesEmpresa(entrada));
 		break;
 	    default:
 		break;
@@ -81,7 +81,7 @@ public class ReportesController extends HttpServlet {
 	JSONArray ventas = new JSONArray();
 	String rutVendedorFull = entrada.getString("rutfullvendedor");
 	int rutVendedor = Integer.parseInt(rutVendedorFull.substring(0, rutVendedorFull.length() - 1));
-	String query = "CALL SP_GET_VENTAS_DETALLE_VENDEDOR(" + rutVendedor + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
+	String query = "CALL SP_GET_SIMULACIONES_DETALLE_VENDEDOR(" + rutVendedor + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
 	DecimalFormat format = new DecimalFormat("###,###,###,###,###");
 	Conexion c = new Conexion();
 	c.abrir();
@@ -116,11 +116,11 @@ public class ReportesController extends HttpServlet {
 	return salida;
     }
 
-    private JSONObject tablaResumenVentasEmpresa(JSONObject entrada) {
+    private JSONObject tablaResumenSimulacionesEmpresa(JSONObject entrada) {
 	JSONObject salida = new JSONObject();
 	JSONArray registros = new JSONArray();
 	int rutusuario = Integer.parseInt(entrada.getString("rutusuario"));
-	String query = "CALL SP_RESUMEN_VENTAS_EMPRESA(" + rutusuario + ", NULL)";
+	String query = "CALL SP_RESUMEN_SIMULACIONES_EMPRESA(" + rutusuario + ", NULL)";
 	Conexion c = new Conexion();
 	c.abrir();
 	DecimalFormat format = new DecimalFormat("###,###,###,###,###");
@@ -170,7 +170,7 @@ public class ReportesController extends HttpServlet {
 	JSONObject salida = new JSONObject();
 	JSONArray registros = new JSONArray();
 	int rutusuario = Integer.parseInt(entrada.getString("rutusuario"));
-	String query = "CALL SP_RESUMEN_VENTAS_EMPRESA(" + rutusuario + ", '" + entrada.getString("fechahoy") + "')";
+	String query = "CALL SP_RESUMEN_SIMULACIONES_EMPRESA(" + rutusuario + ", '" + entrada.getString("fechahoy") + "')";
 	Conexion c = new Conexion();
 	c.abrir();
 	DecimalFormat format = new DecimalFormat("###,###,###,###,###");
@@ -211,11 +211,11 @@ public class ReportesController extends HttpServlet {
 	return salida;
     }
 
-    private JSONObject tablaDetalleVentasEmpresa(JSONObject entrada) {
+    private JSONObject tablaDetalleSimulacionesEmpresa(JSONObject entrada) {
 	JSONObject salida = new JSONObject();
 	JSONArray ventas = new JSONArray();
 	int rutusuario = Integer.parseInt(entrada.getString("rutusuario"));
-	String query = "CALL SP_DETALLE_VENTAS_EMPRESA(" + rutusuario + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
+	String query = "CALL SP_DETALLE_SIMULACIONES_EMPRESA(" + rutusuario + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
 	Conexion c = new Conexion();
 	c.abrir();
 	DecimalFormat format = new DecimalFormat("###,###,###,###,###");
