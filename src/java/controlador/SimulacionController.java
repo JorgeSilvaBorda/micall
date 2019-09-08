@@ -96,7 +96,6 @@ public class SimulacionController extends HttpServlet {
     public JSONObject getSimulacionesRutVendedorRutCliente(int rutvendedor, int rutcliente) {
         JSONObject salida = new JSONObject();
         String query = "CALL SP_GET_SIMULACIONES_RUTVENDEDOR_RUTCLIENTE(" + rutvendedor + ", " + rutcliente + ")";
-        System.out.println(query);
         Conexion c = new Conexion();
         c.abrir();
         ResultSet rs = c.ejecutarQuery(query);
