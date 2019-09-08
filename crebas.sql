@@ -1,17 +1,3 @@
--- phpMyAdmin SQL Dump
--- version 4.8.5
--- https://www.phpmyadmin.net/
---
--- Servidor: localhost
--- Tiempo de generación: 02-09-2019 a las 09:45:55
--- Versión del servidor: 10.2.24-MariaDB-log
--- Versión de PHP: 5.5.14
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
-START TRANSACTION;
-SET time_zone = "+00:00";
-
 --
 -- Base de datos: `micall`
 --
@@ -85,6 +71,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DEL_USUARIO` (IN `_IDUSUARIO` IN
 		USUARIO
 	WHERE
 		IDUSUARIO = _IDUSUARIO;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_DEL_VENTA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DEL_VENTA` (IN `_IDVENTA` INT)  BEGIN
+	DELETE FROM
+		VENTA
+	WHERE
+		IDVENTA = _IDVENTA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_DEL_VENTAS_CAMPANA_CLIENTE`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DEL_VENTAS_CAMPANA_CLIENTE` (IN `_IDCAMPANA` INT, IN `_RUTCLIENTE` INT)  BEGIN
+	DELETE FROM
+		VENTA
+	WHERE
+		RUTCLIENTE = _RUTCLIENTE
+        AND IDCAMPANA = _IDCAMPANA;
 END$$
 
 DROP PROCEDURE IF EXISTS `SP_DETALLE_VENTAS_EMPRESA`$$
@@ -581,8 +584,8 @@ FROM
 WHERE C.IDEMPRESA = _IDEMPRESA;
 END$$
 
-DROP PROCEDURE IF EXISTS `SP_GET_SIMULACIONES_RUTVENDEDOR`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_SIMULACIONES_RUTVENDEDOR` (IN `_RUTVENDEDOR` INT)  BEGIN
+DROP PROCEDURE IF EXISTS `SP_GET_SIMULACIONES_RUTVENDEDOR_RUTCLIENTE`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_GET_SIMULACIONES_RUTVENDEDOR_RUTCLIENTE` (IN `_RUTVENDEDOR` INT, IN `_RUTCLIENTE` INT)  BEGIN
 SELECT DISTINCT
 	A.IDSIMULACION,
     A.IDCAMPANA,
@@ -608,6 +611,13 @@ SELECT DISTINCT
     D.NOMBRES NOMBRESCLIENTE,
     D.APELLIDOS APELLIDOSCLIENTE,
     F.NOMBRE NOMEMPRESA,
+    CASE
+		WHEN G.IDVENTA IS NULL THEN 
+			-1
+		ELSE
+			G.IDVENTA
+	END AS IDVENTA,
+    DATE(G.FECHAVENTA) FECHAVENTA,
     FN_GET_SUBPRODUCTOS_SIMULACION_VENDEDOR(_RUTVENDEDOR, A.IDSIMULACION) SUBPRODUCTOS
 FROM
 	SIMULACION A INNER JOIN CAMPANA B
@@ -615,10 +625,18 @@ FROM
     ON B.IDPRODUCTO = C.IDPRODUCTO INNER JOIN RUTERO D
     ON A.RUTCLIENTE = D.RUT 
 		AND A.DVCLIENTE = D.DV INNER JOIN EMPRESA F
-    ON C.IDEMPRESA = F.IDEMPRESA
+    ON C.IDEMPRESA = F.IDEMPRESA LEFT JOIN VENTA G
+    ON A.IDSIMULACION = G.IDSIMULACION
 WHERE 
 	A.RUTVENDEDOR = _RUTVENDEDOR
-    AND DATE(A.FECHASIMULACION) = DATE(NOW());
+    AND DATE(A.FECHASIMULACION) = DATE(NOW())
+    -- 20190907 INCORPORACIÓN DE CAMPO CLIENTE PARA GENERAR LA VENTA DEL DÍA
+    AND A.RUTCLIENTE = _RUTCLIENTE
+    -- ---------------------------------------------------------------------
+ORDER BY
+	FECHASIMULACION DESC,
+	CODCAMPANA ASC,
+    CODPRODUCTO ASC;
 END$$
 
 DROP PROCEDURE IF EXISTS `SP_GET_SIMULACION_API`$$
@@ -1165,6 +1183,29 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_INS_USUARIO` (IN `_RUTUSUARIO` I
             MD5('password'));
 END$$
 
+DROP PROCEDURE IF EXISTS `SP_INS_VENTA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_INS_VENTA` (IN `_IDSIMULACION` INT, IN `_RUTCLIENTE` INT, IN `_RUTVENDEDOR` INT)  BEGIN
+	DECLARE _IDCAMPANA INT;
+    SELECT IDCAMPANA INTO _IDCAMPANA FROM SIMULACION WHERE IDSIMULACION = _IDSIMULACION;
+	-- LIMPIAR VENTAS ANTERIORES PARA CLIENTE - CAMPANA --------------
+    CALL SP_DEL_VENTAS_CAMPANA_CLIENTE(_IDCAMPANA, _RUTCLIENTE);
+    -- FIN LIMPIEZA ---------------------------------------------------
+    INSERT INTO
+		VENTA(
+			IDSIMULACION,
+            IDCAMPANA,
+            RUTCLIENTE,
+            RUTVENDEDOR,
+            FECHAVENTA
+		)VALUES(
+			_IDSIMULACION,
+            _IDCAMPANA,
+            _RUTCLIENTE,
+            _RUTVENDEDOR,
+            NOW()
+		);
+END$$
+
 DROP PROCEDURE IF EXISTS `SP_RESET_PASSWORD`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_RESET_PASSWORD` (IN `_RUTADMIN` INT, IN `_RUTUSUARIO` INT, IN `_NEWPASSWORD` VARCHAR(64))  BEGIN
 	DECLARE _CODTIPOUSUARIO INT;
@@ -1586,15 +1627,17 @@ DELIMITER ;
 --
 
 DROP TABLE IF EXISTS `CAMPANA`;
-CREATE TABLE `CAMPANA` (
-  `IDCAMPANA` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `CAMPANA` (
+  `IDCAMPANA` int(11) NOT NULL AUTO_INCREMENT,
   `IDPRODUCTO` int(11) NOT NULL,
   `NOMCAMPANA` varchar(100) NOT NULL,
   `CODCAMPANA` varchar(50) NOT NULL,
   `FECHAINI` date NOT NULL,
   `FECHAFIN` date NOT NULL,
-  `META` bigint(20) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+  `META` bigint(20) NOT NULL,
+  PRIMARY KEY (`IDCAMPANA`),
+  KEY `FK_RELATIONSHIP_6` (`IDPRODUCTO`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `CAMPANA`
@@ -1603,7 +1646,8 @@ CREATE TABLE `CAMPANA` (
 INSERT INTO `CAMPANA` (`IDCAMPANA`, `IDPRODUCTO`, `NOMCAMPANA`, `CODCAMPANA`, `FECHAINI`, `FECHAFIN`, `META`) VALUES
 (1, 1, 'Campaña Crédito 1', 'CAMP_001', '2019-09-01', '2019-09-30', 1000000000),
 (2, 2, 'Campaña Crédito 2', 'CAMP_002', '2019-09-01', '2019-09-30', 1500000000),
-(3, 1, 'Campaña Crédito Especial', 'CAMP_001_ESP', '2019-09-01', '2019-09-30', 500000000);
+(3, 1, 'Campaña Crédito Especial', 'CAMP_001_ESP', '2019-09-01', '2019-09-30', 500000000),
+(4, 1, 'Crédito 1 Consolidado', 'CRED_001_CON', '2019-09-01', '2019-09-30', 2000000000);
 
 -- --------------------------------------------------------
 
@@ -1612,11 +1656,13 @@ INSERT INTO `CAMPANA` (`IDCAMPANA`, `IDPRODUCTO`, `NOMCAMPANA`, `CODCAMPANA`, `F
 --
 
 DROP TABLE IF EXISTS `CAMPANASUBPRODUCTO`;
-CREATE TABLE `CAMPANASUBPRODUCTO` (
+CREATE TABLE IF NOT EXISTS `CAMPANASUBPRODUCTO` (
   `IDCAMPANA` int(11) NOT NULL,
   `IDSUBPRODUCTO` int(11) NOT NULL,
   `MONTOMETA` bigint(20) DEFAULT NULL,
-  `CANTIDADMETA` int(11) DEFAULT NULL
+  `CANTIDADMETA` int(11) DEFAULT NULL,
+  KEY `FK_RELATIONSHIP_7` (`IDCAMPANA`),
+  KEY `FK_RELATIONSHIP_8` (`IDSUBPRODUCTO`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
@@ -1625,7 +1671,9 @@ CREATE TABLE `CAMPANASUBPRODUCTO` (
 
 INSERT INTO `CAMPANASUBPRODUCTO` (`IDCAMPANA`, `IDSUBPRODUCTO`, `MONTOMETA`, `CANTIDADMETA`) VALUES
 (1, 1, 10000000, 1000),
-(3, 1, 5000000, 500);
+(3, 1, 5000000, 500),
+(4, 1, 10000000, 1000),
+(4, 2, 20000000, 2000);
 
 -- --------------------------------------------------------
 
@@ -1634,15 +1682,16 @@ INSERT INTO `CAMPANASUBPRODUCTO` (`IDCAMPANA`, `IDSUBPRODUCTO`, `MONTOMETA`, `CA
 --
 
 DROP TABLE IF EXISTS `EMPRESA`;
-CREATE TABLE `EMPRESA` (
-  `IDEMPRESA` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `EMPRESA` (
+  `IDEMPRESA` int(11) NOT NULL AUTO_INCREMENT,
   `RUTEMPRESA` int(11) NOT NULL,
   `DVEMPRESA` varchar(1) NOT NULL,
   `NOMBRE` varchar(60) NOT NULL,
   `DIRECCION` varchar(100) NOT NULL,
   `CREACION` datetime NOT NULL,
-  `ULTMODIFICACION` datetime NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+  `ULTMODIFICACION` datetime NOT NULL,
+  PRIMARY KEY (`IDEMPRESA`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `EMPRESA`
@@ -1659,12 +1708,14 @@ INSERT INTO `EMPRESA` (`IDEMPRESA`, `RUTEMPRESA`, `DVEMPRESA`, `NOMBRE`, `DIRECC
 --
 
 DROP TABLE IF EXISTS `PRODUCTO`;
-CREATE TABLE `PRODUCTO` (
-  `IDPRODUCTO` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `PRODUCTO` (
+  `IDPRODUCTO` int(11) NOT NULL AUTO_INCREMENT,
   `CODPRODUCTO` varchar(50) NOT NULL,
   `IDEMPRESA` int(11) NOT NULL,
-  `DESCPRODUCTO` varchar(100) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+  `DESCPRODUCTO` varchar(100) NOT NULL,
+  PRIMARY KEY (`IDPRODUCTO`),
+  KEY `FK_RELATIONSHIP_5` (`IDEMPRESA`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `PRODUCTO`
@@ -1681,7 +1732,7 @@ INSERT INTO `PRODUCTO` (`IDPRODUCTO`, `CODPRODUCTO`, `IDEMPRESA`, `DESCPRODUCTO`
 --
 
 DROP TABLE IF EXISTS `RUTERO`;
-CREATE TABLE `RUTERO` (
+CREATE TABLE IF NOT EXISTS `RUTERO` (
   `IDRUTERO` int(11) NOT NULL,
   `IDCAMPANA` int(11) NOT NULL,
   `RUT` int(11) NOT NULL,
@@ -1702,7 +1753,10 @@ CREATE TABLE `RUTERO` (
   `NOMARCHIVO` varchar(100) NOT NULL,
   `FECHACARGA` datetime NOT NULL,
   `TIPOOPERACION` varchar(30) NOT NULL,
-  `IDUSUARIO` int(11) NOT NULL
+  `IDUSUARIO` int(11) NOT NULL,
+  KEY `FK_RELATIONSHIP_12` (`IDCAMPANA`),
+  KEY `IDUSUARIO` (`IDUSUARIO`),
+  KEY `IDRUTERO` (`IDRUTERO`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
@@ -1751,7 +1805,46 @@ INSERT INTO `RUTERO` (`IDRUTERO`, `IDCAMPANA`, `RUT`, `DV`, `NOMBRES`, `APELLIDO
 (1, 1, 39025580, '2', 'Brenden Clark', 'Carlson Owens', 'M', '1986-02-26', '533-7814 Eu, Carretera', 'Isla de Maipo', 'RM', 853211, 'natoque.penatibus@neque.co.uk', 6739477, 626220995, 407188041, 571695489, 'RUTERO_1.csv', '2019-08-31 23:40:30', 'INS', 3),
 (3, 1, 12741790, '3', 'Adrian Tyler', 'Shepherd Abbott', 'F', '1986-06-26', '807-3759 Mauris Avenida', 'San Bernardo', 'Metropolitana de Santiago', 913786, 'ac@habitant.com', 0, 381953968, 258857499, 223225576, 'RUTERO_6.csv', '2019-08-31 23:44:26', 'DEL', 3),
 (4, 1, 40641475, '2', 'Hilel Oliver', 'Carpenter Macdonald', 'F', '1987-01-26', 'Apdo.:867-3307 Consectetuer Carretera', 'Providencia', 'RM', 47907, 'ultrices.mauris@mollis.net', 0, 346485264, 806508611, 253775172, 'RUTERO_7.csv', '2019-08-31 23:55:27', 'DEL', 3),
-(5, 1, 46606752, '0', 'Darius Mckee', 'Langley Figueroa', 'F', '1989-01-06', 'Apdo.:252-9252 Eget Ctra.', 'Yumbel', 'VII', 530595, 'at.augue.id@laciniaatiaculis.org', 0, 917903153, 203549876, 249128546, 'RUTERO_8.csv', '2019-09-01 10:33:04', 'DEL', 3);
+(5, 1, 46606752, '0', 'Darius Mckee', 'Langley Figueroa', 'F', '1989-01-06', 'Apdo.:252-9252 Eget Ctra.', 'Yumbel', 'VII', 530595, 'at.augue.id@laciniaatiaculis.org', 0, 917903153, 203549876, 249128546, 'RUTERO_8.csv', '2019-09-01 10:33:04', 'DEL', 3),
+(6, 4, 11948618, '1', 'Owen Booker', 'Bonner Mann', 'M', '1991-12-21', 'Apdo.:900-2789 Cras Av.', 'Empedrado', 'Maule', 283212, 'id.ante.Nunc@lobortisquama.edu', 8250523, 973585349, 247112892, 260823789, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 40641475, '2', 'Hilel Oliver', 'Carpenter Macdonald', 'F', '1987-01-26', 'Apdo.:867-3307 Consectetuer Carretera', 'Providencia', 'RM', 47907, 'ultrices.mauris@mollis.net', 9350291, 346485264, 806508611, 253775172, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 5269251, '2', 'Lucius Newton', 'Fox Romero', 'M', '1999-09-15', '647-2866 Lacinia Avda.', 'Talca', 'VII', 728388, 'Morbi.vehicula@venenatisvel.co.uk', 6190967, 584121763, 433292597, 713189803, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 46606752, '0', 'Darius Mckee', 'Langley Figueroa', 'F', '1989-01-06', 'Apdo.:252-9252 Eget Ctra.', 'Yumbel', 'VII', 530595, 'at.augue.id@laciniaatiaculis.org', 2925106, 917903153, 203549876, 249128546, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 21024502, '2', 'Raphael Stone', 'Blanchard Neal', 'M', '1997-10-05', '2585 Praesent Carretera', 'Ovalle', 'Coquimbo', 487316, 'Quisque@Seddiam.co.uk', 9198866, 295090801, 692903138, 438764178, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 31316968, '5', 'Lance Parker', 'Barnes Valencia', 'F', '1993-05-13', '609-7512 Orci, Carretera', 'Paine', 'Metropolitana de Santiago', 210328, 'elementum.lorem@enimconsequatpurus.com', 4503061, 123889543, 999148155, 154329839, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 12741790, '3', 'Adrian Tyler', 'Shepherd Abbott', 'F', '1986-06-26', '807-3759 Mauris Avenida', 'San Bernardo', 'Metropolitana de Santiago', 913786, 'ac@habitant.com', 4878060, 381953968, 258857499, 223225576, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 7532039, '6', 'Kamal Stafford', 'Hickman Rios', 'F', '1992-01-05', '332-1514 Dignissim Avenida', 'Paiguano', 'IV', 211954, 'ultrices@nectempus.co.uk', 2757253, 826961204, 883300522, 492274100, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 46298247, 'K', 'Kennedy Maynard', 'Ferrell Doyle', 'F', '1986-03-27', '769-9163 Malesuada Av.', 'Talagante', 'Metropolitana de Santiago', 516811, 'lacus@Aliquam.net', 1356880, 510333388, 296607020, 122748151, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 24850673, '3', 'Marshall Britt', 'Merrill Good', 'F', '1988-11-08', '251 Arcu. Ctra.', 'Cerro Navia', 'RM', 767820, 'pede.et.risus@metusInlorem.ca', 2900523, 523635565, 470838571, 656607309, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 19475304, '7', 'Aristotle Heath', 'Bishop Stevens', 'M', '2000-01-02', '860-1326 Sit ', 'Coquimbo', 'IV', 771325, 'sapien.molestie.orci@dolordapibus.com', 1126448, 571350999, 511119881, 255533629, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 36426421, '6', 'Cullen Alvarez', 'Clemons Carrillo', 'M', '1989-11-14', '436 A, Avda.', 'Nancagua', 'VI', 581442, 'gravida@Nullamlobortis.ca', 2292001, 616960171, 208302545, 745982762, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 18074302, '2', 'Aristotle Cooley', 'Nelson Wilson', 'M', '1991-02-25', '2095 Facilisis Avenida', 'San Bernardo', 'RM', 15797, 'est.ac@Nunc.edu', 8340921, 669838441, 928282311, 375265257, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 27814958, '7', 'Nathan Hubbard', 'Cox Yates', 'F', '1987-03-24', '2056 Amet, Avenida', 'Lo Espejo', 'Metropolitana de Santiago', 307925, 'vel.mauris.Integer@turpisIn.co.uk', 3036149, 501968758, 240043421, 315047448, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 12037714, '0', 'Zeph Edwards', 'Bartlett Meyer', 'F', '1991-09-18', '385-4001 Consectetuer Ctra.', 'Cerro Navia', 'RM', 386210, 'sed.orci@volutpatNulla.co.uk', 7326797, 230251943, 925666906, 272045428, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 42851097, '6', 'Dante Wilder', 'Rasmussen Rosa', 'F', '1993-01-10', '3121 Vestibulum Calle', 'San Bernardo', 'Metropolitana de Santiago', 2167, 'Nulla.facilisi.Sed@egestas.edu', 5006776, 354178819, 379036809, 792576956, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 19617135, '5', 'Donovan Cherry', 'Pickett Matthews', 'F', '1991-08-30', '149-334 Amet Ctra.', 'Illapel', 'Coquimbo', 330624, 'ultrices@sed.org', 5597853, 687672498, 603043391, 889049109, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 9530317, 'K', 'Tyrone Blevins', 'Bonner Carter', 'F', '1990-01-23', 'Apdo.:205-5783 Orci. Avenida', 'Pirque', 'Metropolitana de Santiago', 182727, 'convallis.ante@ipsumcursus.edu', 2244853, 347460463, 691173493, 647717423, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 9346659, '4', 'Connor Morris', 'Owens Pollard', 'F', '2000-08-25', '6181 Fermentum Avda.', 'Dalcahue', 'Los Lagos', 69110, 'posuere.cubilia@neque.edu', 5410613, 442002110, 913863680, 118624000, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 50122764, '1', 'Perry Cooke', 'Hopper Nunez', 'M', '2000-05-09', '7632 Varius C/', 'La Reina', 'RM', 178667, 'tincidunt.congue.turpis@viverraMaecenasiaculis.edu', 8573464, 829080892, 551166133, 450616924, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 21577240, '3', 'Conan Bell', 'Schmidt Keith', 'M', '1997-02-26', '4165 Eu Avda.', 'Villa Alegre', 'VII', 497391, 'Quisque@tellus.com', 8852779, 257706685, 317186448, 194422135, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 32478200, '1', 'Sawyer Faulkner', 'Golden Burris', 'M', '1986-10-11', '5084 Lacinia. C/', 'Isla de Maipo', 'Metropolitana de Santiago', 802772, 'gravida@neque.net', 1732503, 549814424, 160690247, 859548397, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 17323637, '9', 'Yuli Watson', 'Kline Norton', 'M', '2000-05-03', '196-6875 Non Carretera', 'Quilicura', 'RM', 825373, 'dolor.Fusce.feugiat@ametconsectetuer.ca', 6237595, 898432075, 346924221, 289513184, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 29781886, '4', 'Hamilton Jackson', 'Serrano Crosby', 'F', '1989-08-06', '745 Sociosqu ', 'Padre Hurtado', 'RM', 899534, 'eros@Duis.edu', 5129734, 488389967, 615971809, 773564880, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 37496235, '3', 'Burton Whitney', 'Hughes Sanders', 'F', '1994-10-28', '2322 Dis ', 'San Felipe', 'V', 184659, 'lobortis.quam.a@egetipsumSuspendisse.org', 1318927, 510084248, 851231608, 758018864, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 32105668, '7', 'Hakeem Hansen', 'Townsend Villarreal', 'F', '1989-04-30', '397-1571 Purus. Ctra.', 'Curarrehue', 'IX', 745518, 'Sed.congue@velitinaliquet.com', 7403903, 537281731, 647055105, 444515976, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 12319901, '4', 'Walker Mckenzie', 'Carrillo Clements', 'F', '1997-09-29', '724-303 Phasellus Avda.', 'Cerrillos', 'RM', 643232, 'ligula.tortor.dictum@famesac.co.uk', 8448373, 777678537, 485014077, 717380763, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 13387419, '4', 'Wang Fulton', 'Larson Gilbert', 'M', '2000-11-27', '533 Purus ', 'Parral', 'VII', 206077, 'sapien@Nullaeuneque.co.uk', 4697347, 133139553, 984402245, 837819058, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 13797589, '0', 'John Tillman', 'Bender Holland', 'M', '1999-05-25', '4656 Pede, Carretera', 'Lo Espejo', 'RM', 712694, 'condimentum.eget.volutpat@Nullam.ca', 4486013, 255714723, 661868222, 672859090, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 41747453, '6', 'Edward Alvarez', 'Lyons Sosa', 'M', '1992-12-03', '771 Mi, Carretera', 'Huechuraba', 'Metropolitana de Santiago', 471594, 'nisl.sem@dictumultriciesligula.edu', 6791205, 113935669, 671281288, 554046172, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 49853940, '8', 'Xavier Schwartz', 'Stout Willis', 'M', '1997-10-08', '984-1918 Nisi C.', 'Colchane', 'I', 898520, 'dictum@ac.ca', 4204270, 858942650, 975800779, 606958818, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 44085353, '6', 'Kennan Chandler', 'Sawyer Lowery', 'F', '1986-10-05', '691-9345 Arcu. Carretera', 'Sierra Gorda', 'Antofagasta', 260450, 'nec.cursus@ornarelectusjusto.co.uk', 8590927, 737817813, 938620621, 474315208, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 41924203, '9', 'Kaseem Hurst', 'Ayers Mayer', 'F', '1990-12-17', '4035 Sed Calle', 'Pelluhue', 'VII', 109293, 'magnis@ridiculusmusProin.org', 8662100, 125306572, 538019535, 639777633, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 26585164, '9', 'Lawrence Vaughan', 'Allen Moore', 'F', '1989-12-18', '622-2763 Urna. C.', 'Las Condes', 'Metropolitana de Santiago', 440443, 'Vivamus.euismod@feugiatnec.com', 5162788, 854772553, 186605551, 538025293, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 12566210, '2', 'Ivan Spence', 'Vance Blackwell', 'F', '1986-04-30', '229-4422 Nibh. Ctra.', 'MaipÃº', 'Metropolitana de Santiago', 182953, 'consequat.dolor@Donecconsectetuermauris.com', 6173326, 377928463, 199801682, 661024137, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 28083441, '6', 'Jerome Vincent', 'Drake Dotson', 'F', '1988-09-20', '2005 Placerat, Av.', 'Mejillones', 'Antofagasta', 260002, 'ipsum.dolor.sit@iaculisquispede.org', 5758586, 665611988, 126375836, 287590738, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 31542065, '2', 'Elijah Garza', 'Atkinson Turner', 'M', '1996-03-29', '9168 Lacinia Avda.', 'Punta Arenas', 'XII', 704919, 'amet.consectetuer.adipiscing@mi.org', 3603436, 656269571, 994339650, 328996152, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 11356819, '4', 'Walker Burch', 'Patterson Walters', 'M', '1992-09-27', '6747 Ullamcorper, Avenida', 'La Cisterna', 'RM', 301828, 'varius@elit.ca', 7959229, 111464560, 756043384, 774194491, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4),
+(6, 4, 39025580, '2', 'Brenden Clark', 'Carlson Owens', 'M', '1986-02-26', '533-7814 Eu, Carretera', 'Isla de Maipo', 'RM', 853211, 'natoque.penatibus@neque.co.uk', 6739477, 626220995, 407188041, 571695489, 'RUTERO_1.csv', '2019-09-02 12:44:02', 'INS', 4);
 
 -- --------------------------------------------------------
 
@@ -1760,10 +1853,11 @@ INSERT INTO `RUTERO` (`IDRUTERO`, `IDCAMPANA`, `RUT`, `DV`, `NOMBRES`, `APELLIDO
 --
 
 DROP TABLE IF EXISTS `RUTEROID`;
-CREATE TABLE `RUTEROID` (
-  `IDRUTERO` bigint(20) NOT NULL,
-  `FECHACREACION` datetime DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS `RUTEROID` (
+  `IDRUTERO` bigint(20) NOT NULL AUTO_INCREMENT,
+  `FECHACREACION` datetime DEFAULT NULL,
+  PRIMARY KEY (`IDRUTERO`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `RUTEROID`
@@ -1774,7 +1868,8 @@ INSERT INTO `RUTEROID` (`IDRUTERO`, `FECHACREACION`) VALUES
 (2, '2019-08-31 23:43:22'),
 (3, '2019-08-31 23:44:26'),
 (4, '2019-08-31 23:55:27'),
-(5, '2019-09-01 10:33:04');
+(5, '2019-09-01 10:33:04'),
+(6, '2019-09-02 12:44:02');
 
 -- --------------------------------------------------------
 
@@ -1783,8 +1878,8 @@ INSERT INTO `RUTEROID` (`IDRUTERO`, `FECHACREACION`) VALUES
 --
 
 DROP TABLE IF EXISTS `SIMULACION`;
-CREATE TABLE `SIMULACION` (
-  `IDSIMULACION` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `SIMULACION` (
+  `IDSIMULACION` int(11) NOT NULL AUTO_INCREMENT,
   `IDCAMPANA` int(11) NOT NULL,
   `FECHASIMULACION` datetime NOT NULL,
   `RUTVENDEDOR` int(11) NOT NULL,
@@ -1799,8 +1894,10 @@ CREATE TABLE `SIMULACION` (
   `CAE` decimal(5,2) NOT NULL,
   `VENCIMIENTO` date NOT NULL,
   `COSTOTOTAL` int(11) NOT NULL,
-  `COMISION` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+  `COMISION` int(11) NOT NULL,
+  PRIMARY KEY (`IDSIMULACION`),
+  KEY `FK_RELATIONSHIP_9` (`IDCAMPANA`)
+) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `SIMULACION`
@@ -1808,8 +1905,19 @@ CREATE TABLE `SIMULACION` (
 
 INSERT INTO `SIMULACION` (`IDSIMULACION`, `IDCAMPANA`, `FECHASIMULACION`, `RUTVENDEDOR`, `DVVENDEDOR`, `RUTCLIENTE`, `DVCLIENTE`, `MONTO`, `CUOTAS`, `VALORCUOTA`, `TASAINTERES`, `TASAANUAL`, `CAE`, `VENCIMIENTO`, `COSTOTOTAL`, `COMISION`) VALUES
 (1, 1, '2019-09-01 10:36:46', 19678957, 'k', 11948618, '1', 8000000, 36, 250000, '2.90', '34.80', '29.00', '2019-10-15', 9000000, 15500),
-(2, 1, '2019-09-01 10:39:18', 19678957, 'k', 19475304, '7', 1100000, 24, 72000, '23.00', '276.00', '23.00', '2019-10-30', 1728000, 8500),
-(3, 1, '2019-09-01 10:41:34', 19678957, 'k', 27814958, '7', 3000000, 48, 94000, '25.00', '300.00', '25.00', '2019-10-30', 4512000, 23000);
+(2, 1, '2019-09-01 10:39:18', 19678957, 'k', 19475304, '7', 1100000, 24, 72000, '2.30', '27.60', '23.00', '2019-10-30', 1728000, 8500),
+(3, 1, '2019-09-01 10:41:34', 19678957, 'k', 27814958, '7', 3000000, 48, 94000, '2.50', '30.00', '25.00', '2019-10-30', 4512000, 23000),
+(4, 1, '2019-09-02 12:18:08', 19678957, 'k', 31542065, '2', 3000000, 36, 99000, '2.50', '30.00', '25.00', '2019-10-31', 3564000, 4000),
+(5, 1, '2019-09-02 12:24:19', 19678957, 'k', 39025580, '2', 6000000, 48, 145000, '2.30', '27.60', '23.00', '2019-10-31', 6960000, 12500),
+(6, 4, '2019-09-02 12:49:47', 19678957, 'k', 11948618, '1', 5500000, 24, 280000, '2.30', '27.60', '23.00', '2019-10-31', 6720000, 4500),
+(7, 1, '2019-09-04 12:30:52', 19678957, 'k', 28083441, '6', 8000000, 24, 450000, '2.30', '27.60', '23.00', '2019-10-31', 10800000, 12500),
+(8, 1, '2019-09-04 12:39:36', 19678957, 'k', 44085353, '6', 7500000, 36, 260000, '2.30', '27.60', '23.00', '2019-10-30', 9360000, 11200),
+(9, 1, '2019-09-04 12:49:42', 19678957, 'k', 17323637, '9', 5500000, 36, 152778, '1.80', '21.60', '18.00', '2019-10-18', 7020000, 9500),
+(10, 1, '2019-09-04 13:02:19', 19678957, 'k', 29781886, '4', 3500000, 24, 195000, '1.90', '22.80', '19.00', '2019-10-25', 4680000, 5600),
+(11, 1, '2019-09-04 13:05:36', 19678957, 'k', 12319901, '4', 8500000, 60, 195000, '3.20', '38.40', '32.00', '2019-09-30', 11700000, 14500),
+(12, 1, '2019-09-07 11:12:56', 16355662, '6', 11948618, '1', 7000000, 10, 750000, '1.20', '14.40', '25.00', '2019-11-16', 7500000, 0),
+(13, 4, '2019-09-07 12:40:30', 16355662, '6', 11948618, '1', 6000000, 10, 650000, '1.20', '14.40', '22.00', '2019-11-30', 7000000, 10000),
+(14, 4, '2019-09-07 15:03:43', 16355662, '6', 11948618, '1', 8573464, 10, 857347, '1.20', '14.40', '23.00', '2020-01-19', 9000000, 20000);
 
 -- --------------------------------------------------------
 
@@ -1818,9 +1926,11 @@ INSERT INTO `SIMULACION` (`IDSIMULACION`, `IDCAMPANA`, `FECHASIMULACION`, `RUTVE
 --
 
 DROP TABLE IF EXISTS `SIMULACIONSUBPRODUCTO`;
-CREATE TABLE `SIMULACIONSUBPRODUCTO` (
+CREATE TABLE IF NOT EXISTS `SIMULACIONSUBPRODUCTO` (
   `IDSIMULACION` int(11) NOT NULL,
-  `IDSUBPRODUCTO` int(11) NOT NULL
+  `IDSUBPRODUCTO` int(11) NOT NULL,
+  KEY `FK_RELATIONSHIP_10` (`IDSIMULACION`),
+  KEY `FK_RELATIONSHIP_11` (`IDSUBPRODUCTO`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
@@ -1828,7 +1938,16 @@ CREATE TABLE `SIMULACIONSUBPRODUCTO` (
 --
 
 INSERT INTO `SIMULACIONSUBPRODUCTO` (`IDSIMULACION`, `IDSUBPRODUCTO`) VALUES
-(3, 1);
+(3, 1),
+(4, 1),
+(5, 1),
+(6, 1),
+(6, 2),
+(7, 1),
+(11, 1),
+(13, 1),
+(14, 1),
+(14, 2);
 
 -- --------------------------------------------------------
 
@@ -1837,20 +1956,23 @@ INSERT INTO `SIMULACIONSUBPRODUCTO` (`IDSIMULACION`, `IDSUBPRODUCTO`) VALUES
 --
 
 DROP TABLE IF EXISTS `SUBPRODUCTO`;
-CREATE TABLE `SUBPRODUCTO` (
-  `IDSUBPRODUCTO` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `SUBPRODUCTO` (
+  `IDSUBPRODUCTO` int(11) NOT NULL AUTO_INCREMENT,
   `IDEMPRESA` int(11) NOT NULL,
   `CODSUBPRODUCTO` varchar(50) NOT NULL,
   `DESCSUBPRODUCTO` varchar(100) NOT NULL,
-  `PRIMA` decimal(5,2) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+  `PRIMA` decimal(5,2) NOT NULL,
+  PRIMARY KEY (`IDSUBPRODUCTO`),
+  KEY `FK_RELATIONSHIP_4` (`IDEMPRESA`)
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `SUBPRODUCTO`
 --
 
 INSERT INTO `SUBPRODUCTO` (`IDSUBPRODUCTO`, `IDEMPRESA`, `CODSUBPRODUCTO`, `DESCSUBPRODUCTO`, `PRIMA`) VALUES
-(1, 2, 'SEG_DESG', 'Seguro Desgravamen', '3.00');
+(1, 2, 'SEG_DESG', 'Seguro Desgravamen', '3.00'),
+(2, 2, 'SEG_CESA', 'Seguro Cesantía', '1.50');
 
 -- --------------------------------------------------------
 
@@ -1859,10 +1981,11 @@ INSERT INTO `SUBPRODUCTO` (`IDSUBPRODUCTO`, `IDEMPRESA`, `CODSUBPRODUCTO`, `DESC
 --
 
 DROP TABLE IF EXISTS `TIPOUSUARIO`;
-CREATE TABLE `TIPOUSUARIO` (
-  `IDTIPOUSUARIO` int(11) NOT NULL,
-  `DESCTIPOUSUARIO` varchar(50) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS `TIPOUSUARIO` (
+  `IDTIPOUSUARIO` int(11) NOT NULL AUTO_INCREMENT,
+  `DESCTIPOUSUARIO` varchar(50) NOT NULL,
+  PRIMARY KEY (`IDTIPOUSUARIO`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `TIPOUSUARIO`
@@ -1880,8 +2003,8 @@ INSERT INTO `TIPOUSUARIO` (`IDTIPOUSUARIO`, `DESCTIPOUSUARIO`) VALUES
 --
 
 DROP TABLE IF EXISTS `USUARIO`;
-CREATE TABLE `USUARIO` (
-  `IDUSUARIO` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `USUARIO` (
+  `IDUSUARIO` int(11) NOT NULL AUTO_INCREMENT,
   `IDEMPRESA` int(11) NOT NULL,
   `IDTIPOUSUARIO` int(11) NOT NULL,
   `RUTUSUARIO` int(11) NOT NULL,
@@ -1891,8 +2014,11 @@ CREATE TABLE `USUARIO` (
   `APMATERNO` varchar(50) NOT NULL,
   `ESTADO` int(11) NOT NULL,
   `ULTMODIFICACION` datetime NOT NULL,
-  `PASSWORD` varchar(64) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
+  `PASSWORD` varchar(64) NOT NULL,
+  PRIMARY KEY (`IDUSUARIO`),
+  KEY `FK_RELATIONSHIP_1` (`IDTIPOUSUARIO`),
+  KEY `FK_RELATIONSHIP_2` (`IDEMPRESA`)
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `USUARIO`
@@ -1903,137 +2029,32 @@ INSERT INTO `USUARIO` (`IDUSUARIO`, `IDEMPRESA`, `IDTIPOUSUARIO`, `RUTUSUARIO`, 
 (2, 1, 1, 9938577, '4', 'Nicolas Antonio', 'Poblete', 'Guzmán', 1, '2019-08-31 22:40:15', '5f4dcc3b5aa765d61d8327deb882cf99'),
 (3, 2, 2, 13096208, '4', 'Jessica', 'Perez', 'Abarca', 1, '2019-08-31 22:54:34', '5f4dcc3b5aa765d61d8327deb882cf99'),
 (4, 2, 2, 13682579, '8', 'Ana', 'Espinoza', 'Cáceres', 1, '2019-09-01 10:11:15', '5f4dcc3b5aa765d61d8327deb882cf99'),
-(5, 1, 3, 19678957, 'k', 'Peter', 'Franz', 'Ercilla', 1, '2019-09-01 10:26:28', '5f4dcc3b5aa765d61d8327deb882cf99');
+(5, 1, 3, 19678957, 'k', 'Peter', 'Franz', 'Ercilla', 1, '2019-09-01 10:26:28', '5f4dcc3b5aa765d61d8327deb882cf99'),
+(6, 1, 3, 16355662, '6', 'Jorge', 'Silva', 'Borda', 1, '2019-09-07 11:00:38', '5f4dcc3b5aa765d61d8327deb882cf99');
+
+-- --------------------------------------------------------
 
 --
--- Índices para tablas volcadas
+-- Estructura de tabla para la tabla `VENTA`
 --
 
---
--- Indices de la tabla `CAMPANA`
---
-ALTER TABLE `CAMPANA`
-  ADD PRIMARY KEY (`IDCAMPANA`),
-  ADD KEY `FK_RELATIONSHIP_6` (`IDPRODUCTO`);
+DROP TABLE IF EXISTS `VENTA`;
+CREATE TABLE IF NOT EXISTS `VENTA` (
+  `IDVENTA` int(11) NOT NULL AUTO_INCREMENT,
+  `IDSIMULACION` int(11) NOT NULL,
+  `IDCAMPANA` int(11) NOT NULL,
+  `RUTCLIENTE` int(11) NOT NULL,
+  `RUTVENDEDOR` int(11) NOT NULL,
+  `FECHAVENTA` datetime NOT NULL,
+  PRIMARY KEY (`IDVENTA`),
+  KEY `IDSIMULACION` (`IDSIMULACION`),
+  KEY `IDCAMPANA` (`IDCAMPANA`)
+) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=latin1;
 
 --
--- Indices de la tabla `CAMPANASUBPRODUCTO`
---
-ALTER TABLE `CAMPANASUBPRODUCTO`
-  ADD KEY `FK_RELATIONSHIP_7` (`IDCAMPANA`),
-  ADD KEY `FK_RELATIONSHIP_8` (`IDSUBPRODUCTO`);
-
---
--- Indices de la tabla `EMPRESA`
---
-ALTER TABLE `EMPRESA`
-  ADD PRIMARY KEY (`IDEMPRESA`);
-
---
--- Indices de la tabla `PRODUCTO`
---
-ALTER TABLE `PRODUCTO`
-  ADD PRIMARY KEY (`IDPRODUCTO`),
-  ADD KEY `FK_RELATIONSHIP_5` (`IDEMPRESA`);
-
---
--- Indices de la tabla `RUTERO`
---
-ALTER TABLE `RUTERO`
-  ADD KEY `FK_RELATIONSHIP_12` (`IDCAMPANA`),
-  ADD KEY `IDUSUARIO` (`IDUSUARIO`),
-  ADD KEY `IDRUTERO` (`IDRUTERO`);
-
---
--- Indices de la tabla `RUTEROID`
---
-ALTER TABLE `RUTEROID`
-  ADD PRIMARY KEY (`IDRUTERO`);
-
---
--- Indices de la tabla `SIMULACION`
---
-ALTER TABLE `SIMULACION`
-  ADD PRIMARY KEY (`IDSIMULACION`),
-  ADD KEY `FK_RELATIONSHIP_9` (`IDCAMPANA`);
-
---
--- Indices de la tabla `SIMULACIONSUBPRODUCTO`
---
-ALTER TABLE `SIMULACIONSUBPRODUCTO`
-  ADD KEY `FK_RELATIONSHIP_10` (`IDSIMULACION`),
-  ADD KEY `FK_RELATIONSHIP_11` (`IDSUBPRODUCTO`);
-
---
--- Indices de la tabla `SUBPRODUCTO`
---
-ALTER TABLE `SUBPRODUCTO`
-  ADD PRIMARY KEY (`IDSUBPRODUCTO`),
-  ADD KEY `FK_RELATIONSHIP_4` (`IDEMPRESA`);
-
---
--- Indices de la tabla `TIPOUSUARIO`
---
-ALTER TABLE `TIPOUSUARIO`
-  ADD PRIMARY KEY (`IDTIPOUSUARIO`);
-
---
--- Indices de la tabla `USUARIO`
---
-ALTER TABLE `USUARIO`
-  ADD PRIMARY KEY (`IDUSUARIO`),
-  ADD KEY `FK_RELATIONSHIP_1` (`IDTIPOUSUARIO`),
-  ADD KEY `FK_RELATIONSHIP_2` (`IDEMPRESA`);
-
---
--- AUTO_INCREMENT de las tablas volcadas
+-- Volcado de datos para la tabla `VENTA`
 --
 
---
--- AUTO_INCREMENT de la tabla `CAMPANA`
---
-ALTER TABLE `CAMPANA`
-  MODIFY `IDCAMPANA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de la tabla `EMPRESA`
---
-ALTER TABLE `EMPRESA`
-  MODIFY `IDEMPRESA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de la tabla `PRODUCTO`
---
-ALTER TABLE `PRODUCTO`
-  MODIFY `IDPRODUCTO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT de la tabla `RUTEROID`
---
-ALTER TABLE `RUTEROID`
-  MODIFY `IDRUTERO` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT de la tabla `SIMULACION`
---
-ALTER TABLE `SIMULACION`
-  MODIFY `IDSIMULACION` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de la tabla `SUBPRODUCTO`
---
-ALTER TABLE `SUBPRODUCTO`
-  MODIFY `IDSUBPRODUCTO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de la tabla `TIPOUSUARIO`
---
-ALTER TABLE `TIPOUSUARIO`
-  MODIFY `IDTIPOUSUARIO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT de la tabla `USUARIO`
---
-ALTER TABLE `USUARIO`
-  MODIFY `IDUSUARIO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+INSERT INTO `VENTA` (`IDVENTA`, `IDSIMULACION`, `IDCAMPANA`, `RUTCLIENTE`, `RUTVENDEDOR`, `FECHAVENTA`) VALUES
+(23, 13, 4, 11948618, 16355662, '2019-09-07 23:37:08');
 COMMIT;
