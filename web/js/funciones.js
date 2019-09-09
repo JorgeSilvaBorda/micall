@@ -65,13 +65,24 @@ function formatMiles(valor) {
 }
 
 function diffFechas(fechaini, fechafin) {
+    if(fechaini.indexOf("-") !== -1){
+        fechaini = fechaini.replaceAll("-", "/");
+    }
+    if(fechafin.indexOf("-") !== -1){
+        fechafin = fechafin.replaceAll("-", "/");
+    }
+    /*
     var fecIni = new Date(fechaini.split("-")[0], fechaini.split("-")[2], fechaini.split("-")[2]);
     var fecFin = new Date(fechafin.split("-")[0], fechafin.split("-")[2], fechafin.split("-")[2]);
+    */
+    var fecIni = new Date(fechaini);
+    var fecFin = new Date(fechafin);
+    
     //var diffTime = Math.abs(fecFin.getTime() - fecIni.getTime());
     var diffTime = (fecFin.getTime() - fecIni.getTime());
     var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    return diffDays + 1;
+    return diffDays;
 }
 
 function fechaIntToString(fecha) {
