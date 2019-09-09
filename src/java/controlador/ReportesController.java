@@ -23,13 +23,16 @@ public class ReportesController extends HttpServlet {
 
         JSONObject entrada = new JSONObject((String) request.getParameter("datos"));
         switch (entrada.getString("tipo")) {
-            case "carga-tab-resumen-vendedor":
-                out.print(cargaTablaResumenVendedor(entrada.getString("rutfullvendedor")));
+            case "carga-tab-resumen-simulaciones-vendedor":
+                out.print(cargaTablaResumenSimulacionesVendedor(entrada.getString("rutfullvendedor")));
+                break;
+            case "carga-tab-resumen-ventas-vendedor":
+                out.print(cargaTablaResumenVentasVendedor(entrada.getString("rutfullvendedor")));
                 break;
             case "tabla-detalle-simulaciones-vendedor":
                 out.print(tablaDetalleSimulacionesVendedor(entrada));
                 break;
-                case "tabla-detalle-ventas-vendedor":
+            case "tabla-detalle-ventas-vendedor":
                 out.print(tablaDetalleVentasVendedor(entrada));
                 break;
             case "tabla-resumen-simulaciones-empresa":
@@ -41,7 +44,7 @@ public class ReportesController extends HttpServlet {
             case "tabla-detalle-simulaciones-empresa":
                 out.print(tablaDetalleSimulacionesEmpresa(entrada));
                 break;
-                case "tabla-detalle-ventas-empresa":
+            case "tabla-detalle-ventas-empresa":
                 out.print(tablaDetalleVentasEmpresa(entrada));
                 break;
             case "tabla-resumen-ventas-empresa-dia":
@@ -55,7 +58,7 @@ public class ReportesController extends HttpServlet {
         }
     }
 
-    private JSONObject cargaTablaResumenVendedor(String rutfullvendedor) {
+    private JSONObject cargaTablaResumenSimulacionesVendedor(String rutfullvendedor) {
         JSONObject salida = new JSONObject();
         JSONArray registros = new JSONArray();
         int rutvendedor = Integer.parseInt(rutfullvendedor.substring(0, rutfullvendedor.length() - 1));
@@ -88,12 +91,44 @@ public class ReportesController extends HttpServlet {
         return salida;
     }
 
-    private JSONObject tablaDetalleSimulacionesVendedor(JSONObject entrada) {
+    private JSONObject cargaTablaResumenVentasVendedor(String rutfullvendedor) {
+        JSONObject salida = new JSONObject();
+        JSONArray registros = new JSONArray();
+        int rutvendedor = Integer.parseInt(rutfullvendedor.substring(0, rutfullvendedor.length() - 1));
+        String query = "CALL SP_RESUMEN_MES_VENTAS_VENDEDOR(" + rutvendedor + ")";
+        Conexion c = new Conexion();
+        c.abrir();
+        ResultSet rs = c.ejecutarQuery(query);
+        try {
+            while (rs.next()) {
+                JSONObject registro = new JSONObject();
+                registro.put("codcampana", rs.getString("CODCAMPANA"));
+                registro.put("nomcampana", rs.getString("NOMCAMPANA"));
+                registro.put("codproducto", rs.getString("CODPRODUCTO"));
+                registro.put("descproducto", rs.getString("DESCPRODUCTO"));
+                registro.put("nomempresa", rs.getString("NOMEMPRESA"));
+                registro.put("montoacum", rs.getInt("ACUMMES"));
+                registro.put("cantidad", rs.getInt("CANTIDAD"));
+                registros.put(registro);
+            }
+            salida.put("registros", registros);
+            salida.put("estado", "ok");
+        } catch (JSONException | SQLException ex) {
+            salida.put("estado", "error");
+            salida.put("mensaje", ex);
+            System.out.println("No se pudo obtener el resumen de ventas del mes por vendedor");
+            System.out.println(ex);
+        }
+        c.cerrar();
+        return salida;
+    }
+    
+    private JSONObject tablaDetalleVentasVendedor(JSONObject entrada) {
         JSONObject salida = new JSONObject();
         JSONArray ventas = new JSONArray();
         String rutVendedorFull = entrada.getString("rutfullvendedor");
         int rutVendedor = Integer.parseInt(rutVendedorFull.substring(0, rutVendedorFull.length() - 1));
-        String query = "CALL SP_GET_SIMULACIONES_DETALLE_VENDEDOR(" + rutVendedor + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
+        String query = "CALL SP_GET_VENTAS_DETALLE_VENDEDOR(" + rutVendedor + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
         DecimalFormat format = new DecimalFormat("###,###,###,###,###");
         Conexion c = new Conexion();
         c.abrir();
@@ -127,13 +162,13 @@ public class ReportesController extends HttpServlet {
         c.cerrar();
         return salida;
     }
-    
-    private JSONObject tablaDetalleVentasVendedor(JSONObject entrada) {
+
+    private JSONObject tablaDetalleSimulacionesVendedor(JSONObject entrada) {
         JSONObject salida = new JSONObject();
         JSONArray ventas = new JSONArray();
         String rutVendedorFull = entrada.getString("rutfullvendedor");
         int rutVendedor = Integer.parseInt(rutVendedorFull.substring(0, rutVendedorFull.length() - 1));
-        String query = "CALL SP_GET_VENTAS_DETALLE_VENDEDOR(" + rutVendedor + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
+        String query = "CALL SP_GET_SIMULACIONES_DETALLE_VENDEDOR(" + rutVendedor + ", '" + entrada.getString("desde") + "', '" + entrada.getString("hasta") + "')";
         DecimalFormat format = new DecimalFormat("###,###,###,###,###");
         Conexion c = new Conexion();
         c.abrir();
@@ -344,7 +379,7 @@ public class ReportesController extends HttpServlet {
 
         return salida;
     }
-    
+
     private JSONObject tablaDetalleVentasEmpresa(JSONObject entrada) {
         JSONObject salida = new JSONObject();
         JSONArray ventas = new JSONArray();
@@ -382,8 +417,8 @@ public class ReportesController extends HttpServlet {
 
         return salida;
     }
-    
-    private JSONObject tablaResumenVentasEmpresa(int idempresa){
+
+    private JSONObject tablaResumenVentasEmpresa(int idempresa) {
         JSONObject salida = new JSONObject();
         JSONArray registros = new JSONArray();
         String query = "CALL SP_RESUMEN_VENTAS_EMPRESA_MES(" + idempresa + ")";
@@ -417,7 +452,7 @@ public class ReportesController extends HttpServlet {
             }
             salida.put("registros", registros);
             salida.put("estado", "ok");
-        }catch(JSONException | SQLException e){
+        } catch (JSONException | SQLException e) {
             System.out.println("Problemas en ReportesControler.tablaResumenVentasEmpresa()");
             System.out.println(e);
             salida.put("estado", "error");
