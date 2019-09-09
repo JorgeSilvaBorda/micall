@@ -36,8 +36,8 @@ function insertar(detalle, callback) {
         success: function (res) {
             var obj = JSON.parse(res);
             if (obj.estado === 'ok') {
+                alert('Registros ingresados correctamente.'); //Se cambia para probar refresh de insert
                 callback(obj);
-                alert('Registros ingresados correctamente.');
             }
         }
     });

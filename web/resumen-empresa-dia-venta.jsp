@@ -11,10 +11,10 @@
         cargarResumen();
     });
     function cargarResumen() {
+        
         var datos = {
-            tipo: 'tabla-resumen-simulaciones-empresa-dia',
-            fechahoy: formatFecha(new Date()),
-            rutusuario: '<% out.print(session.getAttribute("rutusuario"));%>'
+            tipo: 'tabla-resumen-ventas-empresa-dia',
+            idempresa: '<% out.print(session.getAttribute("idempresa"));%>'
         };
         $.ajax({
             type: 'post',
@@ -29,6 +29,7 @@
                     $('.dataTable').DataTable().destroy();
                     $('#cuerpo-tab-resumen-empresa').html(armarTabla(obj.registros));
                     $('#tabla-resumen-empresa').DataTable(OPCIONES_DATATABLES);
+                    
                 }
             },
             error: function (a, b, c) {

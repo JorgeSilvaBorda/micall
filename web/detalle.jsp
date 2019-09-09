@@ -9,7 +9,7 @@
             rutfullvendedor = rutfullvendedor.replaceAll("-", "");
 
             var datos = {
-                tipo: 'tabla-detalle-ventas-vendedor',
+                tipo: 'tabla-detalle-simulaciones-vendedor',
                 desde: desde,
                 hasta: hasta,
                 rutfullvendedor: rutfullvendedor

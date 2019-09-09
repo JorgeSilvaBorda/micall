@@ -13,6 +13,7 @@
     </head>
     <body>
         <script type="text/javascript">
+            var SIMULACION = null;
             $(document).ready(function () {
                 OPCIONES_DATATABLES.buttons = [];
                 //cargarSimulaciones(); //Quitado para no buscar al inicio.
@@ -120,6 +121,7 @@
                 };
                 traerListado(detalle, function (cuerpotabla) {
                     $('.dataTable').DataTable().destroy();
+                    $('#cuerpo-tab-simulacion').html(cuerpotabla);
                     $('#tabla-simulaciones').DataTable(OPCIONES_DATATABLES);
                 });
             }
@@ -159,7 +161,6 @@
                     tab += "<td><button onclick='seleccionarCampana(" + idcampana + ", " + idempresa + ");' type='button' class='btn btn-sm btn-default'>Seleccionar</button></td>";
                     tab += "</tr>";
                 });
-
                 tab += "</tbody></table>";
                 $('#cuerpo-modal').html(tab);
                 $('#modal-campanas').modal();
@@ -169,7 +170,8 @@
                 var datos = {
                     tipo: 'get-camapana-idcampana-idempresa',
                     idcampana: idcampana,
-                    idempresa: idempresa
+                    idempresa: idempresa,
+                    rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", "")
                 };
                 $.ajax({
                     url: 'CampanaController',
@@ -318,8 +320,151 @@
                     alert("La tasa anual no pede ser menor a 0.001");
                     return false;
                 }
-
+                SIMULACION = simulacion;
                 return true;
+            }
+
+            function calcularTodo() {
+                if ($('#cuotas').val() !== '' && $('#cuotas').val() !== 0 && $('#montoaprobado').val().replaceAll("\\.", "") !== '' && $('#tasainteres').val() !== '') {
+                    calcValores();
+                }
+            }
+
+            function calcValores() {
+                var UF = 26672.2;
+                var topeUF = 50;
+                var topeDinero = topeUF * UF;
+                var simulacion = {
+                    cuotas: parseInt($('#cuotas').val()),
+                    valorcuota: 0,
+                    costototal: 0,
+                    monto: parseInt($('#montoaprobado').val().replaceAll("\\.", "")),
+                    montoaprobado: parseInt($('#hidMontoAprobado').val()),
+                    tasainteres: parseFloat($('#tasainteres').val()),
+                    tasaanual: (parseFloat($('#tasainteres').val()) * 12),
+                    tasaimpuesto: 0.0,
+                    montoasegurado: 0,
+                    montoseguro: 0,
+                    tasaseguro: 0.0,
+                    impuestoalcredito: 0,
+                    montoafecto: 0,
+                    montonoafecto: 0,
+                    montoacapitalizar: 0,
+                    subproductos: []
+                };
+                $('#tab-subproductos tbody tr').each(function (t) {
+                    var fila = $(this)[0];
+                    var celdas = $(fila.cells);
+                    var celda_0 = $(celdas[0]);
+                    var check = $(celda_0).children('input');
+                    if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
+                        var celda_1 = $(celdas[1]);
+                        var celda_3 = $(celdas[3]);
+                        var hidden = $(celda_1).children('input')[1];
+                        var idsubproducto = $(hidden).val();
+                        var prima = parseFloat($(celda_3).text());
+                        var sub = {idsubproducto: idsubproducto, prima: prima};
+                        simulacion.subproductos.push(sub);
+                    }
+                });
+
+                var impuesto = 0;
+                if (simulacion.cuotas + 1 > 12) {
+                    impuesto = 0.008;
+                } else {
+                    impuesto = 0.00066 * (simulacion.cuotas + 1);
+                }
+                simulacion.tasaimpuesto = impuesto;
+                //Trabajar solo con el primer seguro
+                if (simulacion.subproductos.length > 0) {
+                    var subproducto = simulacion.subproductos[0];
+                    simulacion.tasaseguro = subproducto.prima / 100;
+                    var tasaSeguro = (subproducto.prima / 100);
+                    var montoAsegurado;
+                    if ((simulacion.monto / (1 - tasaSeguro - simulacion.tasaimpuesto)) > topeDinero) {
+                        montoAsegurado = topeDinero;
+                    } else {
+                        montoAsegurado = simulacion.monto / (1 - tasaSeguro - simulacion.tasaimpuesto);
+                    }
+                    simulacion.montoasegurado = parseInt(montoAsegurado);
+                    simulacion.montoseguro = parseInt(simulacion.montoasegurado * tasaSeguro);
+                } else {
+                    var tasaSeguro = 0;
+                    if ((simulacion.monto / (1 - tasaSeguro - simulacion.tasaimpuesto)) > topeDinero) {
+                        montoAsegurado = topeDinero;
+                    } else {
+                        montoAsegurado = simulacion.monto / (1 - tasaSeguro - simulacion.tasaimpuesto);
+                    }
+                    simulacion.montoasegurado = parseInt(montoAsegurado);
+                    simulacion.montoseguro = parseInt(simulacion.montoasegurado * tasaSeguro);
+                }
+
+
+                var montoAfecto = 0;
+                if ((simulacion.monto / (1 - simulacion.tasaseguro - simulacion.tasaimpuesto)) > topeDinero) {
+                    montoAfecto = topeDinero;
+                } else {
+                    montoAfecto = (simulacion.monto / (1 - simulacion.tasaseguro - simulacion.tasaimpuesto));
+                }
+                simulacion.montoafecto = montoAfecto;
+                simulacion.montonoafecto = simulacion.monto - simulacion.montoafecto;
+                var impuestoAlCredito = (simulacion.montoasegurado * simulacion.tasaimpuesto) + (simulacion.montonoafecto / (1 - simulacion.tasaimpuesto) - simulacion.montonoafecto);
+                simulacion.impuestoalcredito = parseInt(impuestoAlCredito);
+                var montoACapitalizar = 0;
+                montoACapitalizar = simulacion.montoafecto * (1 / (1 - simulacion.tasaseguro - simulacion.tasaimpuesto)) + simulacion.montonoafecto * (1 / (1 - simulacion.tasaimpuesto));
+                simulacion.montoacapitalizar = parseInt(montoACapitalizar);
+                var valorCuota = (((simulacion.montoacapitalizar) * (simulacion.tasainteres / 100) / (1 - Math.pow((1 + (simulacion.tasainteres / 100)), -simulacion.cuotas))));
+                simulacion.valorcuota = parseInt(valorCuota);
+                simulacion.costototal = parseInt(simulacion.valorcuota * simulacion.cuotas);
+
+                $('#valorcuota').val(formatMiles(simulacion.valorcuota.toString()));
+                $('#costototal').val(formatMiles(simulacion.costototal.toString()));
+                $('#impuesto').val(formatMiles(parseInt(simulacion.impuestoalcredito).toString()));
+
+                $('#cae').val(truncDecimales(cae(simulacion.cuotas, simulacion.monto, simulacion.valorcuota), 2));
+                simulacion.cae = truncDecimales(cae(simulacion.cuotas, simulacion.monto, simulacion.valorcuota), 2);
+            }
+
+            function cae(cuotas, monto, valorcuota) {
+                var iff = 50.0000000;
+                var iff2 = 50.0000000;
+                var totalActualizado = 0.0;
+
+                while (totalActualizado !== monto) {
+                    totalActualizado = caeParcial(iff, cuotas, monto, valorcuota);
+                    iff2 = iff2 / 2;
+                    if (totalActualizado < monto) {
+                        iff = iff - iff2;
+                    }
+                    if (totalActualizado > monto) {
+                        iff = iff + iff2;
+                    }
+                }
+                var CME = iff;
+                var CAE = iff * 12;
+                return CAE;
+            }
+
+            function caeParcial(iff, contcuotas, monto, valorcuota) {
+                var contador = 0;
+                var total_valor_actualizado = 0.0;
+                var valor_act_ini = 0.0;
+                var valor_actual = 0.0;
+                var fact_actual = 0.0;
+
+                while (contador <= contcuotas) {
+                    fact_actual = 1 / Math.pow((1 + (iff / 100)), contador);
+                    if (contador === 1) {
+                        valor_act_ini = (valorcuota) * fact_actual;
+                    }
+                    if (contador > 1) {
+                        valor_actual = valorcuota * fact_actual;
+                    }
+                    contador++;
+                    total_valor_actualizado = valor_actual + total_valor_actualizado;
+                }
+                total_valor_actualizado = total_valor_actualizado + valor_act_ini;
+                return parseInt(total_valor_actualizado);
             }
 
             function insert() {
@@ -339,6 +484,7 @@
                         vencimiento: $('#vencimiento').val(),
                         costototal: $('#costototal').val().replaceAll("\\.", ""),
                         comision: $('#comision').val().replaceAll("\\.", ""),
+                        impuesto: $('#impuesto').val().replaceAll("\\.", ""),
                         subproductos: []
                     };
                     $('#tab-subproductos tbody tr').each(function (t) {
@@ -364,6 +510,7 @@
                         limpiar();
                         cargarSimulaciones();
                     });
+                    cargarSimulaciones();
                 }
             }
 
@@ -429,16 +576,14 @@
                 var tab = "<table id='tab-subproductos' class='table-sm small' style='border: none; border-collapse: collapse;'><thead>";
                 tab += "<tr>";
                 tab += "<th>Subproducto</th>";
-                tab += "<th>Prima</th>";
-                tab += "<th>Meta Monto</th>";
-                tab += "<th>Meta Cantidad</th>";
+                tab += "<th>% Prima</th>";
+                tab += "<th>$ Prima</th>";
                 tab += "</tr></thead><tbody>";
                 $(subproductos).each(function () {
                     tab += "<tr>";
                     tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
-                    tab += "<td>" + $(this)[0].prima + "</td>";
-                    tab += "<td>$" + formatMiles($(this)[0].montometa) + "</td>";
-                    tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
+                    tab += "<td>" + $(this)[0].prima + " %</td>";
+                    tab += "<td>$ " + $(this)[0].montoseguro + "</td>";
                     tab += "</tr>";
                 });
                 tab += "</tbody></table>";
@@ -446,6 +591,7 @@
             }
 
             function pintarDatos(campana, subproductos) {
+                //console.log(campana);
                 $('#hidIdCampana').val(campana.idcampana);
                 $('#hidMontoAprobado').val(campana.montoaprobado);
                 $('#cuerpo-subproductos').html(subproductos);
@@ -490,7 +636,9 @@
                 $('#costototal').val('');
                 $('#vencimiento').val('');
                 $('#comision').val('');
+                $('#impuesto').val('');
                 $('#select-empresa').val('0');
+                SIMULACION = null;
             }
 
             function mostrarAlert(clase, mensaje) {
@@ -624,50 +772,41 @@
                             <td id='apellidoscliente'></td>
                         </tr>
                         <tr>
-                            <td style='font-weight: bold;'>Meta</td>
-                            <td id='montometa'></td>
-
                             <td style='font-weight: bold;'>Dirección</td>
                             <td id='direccion'></td>
                         </tr>
                         <tr>
                             <td style='font-weight: bold;'>Monto aprobado</td>
                             <td>
-                                <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='montoaprobado' value=''/>
+                                <input onkeyup="formatMilesInput(this);
+                                        calcularTodo();" class='form-control form-control-sm cambiante' type='text' id='montoaprobado' value=''/>
                             </td>
 
                             <td style='font-weight: bold;'>Cuotas</td>
                             <td>
-                                <input class='form-control form-control-sm' type='text' id='cuotas' value=''/>
+                                <input onkeyup="calcularTodo();" class='form-control form-control-sm cambiante' type='text' id='cuotas' value=''/>
                             </td>
                         </tr>
                         <tr>
                             <td style='font-weight: bold;'>Valor cuota</td>
                             <td>
-                                <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='valorcuota' value=''/>
+                                <input disabled="disabled" onchange="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='valorcuota' value=''/>
                             </td>
 
                             <td style='font-weight: bold;'>Tasa interés</td>
                             <td>
-                                <input class='form-control form-control-sm' onkeyup="calcTasaAnual();" type='number' step='0.01' id='tasainteres' value=''/>
+                                <input class='form-control form-control-sm' onkeyup="calcTasaAnual();
+                                        calcularTodo();" type='number' step='0.01' id='tasainteres' value=''/>
                             </td>
-                            <!--td style='font-weight: bold;'>Tasa anual</td>
-                            <td>
-                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasaanual' value=''/>
-                            </td-->
                         </tr>
                         <tr>
                             <td style='font-weight: bold;'>Tasa anual</td>
                             <td>
                                 <input class='form-control form-control-sm' disabled="disabled" type='number' step='0.01' id='tasaanual' value=''/>
                             </td>
-                            <!--td style='font-weight: bold;'>Tasa interés</td>
-                            <td>
-                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasainteres' value=''/>
-                            </td-->
                             <td style='font-weight: bold;'>CAE</td>
                             <td>
-                                <input class='form-control form-control-sm' type='number' step='0.01' id='cae' value=''/>
+                                <input disabled="disabled" class='form-control form-control-sm' type='number' step='0.01' id='cae' value=''/>
                             </td> 
                         </tr>
                         <tr>
@@ -677,14 +816,17 @@
                             </td>
                             <td style='font-weight: bold;'>Costo total</td>
                             <td>
-                                <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='costototal' value=''/>
+                                <input disabled="disabled" onchange="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='costototal' value=''/>
                             </td>
-
                         </tr>
                         <tr>
                             <td style='font-weight: bold;'>Comisión</td>
                             <td>
                                 <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='comision' value=''/>
+                            </td>
+                            <td style='font-weight: bold;'>Impuesto</td>
+                            <td>
+                                <input disabled="disabled" onchange="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='impuesto' value=''/>
                             </td>
                         </tr>
                     </table>
@@ -704,8 +846,8 @@
                                 <th>Código</th>
                                 <th>Descripcion</th>
                                 <th>Prima</th>
-                                <th>Monto meta</th>
-                                <th>Cant. meta</th>
+                                <!-- th>Monto meta</th -->
+                                <!-- th>Cant. meta</th -->
                             </tr>
                         </thead>
                         <tbody id='cuerpo-subproductos'>
@@ -722,14 +864,14 @@
                     <table id="tabla-simulaciones" class="table table-sm small table-borderless table-hover table-striped">
                         <thead>
                             <tr>
-                                <th>Empresa</th>
-                                <th>Rut cliente</th>
-                                <th>Nombres</th>
-                                <th>Campaña</th>
-                                <th>Código producto</th>
                                 <th>Producto</th>
                                 <th>Monto</th>
-                                <th>Cuotas</th>
+                                <th>#<br />Cuotas</th>
+                                <th>$<br />Cuota</th>
+                                <th>$<br />Impuesto al crédito</th>
+                                <th>$<br />CTC</th>
+                                <th>%<br />Tasa</th>
+                                <th>%<br />CAE</th>
                                 <th>Subproductos</th>
                                 <th>Venta</th>
                             </tr>

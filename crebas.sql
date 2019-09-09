@@ -1,3 +1,17 @@
+-- phpMyAdmin SQL Dump
+-- version 4.8.3
+-- https://www.phpmyadmin.net/
+--
+-- Servidor: 127.0.0.1:3307
+-- Tiempo de generación: 08-09-2019 a las 16:35:17
+-- Versión del servidor: 10.3.9-MariaDB
+-- Versión de PHP: 7.2.10
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
 --
 -- Base de datos: `micall`
 --
@@ -88,6 +102,49 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DEL_VENTAS_CAMPANA_CLIENTE` (IN 
 	WHERE
 		RUTCLIENTE = _RUTCLIENTE
         AND IDCAMPANA = _IDCAMPANA;
+END$$
+
+DROP PROCEDURE IF EXISTS `SP_DETALLE_SIMULACIONES_EMPRESA`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_DETALLE_SIMULACIONES_EMPRESA` (IN `_RUTUSUARIO` INT, IN `_FECHAINI` DATE, IN `_FECHAFIN` DATE)  BEGIN
+
+SELECT
+	A.IDSIMULACION,
+	A.FECHASIMULACION,
+    B.CODCAMPANA,
+    B.NOMCAMPANA,
+    C.CODPRODUCTO,
+    C.DESCPRODUCTO,
+    A.RUTCLIENTE,
+    CONCAT(A.RUTCLIENTE, '-', A.DVCLIENTE) RUTFULLCLIENTE,
+    CONCAT(A.RUTVENDEDOR, '-', A.DVVENDEDOR) RUTFULLVENDEDOR,
+    A.DVCLIENTE,
+    A.CUOTAS,
+    A.VALORCUOTA,
+    A.MONTO,
+    B.META,
+    IFNULL(COUNT(E.IDSUBPRODUCTO), 0) SUBPRODUCTOS
+FROM
+	SIMULACION A INNER JOIN CAMPANA B
+    ON A.IDCAMPANA = B.IDCAMPANA INNER JOIN PRODUCTO C
+    ON B.IDPRODUCTO = C.IDPRODUCTO INNER JOIN EMPRESA D
+    ON C.IDEMPRESA = D.IDEMPRESA LEFT JOIN SIMULACIONSUBPRODUCTO E
+    ON E.IDSIMULACION = A.IDSIMULACION
+WHERE
+	DATE(A.FECHASIMULACION) BETWEEN _FECHAINI AND _FECHAFIN
+    AND D.RUTEMPRESA = (SELECT RUTEMPRESA FROM EMPRESA A INNER JOIN USUARIO B ON A.IDEMPRESA = B.IDEMPRESA WHERE RUTUSUARIO = _RUTUSUARIO)
+GROUP BY
+	A.IDSIMULACION,
+	A.FECHASIMULACION,
+    B.CODCAMPANA,
+    B.NOMCAMPANA,
+    C.CODPRODUCTO,
+    C.DESCPRODUCTO,
+    A.RUTCLIENTE,
+    A.DVCLIENTE,
+    A.CUOTAS,
+    A.VALORCUOTA,
+    A.MONTO,
+    B.META;
 END$$
 
 DROP PROCEDURE IF EXISTS `SP_DETALLE_VENTAS_EMPRESA`$$
@@ -1576,6 +1633,28 @@ WHERE
 RETURN _CANT;
 END$$
 
+DROP FUNCTION IF EXISTS `FN_SUM_SIMULACIONES_DIA_EAMPRESA`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `FN_SUM_SIMULACIONES_DIA_EAMPRESA` (`_IDEMPRESA` INT, `_IDCAMPANA` INT) RETURNS BIGINT(20) BEGIN
+
+	DECLARE _ACUMDIA BIGINT;
+
+	SELECT
+		SUM(A.MONTO) ACUMDIA
+	INTO
+		_ACUMDIA
+	FROM
+		SIMULACION A INNER JOIN CAMPANA B
+		ON A.IDCAMPANA = B.IDCAMPANA INNER JOIN PRODUCTO C
+		ON B.IDPRODUCTO = C.IDPRODUCTO INNER JOIN EMPRESA D
+		ON C.IDEMPRESA = D.IDEMPRESA
+	WHERE
+		DATE(A.FECHASIMULACION) = DATE(NOW())
+		AND D.IDEMPRESA = _IDEMPRESA
+		AND B.IDCAMPANA = _IDCAMPANA;
+        
+	RETURN _ACUMDIA;
+END$$
+
 DROP FUNCTION IF EXISTS `FN_SUM_VENTAS_DIA_CAMPRESA`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `FN_SUM_VENTAS_DIA_CAMPRESA` (`_IDEMPRESA` INT, `_IDCAMPANA` INT) RETURNS BIGINT(20) BEGIN
 
@@ -1623,27 +1702,25 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `CAMPANA`
+-- Estructura de tabla para la tabla `campana`
 --
 
-DROP TABLE IF EXISTS `CAMPANA`;
-CREATE TABLE IF NOT EXISTS `CAMPANA` (
-  `IDCAMPANA` int(11) NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `campana`;
+CREATE TABLE `campana` (
+  `IDCAMPANA` int(11) NOT NULL,
   `IDPRODUCTO` int(11) NOT NULL,
   `NOMCAMPANA` varchar(100) NOT NULL,
   `CODCAMPANA` varchar(50) NOT NULL,
   `FECHAINI` date NOT NULL,
   `FECHAFIN` date NOT NULL,
-  `META` bigint(20) NOT NULL,
-  PRIMARY KEY (`IDCAMPANA`),
-  KEY `FK_RELATIONSHIP_6` (`IDPRODUCTO`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
+  `META` bigint(20) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
--- Volcado de datos para la tabla `CAMPANA`
+-- Volcado de datos para la tabla `campana`
 --
 
-INSERT INTO `CAMPANA` (`IDCAMPANA`, `IDPRODUCTO`, `NOMCAMPANA`, `CODCAMPANA`, `FECHAINI`, `FECHAFIN`, `META`) VALUES
+INSERT INTO `campana` (`IDCAMPANA`, `IDPRODUCTO`, `NOMCAMPANA`, `CODCAMPANA`, `FECHAINI`, `FECHAFIN`, `META`) VALUES
 (1, 1, 'Campaña Crédito 1', 'CAMP_001', '2019-09-01', '2019-09-30', 1000000000),
 (2, 2, 'Campaña Crédito 2', 'CAMP_002', '2019-09-01', '2019-09-30', 1500000000),
 (3, 1, 'Campaña Crédito Especial', 'CAMP_001_ESP', '2019-09-01', '2019-09-30', 500000000),
@@ -1652,24 +1729,22 @@ INSERT INTO `CAMPANA` (`IDCAMPANA`, `IDPRODUCTO`, `NOMCAMPANA`, `CODCAMPANA`, `F
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `CAMPANASUBPRODUCTO`
+-- Estructura de tabla para la tabla `campanasubproducto`
 --
 
-DROP TABLE IF EXISTS `CAMPANASUBPRODUCTO`;
-CREATE TABLE IF NOT EXISTS `CAMPANASUBPRODUCTO` (
+DROP TABLE IF EXISTS `campanasubproducto`;
+CREATE TABLE `campanasubproducto` (
   `IDCAMPANA` int(11) NOT NULL,
   `IDSUBPRODUCTO` int(11) NOT NULL,
   `MONTOMETA` bigint(20) DEFAULT NULL,
-  `CANTIDADMETA` int(11) DEFAULT NULL,
-  KEY `FK_RELATIONSHIP_7` (`IDCAMPANA`),
-  KEY `FK_RELATIONSHIP_8` (`IDSUBPRODUCTO`)
+  `CANTIDADMETA` int(11) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
--- Volcado de datos para la tabla `CAMPANASUBPRODUCTO`
+-- Volcado de datos para la tabla `campanasubproducto`
 --
 
-INSERT INTO `CAMPANASUBPRODUCTO` (`IDCAMPANA`, `IDSUBPRODUCTO`, `MONTOMETA`, `CANTIDADMETA`) VALUES
+INSERT INTO `campanasubproducto` (`IDCAMPANA`, `IDSUBPRODUCTO`, `MONTOMETA`, `CANTIDADMETA`) VALUES
 (1, 1, 10000000, 1000),
 (3, 1, 5000000, 500),
 (4, 1, 10000000, 1000),
@@ -1678,61 +1753,58 @@ INSERT INTO `CAMPANASUBPRODUCTO` (`IDCAMPANA`, `IDSUBPRODUCTO`, `MONTOMETA`, `CA
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `EMPRESA`
+-- Estructura de tabla para la tabla `empresa`
 --
 
-DROP TABLE IF EXISTS `EMPRESA`;
-CREATE TABLE IF NOT EXISTS `EMPRESA` (
-  `IDEMPRESA` int(11) NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `empresa`;
+CREATE TABLE `empresa` (
+  `IDEMPRESA` int(11) NOT NULL,
   `RUTEMPRESA` int(11) NOT NULL,
   `DVEMPRESA` varchar(1) NOT NULL,
   `NOMBRE` varchar(60) NOT NULL,
   `DIRECCION` varchar(100) NOT NULL,
   `CREACION` datetime NOT NULL,
-  `ULTMODIFICACION` datetime NOT NULL,
-  PRIMARY KEY (`IDEMPRESA`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+  `ULTMODIFICACION` datetime NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
--- Volcado de datos para la tabla `EMPRESA`
+-- Volcado de datos para la tabla `empresa`
 --
 
-INSERT INTO `EMPRESA` (`IDEMPRESA`, `RUTEMPRESA`, `DVEMPRESA`, `NOMBRE`, `DIRECCION`, `CREACION`, `ULTMODIFICACION`) VALUES
+INSERT INTO `empresa` (`IDEMPRESA`, `RUTEMPRESA`, `DVEMPRESA`, `NOMBRE`, `DIRECCION`, `CREACION`, `ULTMODIFICACION`) VALUES
 (1, 77038534, '2', 'MiCall Spa', 'Av. Apoquindo 6410, oficina 605, Las Condes', '2019-07-25 10:25:20', '2019-08-31 23:02:55'),
 (2, 77029572, '6', 'PruebaCoop Spa', 'Av. Providencia 5500, piso 5', '2019-08-31 22:44:23', '2019-08-31 23:02:42');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `PRODUCTO`
+-- Estructura de tabla para la tabla `producto`
 --
 
-DROP TABLE IF EXISTS `PRODUCTO`;
-CREATE TABLE IF NOT EXISTS `PRODUCTO` (
-  `IDPRODUCTO` int(11) NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `producto`;
+CREATE TABLE `producto` (
+  `IDPRODUCTO` int(11) NOT NULL,
   `CODPRODUCTO` varchar(50) NOT NULL,
   `IDEMPRESA` int(11) NOT NULL,
-  `DESCPRODUCTO` varchar(100) NOT NULL,
-  PRIMARY KEY (`IDPRODUCTO`),
-  KEY `FK_RELATIONSHIP_5` (`IDEMPRESA`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+  `DESCPRODUCTO` varchar(100) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
--- Volcado de datos para la tabla `PRODUCTO`
+-- Volcado de datos para la tabla `producto`
 --
 
-INSERT INTO `PRODUCTO` (`IDPRODUCTO`, `CODPRODUCTO`, `IDEMPRESA`, `DESCPRODUCTO`) VALUES
+INSERT INTO `producto` (`IDPRODUCTO`, `CODPRODUCTO`, `IDEMPRESA`, `DESCPRODUCTO`) VALUES
 (1, 'CRED_001', 2, 'Crédito 1'),
 (2, 'CRED_002', 2, 'Crédito 2');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `RUTERO`
+-- Estructura de tabla para la tabla `rutero`
 --
 
-DROP TABLE IF EXISTS `RUTERO`;
-CREATE TABLE IF NOT EXISTS `RUTERO` (
+DROP TABLE IF EXISTS `rutero`;
+CREATE TABLE `rutero` (
   `IDRUTERO` int(11) NOT NULL,
   `IDCAMPANA` int(11) NOT NULL,
   `RUT` int(11) NOT NULL,
@@ -1753,17 +1825,14 @@ CREATE TABLE IF NOT EXISTS `RUTERO` (
   `NOMARCHIVO` varchar(100) NOT NULL,
   `FECHACARGA` datetime NOT NULL,
   `TIPOOPERACION` varchar(30) NOT NULL,
-  `IDUSUARIO` int(11) NOT NULL,
-  KEY `FK_RELATIONSHIP_12` (`IDCAMPANA`),
-  KEY `IDUSUARIO` (`IDUSUARIO`),
-  KEY `IDRUTERO` (`IDRUTERO`)
+  `IDUSUARIO` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
--- Volcado de datos para la tabla `RUTERO`
+-- Volcado de datos para la tabla `rutero`
 --
 
-INSERT INTO `RUTERO` (`IDRUTERO`, `IDCAMPANA`, `RUT`, `DV`, `NOMBRES`, `APELLIDOS`, `GENERO`, `FECHANAC`, `DIRECCION`, `COMUNA`, `REGION`, `CODIGOPOSTAL`, `EMAIL`, `MONTOAPROBADO`, `FONO1`, `FONO2`, `FONO3`, `NOMARCHIVO`, `FECHACARGA`, `TIPOOPERACION`, `IDUSUARIO`) VALUES
+INSERT INTO `rutero` (`IDRUTERO`, `IDCAMPANA`, `RUT`, `DV`, `NOMBRES`, `APELLIDOS`, `GENERO`, `FECHANAC`, `DIRECCION`, `COMUNA`, `REGION`, `CODIGOPOSTAL`, `EMAIL`, `MONTOAPROBADO`, `FONO1`, `FONO2`, `FONO3`, `NOMARCHIVO`, `FECHACARGA`, `TIPOOPERACION`, `IDUSUARIO`) VALUES
 (1, 1, 11948618, '1', 'Owen Booker', 'Bonner Mann', 'M', '1991-12-21', 'Apdo.:900-2789 Cras Av.', 'Empedrado', 'Maule', 283212, 'id.ante.Nunc@lobortisquama.edu', 8250523, 973585349, 247112892, 260823789, 'RUTERO_1.csv', '2019-08-31 23:40:30', 'INS', 3),
 (1, 1, 40641475, '2', 'Hilel Oliver', 'Carpenter Macdonald', 'F', '1987-01-26', 'Apdo.:867-3307 Consectetuer Carretera', 'Providencia', 'RM', 47907, 'ultrices.mauris@mollis.net', 9350291, 346485264, 806508611, 253775172, 'RUTERO_1.csv', '2019-08-31 23:40:30', 'INS', 3),
 (1, 1, 5269251, '2', 'Lucius Newton', 'Fox Romero', 'M', '1999-09-15', '647-2866 Lacinia Avda.', 'Talca', 'VII', 728388, 'Morbi.vehicula@venenatisvel.co.uk', 6190967, 584121763, 433292597, 713189803, 'RUTERO_1.csv', '2019-08-31 23:40:30', 'INS', 3),
@@ -1849,21 +1918,20 @@ INSERT INTO `RUTERO` (`IDRUTERO`, `IDCAMPANA`, `RUT`, `DV`, `NOMBRES`, `APELLIDO
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `RUTEROID`
+-- Estructura de tabla para la tabla `ruteroid`
 --
 
-DROP TABLE IF EXISTS `RUTEROID`;
-CREATE TABLE IF NOT EXISTS `RUTEROID` (
-  `IDRUTERO` bigint(20) NOT NULL AUTO_INCREMENT,
-  `FECHACREACION` datetime DEFAULT NULL,
-  PRIMARY KEY (`IDRUTERO`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
+DROP TABLE IF EXISTS `ruteroid`;
+CREATE TABLE `ruteroid` (
+  `IDRUTERO` bigint(20) NOT NULL,
+  `FECHACREACION` datetime DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
--- Volcado de datos para la tabla `RUTEROID`
+-- Volcado de datos para la tabla `ruteroid`
 --
 
-INSERT INTO `RUTEROID` (`IDRUTERO`, `FECHACREACION`) VALUES
+INSERT INTO `ruteroid` (`IDRUTERO`, `FECHACREACION`) VALUES
 (1, '2019-08-31 23:40:30'),
 (2, '2019-08-31 23:43:22'),
 (3, '2019-08-31 23:44:26'),
@@ -1874,12 +1942,12 @@ INSERT INTO `RUTEROID` (`IDRUTERO`, `FECHACREACION`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `SIMULACION`
+-- Estructura de tabla para la tabla `simulacion`
 --
 
-DROP TABLE IF EXISTS `SIMULACION`;
-CREATE TABLE IF NOT EXISTS `SIMULACION` (
-  `IDSIMULACION` int(11) NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `simulacion`;
+CREATE TABLE `simulacion` (
+  `IDSIMULACION` int(11) NOT NULL,
   `IDCAMPANA` int(11) NOT NULL,
   `FECHASIMULACION` datetime NOT NULL,
   `RUTVENDEDOR` int(11) NOT NULL,
@@ -1894,16 +1962,14 @@ CREATE TABLE IF NOT EXISTS `SIMULACION` (
   `CAE` decimal(5,2) NOT NULL,
   `VENCIMIENTO` date NOT NULL,
   `COSTOTOTAL` int(11) NOT NULL,
-  `COMISION` int(11) NOT NULL,
-  PRIMARY KEY (`IDSIMULACION`),
-  KEY `FK_RELATIONSHIP_9` (`IDCAMPANA`)
-) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4;
+  `COMISION` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
--- Volcado de datos para la tabla `SIMULACION`
+-- Volcado de datos para la tabla `simulacion`
 --
 
-INSERT INTO `SIMULACION` (`IDSIMULACION`, `IDCAMPANA`, `FECHASIMULACION`, `RUTVENDEDOR`, `DVVENDEDOR`, `RUTCLIENTE`, `DVCLIENTE`, `MONTO`, `CUOTAS`, `VALORCUOTA`, `TASAINTERES`, `TASAANUAL`, `CAE`, `VENCIMIENTO`, `COSTOTOTAL`, `COMISION`) VALUES
+INSERT INTO `simulacion` (`IDSIMULACION`, `IDCAMPANA`, `FECHASIMULACION`, `RUTVENDEDOR`, `DVVENDEDOR`, `RUTCLIENTE`, `DVCLIENTE`, `MONTO`, `CUOTAS`, `VALORCUOTA`, `TASAINTERES`, `TASAANUAL`, `CAE`, `VENCIMIENTO`, `COSTOTOTAL`, `COMISION`) VALUES
 (1, 1, '2019-09-01 10:36:46', 19678957, 'k', 11948618, '1', 8000000, 36, 250000, '2.90', '34.80', '29.00', '2019-10-15', 9000000, 15500),
 (2, 1, '2019-09-01 10:39:18', 19678957, 'k', 19475304, '7', 1100000, 24, 72000, '2.30', '27.60', '23.00', '2019-10-30', 1728000, 8500),
 (3, 1, '2019-09-01 10:41:34', 19678957, 'k', 27814958, '7', 3000000, 48, 94000, '2.50', '30.00', '25.00', '2019-10-30', 4512000, 23000),
@@ -1922,22 +1988,20 @@ INSERT INTO `SIMULACION` (`IDSIMULACION`, `IDCAMPANA`, `FECHASIMULACION`, `RUTVE
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `SIMULACIONSUBPRODUCTO`
+-- Estructura de tabla para la tabla `simulacionsubproducto`
 --
 
-DROP TABLE IF EXISTS `SIMULACIONSUBPRODUCTO`;
-CREATE TABLE IF NOT EXISTS `SIMULACIONSUBPRODUCTO` (
+DROP TABLE IF EXISTS `simulacionsubproducto`;
+CREATE TABLE `simulacionsubproducto` (
   `IDSIMULACION` int(11) NOT NULL,
-  `IDSUBPRODUCTO` int(11) NOT NULL,
-  KEY `FK_RELATIONSHIP_10` (`IDSIMULACION`),
-  KEY `FK_RELATIONSHIP_11` (`IDSUBPRODUCTO`)
+  `IDSUBPRODUCTO` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
--- Volcado de datos para la tabla `SIMULACIONSUBPRODUCTO`
+-- Volcado de datos para la tabla `simulacionsubproducto`
 --
 
-INSERT INTO `SIMULACIONSUBPRODUCTO` (`IDSIMULACION`, `IDSUBPRODUCTO`) VALUES
+INSERT INTO `simulacionsubproducto` (`IDSIMULACION`, `IDSUBPRODUCTO`) VALUES
 (3, 1),
 (4, 1),
 (5, 1),
@@ -1952,46 +2016,43 @@ INSERT INTO `SIMULACIONSUBPRODUCTO` (`IDSIMULACION`, `IDSUBPRODUCTO`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `SUBPRODUCTO`
+-- Estructura de tabla para la tabla `subproducto`
 --
 
-DROP TABLE IF EXISTS `SUBPRODUCTO`;
-CREATE TABLE IF NOT EXISTS `SUBPRODUCTO` (
-  `IDSUBPRODUCTO` int(11) NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `subproducto`;
+CREATE TABLE `subproducto` (
+  `IDSUBPRODUCTO` int(11) NOT NULL,
   `IDEMPRESA` int(11) NOT NULL,
   `CODSUBPRODUCTO` varchar(50) NOT NULL,
   `DESCSUBPRODUCTO` varchar(100) NOT NULL,
-  `PRIMA` decimal(5,2) NOT NULL,
-  PRIMARY KEY (`IDSUBPRODUCTO`),
-  KEY `FK_RELATIONSHIP_4` (`IDEMPRESA`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+  `PRIMA` decimal(5,2) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
--- Volcado de datos para la tabla `SUBPRODUCTO`
+-- Volcado de datos para la tabla `subproducto`
 --
 
-INSERT INTO `SUBPRODUCTO` (`IDSUBPRODUCTO`, `IDEMPRESA`, `CODSUBPRODUCTO`, `DESCSUBPRODUCTO`, `PRIMA`) VALUES
+INSERT INTO `subproducto` (`IDSUBPRODUCTO`, `IDEMPRESA`, `CODSUBPRODUCTO`, `DESCSUBPRODUCTO`, `PRIMA`) VALUES
 (1, 2, 'SEG_DESG', 'Seguro Desgravamen', '3.00'),
 (2, 2, 'SEG_CESA', 'Seguro Cesantía', '1.50');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `TIPOUSUARIO`
+-- Estructura de tabla para la tabla `tipousuario`
 --
 
-DROP TABLE IF EXISTS `TIPOUSUARIO`;
-CREATE TABLE IF NOT EXISTS `TIPOUSUARIO` (
-  `IDTIPOUSUARIO` int(11) NOT NULL AUTO_INCREMENT,
-  `DESCTIPOUSUARIO` varchar(50) NOT NULL,
-  PRIMARY KEY (`IDTIPOUSUARIO`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+DROP TABLE IF EXISTS `tipousuario`;
+CREATE TABLE `tipousuario` (
+  `IDTIPOUSUARIO` int(11) NOT NULL,
+  `DESCTIPOUSUARIO` varchar(50) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
--- Volcado de datos para la tabla `TIPOUSUARIO`
+-- Volcado de datos para la tabla `tipousuario`
 --
 
-INSERT INTO `TIPOUSUARIO` (`IDTIPOUSUARIO`, `DESCTIPOUSUARIO`) VALUES
+INSERT INTO `tipousuario` (`IDTIPOUSUARIO`, `DESCTIPOUSUARIO`) VALUES
 (1, 'Administrador'),
 (2, 'Cliente Empresa'),
 (3, 'Ejecutivo Ventas');
@@ -1999,12 +2060,12 @@ INSERT INTO `TIPOUSUARIO` (`IDTIPOUSUARIO`, `DESCTIPOUSUARIO`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `USUARIO`
+-- Estructura de tabla para la tabla `usuario`
 --
 
-DROP TABLE IF EXISTS `USUARIO`;
-CREATE TABLE IF NOT EXISTS `USUARIO` (
-  `IDUSUARIO` int(11) NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `usuario`;
+CREATE TABLE `usuario` (
+  `IDUSUARIO` int(11) NOT NULL,
   `IDEMPRESA` int(11) NOT NULL,
   `IDTIPOUSUARIO` int(11) NOT NULL,
   `RUTUSUARIO` int(11) NOT NULL,
@@ -2014,47 +2075,188 @@ CREATE TABLE IF NOT EXISTS `USUARIO` (
   `APMATERNO` varchar(50) NOT NULL,
   `ESTADO` int(11) NOT NULL,
   `ULTMODIFICACION` datetime NOT NULL,
-  `PASSWORD` varchar(64) NOT NULL,
-  PRIMARY KEY (`IDUSUARIO`),
-  KEY `FK_RELATIONSHIP_1` (`IDTIPOUSUARIO`),
-  KEY `FK_RELATIONSHIP_2` (`IDEMPRESA`)
-) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
+  `PASSWORD` varchar(64) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 --
--- Volcado de datos para la tabla `USUARIO`
+-- Volcado de datos para la tabla `usuario`
 --
 
-INSERT INTO `USUARIO` (`IDUSUARIO`, `IDEMPRESA`, `IDTIPOUSUARIO`, `RUTUSUARIO`, `DVUSUARIO`, `NOMUSUARIO`, `APPATERNO`, `APMATERNO`, `ESTADO`, `ULTMODIFICACION`, `PASSWORD`) VALUES
+INSERT INTO `usuario` (`IDUSUARIO`, `IDEMPRESA`, `IDTIPOUSUARIO`, `RUTUSUARIO`, `DVUSUARIO`, `NOMUSUARIO`, `APPATERNO`, `APMATERNO`, `ESTADO`, `ULTMODIFICACION`, `PASSWORD`) VALUES
 (1, 1, 1, 11364757, '4', 'Peter Gerhard', 'Franz', 'Salas', 1, '2019-08-10 09:54:17', 'dc41e701f21731c11abf3b7a883d61ec'),
 (2, 1, 1, 9938577, '4', 'Nicolas Antonio', 'Poblete', 'Guzmán', 1, '2019-08-31 22:40:15', '5f4dcc3b5aa765d61d8327deb882cf99'),
 (3, 2, 2, 13096208, '4', 'Jessica', 'Perez', 'Abarca', 1, '2019-08-31 22:54:34', '5f4dcc3b5aa765d61d8327deb882cf99'),
 (4, 2, 2, 13682579, '8', 'Ana', 'Espinoza', 'Cáceres', 1, '2019-09-01 10:11:15', '5f4dcc3b5aa765d61d8327deb882cf99'),
 (5, 1, 3, 19678957, 'k', 'Peter', 'Franz', 'Ercilla', 1, '2019-09-01 10:26:28', '5f4dcc3b5aa765d61d8327deb882cf99'),
-(6, 1, 3, 16355662, '6', 'Jorge', 'Silva', 'Borda', 1, '2019-09-07 11:00:38', '5f4dcc3b5aa765d61d8327deb882cf99');
+(6, 1, 3, 16355662, '6', 'Jorge', 'Silva', 'Borda', 1, '2019-09-07 11:00:38', '5f4dcc3b5aa765d61d8327deb882cf99'),
+(7, 2, 2, 11111111, '1', 'Cliente', 'Empresa', 'Scoop', 1, '2019-09-08 12:56:06', '5f4dcc3b5aa765d61d8327deb882cf99');
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `VENTA`
+-- Estructura de tabla para la tabla `venta`
 --
 
-DROP TABLE IF EXISTS `VENTA`;
-CREATE TABLE IF NOT EXISTS `VENTA` (
-  `IDVENTA` int(11) NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `venta`;
+CREATE TABLE `venta` (
+  `IDVENTA` int(11) NOT NULL,
   `IDSIMULACION` int(11) NOT NULL,
   `IDCAMPANA` int(11) NOT NULL,
   `RUTCLIENTE` int(11) NOT NULL,
   `RUTVENDEDOR` int(11) NOT NULL,
-  `FECHAVENTA` datetime NOT NULL,
-  PRIMARY KEY (`IDVENTA`),
-  KEY `IDSIMULACION` (`IDSIMULACION`),
-  KEY `IDCAMPANA` (`IDCAMPANA`)
-) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=latin1;
+  `FECHAVENTA` datetime NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
--- Volcado de datos para la tabla `VENTA`
+-- Volcado de datos para la tabla `venta`
 --
 
-INSERT INTO `VENTA` (`IDVENTA`, `IDSIMULACION`, `IDCAMPANA`, `RUTCLIENTE`, `RUTVENDEDOR`, `FECHAVENTA`) VALUES
+INSERT INTO `venta` (`IDVENTA`, `IDSIMULACION`, `IDCAMPANA`, `RUTCLIENTE`, `RUTVENDEDOR`, `FECHAVENTA`) VALUES
 (23, 13, 4, 11948618, 16355662, '2019-09-07 23:37:08');
+
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `campana`
+--
+ALTER TABLE `campana`
+  ADD PRIMARY KEY (`IDCAMPANA`),
+  ADD KEY `FK_RELATIONSHIP_6` (`IDPRODUCTO`);
+
+--
+-- Indices de la tabla `campanasubproducto`
+--
+ALTER TABLE `campanasubproducto`
+  ADD KEY `FK_RELATIONSHIP_7` (`IDCAMPANA`),
+  ADD KEY `FK_RELATIONSHIP_8` (`IDSUBPRODUCTO`);
+
+--
+-- Indices de la tabla `empresa`
+--
+ALTER TABLE `empresa`
+  ADD PRIMARY KEY (`IDEMPRESA`);
+
+--
+-- Indices de la tabla `producto`
+--
+ALTER TABLE `producto`
+  ADD PRIMARY KEY (`IDPRODUCTO`),
+  ADD KEY `FK_RELATIONSHIP_5` (`IDEMPRESA`);
+
+--
+-- Indices de la tabla `rutero`
+--
+ALTER TABLE `rutero`
+  ADD KEY `FK_RELATIONSHIP_12` (`IDCAMPANA`),
+  ADD KEY `IDUSUARIO` (`IDUSUARIO`),
+  ADD KEY `IDRUTERO` (`IDRUTERO`);
+
+--
+-- Indices de la tabla `ruteroid`
+--
+ALTER TABLE `ruteroid`
+  ADD PRIMARY KEY (`IDRUTERO`);
+
+--
+-- Indices de la tabla `simulacion`
+--
+ALTER TABLE `simulacion`
+  ADD PRIMARY KEY (`IDSIMULACION`),
+  ADD KEY `FK_RELATIONSHIP_9` (`IDCAMPANA`);
+
+--
+-- Indices de la tabla `simulacionsubproducto`
+--
+ALTER TABLE `simulacionsubproducto`
+  ADD KEY `FK_RELATIONSHIP_10` (`IDSIMULACION`),
+  ADD KEY `FK_RELATIONSHIP_11` (`IDSUBPRODUCTO`);
+
+--
+-- Indices de la tabla `subproducto`
+--
+ALTER TABLE `subproducto`
+  ADD PRIMARY KEY (`IDSUBPRODUCTO`),
+  ADD KEY `FK_RELATIONSHIP_4` (`IDEMPRESA`);
+
+--
+-- Indices de la tabla `tipousuario`
+--
+ALTER TABLE `tipousuario`
+  ADD PRIMARY KEY (`IDTIPOUSUARIO`);
+
+--
+-- Indices de la tabla `usuario`
+--
+ALTER TABLE `usuario`
+  ADD PRIMARY KEY (`IDUSUARIO`),
+  ADD KEY `FK_RELATIONSHIP_1` (`IDTIPOUSUARIO`),
+  ADD KEY `FK_RELATIONSHIP_2` (`IDEMPRESA`);
+
+--
+-- Indices de la tabla `venta`
+--
+ALTER TABLE `venta`
+  ADD PRIMARY KEY (`IDVENTA`),
+  ADD KEY `IDSIMULACION` (`IDSIMULACION`),
+  ADD KEY `IDCAMPANA` (`IDCAMPANA`);
+
+--
+-- AUTO_INCREMENT de las tablas volcadas
+--
+
+--
+-- AUTO_INCREMENT de la tabla `campana`
+--
+ALTER TABLE `campana`
+  MODIFY `IDCAMPANA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de la tabla `empresa`
+--
+ALTER TABLE `empresa`
+  MODIFY `IDEMPRESA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de la tabla `producto`
+--
+ALTER TABLE `producto`
+  MODIFY `IDPRODUCTO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de la tabla `ruteroid`
+--
+ALTER TABLE `ruteroid`
+  MODIFY `IDRUTERO` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT de la tabla `simulacion`
+--
+ALTER TABLE `simulacion`
+  MODIFY `IDSIMULACION` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
+-- AUTO_INCREMENT de la tabla `subproducto`
+--
+ALTER TABLE `subproducto`
+  MODIFY `IDSUBPRODUCTO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de la tabla `tipousuario`
+--
+ALTER TABLE `tipousuario`
+  MODIFY `IDTIPOUSUARIO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de la tabla `usuario`
+--
+ALTER TABLE `usuario`
+  MODIFY `IDUSUARIO` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT de la tabla `venta`
+--
+ALTER TABLE `venta`
+  MODIFY `IDVENTA` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 COMMIT;
