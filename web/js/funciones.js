@@ -104,3 +104,20 @@ function formatFecha(date) {
     var fec = anioString + '-' + mesString + '-' + diaString;
     return fec;
 }
+
+function truncDecimales(numero, decimales) {
+    var numString = numero.toString();
+    if (numString.indexOf(".") !== -1) {
+        var num = numString.split(".")[0];
+        var dec = numString.split(".")[1];
+        var salida = num + "." + dec.substring(0, decimales);
+        return parseFloat(salida);
+    }
+
+    if (numString.indexOf(",") !== -1) {
+        var num = numString.split(",")[0];
+        var dec = numString.split(",")[1];
+        var salida = num + "." + dec.substring(0, decimales);
+        return parseFloat(salida);
+    }
+}

@@ -7,7 +7,7 @@
     <body>
         <script type="text/javascript">
             $(document).ready(function () {
-                cambiarTab($('#tab-resumen'), 'resumen-empresa');
+                cambiarTab($('#tab-resumen-venta-mes'), 'resumen-empresa-venta');
             });
             function cambiarTab(tab, nombre) {
                 $('li.nav-item a.nav-link').removeClass('active');
@@ -29,20 +29,14 @@
             <div class="row">
                 <div class="col-sm-12">
                     <ul class="nav nav-tabs">
-                        <!--li id="tab-resumen" onclick="cambiarTab(this, 'resumen-empresa-venta');" class="nav-item">
+                        <li id="tab-resumen-venta-mes" onclick="cambiarTab(this, 'resumen-empresa-venta');" class="nav-item">
                             <a class="nav-link active" href="#">Resumen Ventas Mes</a>
-                        </li-->
-                        <li id="tab-resumen" onclick="cambiarTab(this, 'resumen-empresa-dia-venta');" class="nav-item">
+                        </li>
+                        <li id="tab-resumen-venta-dia" onclick="cambiarTab(this, 'resumen-empresa-dia-venta');" class="nav-item">
                             <a class="nav-link active" href="#">Resumen Ventas Día</a>
                         </li>
-                        <!--li onclick="cambiarTab(this, 'detalle-empresa-venta');" class="nav-item">
+                        <li id="tab-detalle-empresa-venta" onclick="cambiarTab(this, 'detalle-empresa-venta');" class="nav-item">
                             <a class="nav-link" href="#">Detalle Ventas</a>
-                        </li-->
-                        <li id="tab-resumen" onclick="cambiarTab(this, 'resumen-empresa');" class="nav-item">
-                            <a class="nav-link active" href="#">Resumen Simulaciones Mes</a>
-                        </li>
-                        <li id="tab-resumen" onclick="cambiarTab(this, 'resumen-empresa-dia');" class="nav-item">
-                            <a class="nav-link active" href="#">Resumen Simulaciones Día</a>
                         </li>
                         <li onclick="cambiarTab(this, 'detalle-empresa');" class="nav-item">
                             <a class="nav-link" href="#">Detalle Simulaciones</a>

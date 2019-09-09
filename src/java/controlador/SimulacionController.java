@@ -51,7 +51,8 @@ public class SimulacionController extends HttpServlet {
                 + simulacion.getBigDecimal("cae") + ","
                 + "'" + simulacion.getString("vencimiento") + "',"
                 + simulacion.getInt("costototal") + ","
-                + simulacion.getInt("comision") + ")";
+                + simulacion.getInt("comision") + ","
+                + simulacion.getInt("impuesto") + ")";
         Conexion c = new Conexion();
         c.abrir();
         int liid = 0;
@@ -102,6 +103,7 @@ public class SimulacionController extends HttpServlet {
         int filas = 0;
         String cuerpo = "";
         DecimalFormat format = new DecimalFormat("###,###,###,###,###");
+        DecimalFormat decimales = new DecimalFormat("###,###.##");
         try {
             while (rs.next()) {
                 String filaSubs = "<td>" + rs.getInt("SUBPRODUCTOS") + "</td>";
@@ -123,14 +125,18 @@ public class SimulacionController extends HttpServlet {
                         + "  </div></td>";
                 }
                 
-                cuerpo += "<td>" + rs.getString("NOMEMPRESA") + "</td>";
-                cuerpo += "<td>" + rs.getString("RUTCLIENTE") + "-" + rs.getString("DVCLIENTE") + "</td>";
-                cuerpo += "<td>" + rs.getString("NOMBRESCLIENTE") + " " + rs.getString("APELLIDOSCLIENTE") + "</td>";
-                cuerpo += "<td>[" + rs.getString("CODCAMPANA") + "] " + rs.getString("NOMCAMPANA") + "</td>";
-                cuerpo += "<td>" + rs.getString("CODPRODUCTO") + "</td>";
-                cuerpo += "<td>" + rs.getString("DESCPRODUCTO") + "</td>";
-                cuerpo += "<td>$" + format.format(rs.getInt("MONTO")) + "</td>";
+                //cuerpo += "<td>" + rs.getString("NOMEMPRESA") + "</td>";
+                //cuerpo += "<td>" + rs.getString("RUTCLIENTE") + "-" + rs.getString("DVCLIENTE") + "</td>";
+                //cuerpo += "<td>" + rs.getString("NOMBRESCLIENTE") + " " + rs.getString("APELLIDOSCLIENTE") + "</td>";
+                //cuerpo += "<td>[" + rs.getString("CODCAMPANA") + "] " + rs.getString("NOMCAMPANA") + "</td>";
+                cuerpo += "<td>[" + rs.getString("CODPRODUCTO") + "] " + rs.getString("DESCPRODUCTO") + "</td>";
+                cuerpo += "<td>$ " + format.format(rs.getInt("MONTO")) + "</td>";
                 cuerpo += "<td>" + rs.getInt("CUOTAS") + "</td>";
+                cuerpo += "<td>$ " + format.format(rs.getInt("VALORCUOTA")) + "</td>";
+                cuerpo += "<td>$ " + format.format(rs.getInt("IMPUESTO")) + "</td>";
+                cuerpo += "<td>$ " + format.format(rs.getInt("COSTOTOTAL")) + "</td>";
+                cuerpo += "<td>" + decimales.format(rs.getDouble("TASAINTERES")) + " %</td>";
+                cuerpo += "<td>" + decimales.format(rs.getDouble("CAE")) + " %</td>";
                 cuerpo += filaSubs;
                 cuerpo += botones;
                 cuerpo += "</tr>";
@@ -158,6 +164,7 @@ public class SimulacionController extends HttpServlet {
         c.abrir();
         ResultSet rs = c.ejecutarQuery(query);
         JSONArray subproductos = new JSONArray();
+        DecimalFormat format = new DecimalFormat("###,###,###");
         try {
             while (rs.next()) {
                 JSONObject sub = new JSONObject();
@@ -168,6 +175,7 @@ public class SimulacionController extends HttpServlet {
                 sub.put("descsubproducto", rs.getString("DESCSUBPRODUCTO"));
                 sub.put("prima", Double.toString(rs.getDouble("PRIMA")));
                 sub.put("montometa", rs.getInt("MONTOMETA"));
+                sub.put("montoseguro", format.format(rs.getInt("MONTOSEGURO")));
                 sub.put("cantidadmeta", rs.getInt("CANTIDADMETA"));
                 subproductos.put(sub);
             }
@@ -181,7 +189,6 @@ public class SimulacionController extends HttpServlet {
             salida.put("mensaje", ex);
         }
         c.cerrar();
-
         return salida;
     }
 }

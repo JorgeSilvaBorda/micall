@@ -174,6 +174,80 @@ app.post('/rec-simulacion', function(req, res) {
     
 });
 
+app.post('/rec-venta', function(req, res) {
+    if (!req.body.rutcliente || !req.body.fechaventa || !req.body.rutempresa || !req.body.codcampana) {
+        //Si no vienen los campos, se retorna error.
+        res.send({estado: "error", mensaje: "El request no posee todos los campos mínimos requeridos."});
+    }else{
+        //Si se corrobora que vienen al menos los tres campos requeridos, se procesa.
+        var rutcliente = req.body.rutcliente;
+        var fechaventa = req.body.fechaventa;
+        var rutempresa = req.body.rutempresa;
+        var codcampana = req.body.codcampana;
+
+        var query = "CALL SP_GET_VENTA_API(" + rutcliente + ", '" + fechaventa + "', " + rutempresa + ", '" + codcampana + "')";
+        var mysql = require('mysql');
+        var conn = mysql.createConnection({
+            host: defaultConfig.bdServer,
+            user: defaultConfig.bdUser,
+            password: defaultConfig.bdPassword,
+            database: defaultConfig.baseDatos,
+            port: defaultConfig.port,
+        });
+
+        conn.query(query, function(error, rows, fields) {
+            if (rows[0].length > 0) {
+                var simulacion = {
+                    idsimulacion: rows[0][0].IDSIMULACION,
+                    idcampana: rows[0][0].IDCAMPANA,
+                    fechasimulacion: rows[0][0].FECHASIMULACION,
+                    fechaventa: rows[0][0].FECHAVENTA,
+                    rutvendedor: rows[0][0].RUTVENDEDOR,
+                    dvvendedor: rows[0][0].DVVENDEDOR,
+                    rutcliente: rows[0][0].RUTCLIENTE,
+                    dvcliente: rows[0][0].DVCLIENTE,
+                    monto: rows[0][0].MONTO,
+                    cuotas: rows[0][0].CUOTAS,
+                    valorcuota: rows[0][0].VALORCUOTA,
+                    tasainteres: rows[0][0].TASAINTERES,
+                    tasaanual: rows[0][0].TASAANUAL,
+                    cae: rows[0][0].CAE,
+                    vencimiento: rows[0][0].VENCIMIENTO,
+                    costototal: rows[0][0].COSTOTOTAL,
+                    comision: rows[0][0].COMISION,
+                    impuesto: rows[0][0].IMPUESTO,
+                    codcampana: rows[0][0].CODCAMPANA,
+                    nomcampana: rows[0][0].NOMCAMPANA,
+                    codproducto: rows[0][0].CODPRODUCTO,
+                    descproducto: rows[0][0].DESCPRODUCTO,
+                    rutempresa: rows[0][0].RUTEMPRESA,
+                    dvempresa: rows[0][0].DVEMPRESA,
+                    nomempresa: rows[0][0].NOMEMPRESA,
+                    subproductos: [],
+                };
+                if (rows[0][0].IDSUBPRODUCTO === null) {
+                    //No hay subproductos asociados
+                    res.send(simulacion);
+                } else {
+                    for (var i = 0; i < rows[0].length; i++) {
+                        var subproducto = {
+                            idsubproducto: rows[0][i].IDSUBPRODUCTO,
+                            codsubproducto: rows[0][i].CODSUBPRODUCTO,
+                            descsubproducto: rows[0][i].DESCSUBPRODUCTO,
+                            prima: rows[0][i].PRIMA,
+                        };
+                        simulacion.subproductos.push(subproducto);
+                    }
+                    res.send(simulacion);
+                }
+            }
+        });
+        conn.end();
+    }
+
+    
+});
+
 app.post('/rec-usuarios', function(req, res) {
     var query = 'CALL SP_GET_USUARIOS()';
     var mysql = require('mysql');
@@ -186,7 +260,6 @@ app.post('/rec-usuarios', function(req, res) {
     });
 
     connection.query(query, function(error, result) {
-        console.log(result[0]);
         res.send(result[0]);
     });
     connection.end();

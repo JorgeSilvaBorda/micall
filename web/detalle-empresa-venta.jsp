@@ -86,7 +86,7 @@
     function cargarDetalle() {
         if (validarCampos()) {
             var datos = {
-                tipo: 'tabla-detalle-simulaciones-empresa',
+                tipo: 'tabla-detalle-ventas-empresa',
                 idempresa: '<% out.print(session.getAttribute("idempresa"));%>',
                 desde: $('#desde').val(),
                 hasta: $('#hasta').val()
