@@ -9,6 +9,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="funciones/simulador.js" type="text/javascript"></script>
         <title>Simulacion</title>
     </head>
     <body>
@@ -653,6 +654,41 @@
                 $('#alerta').fadeOut(500);
                 $('#alerta').html('');
             }
+
+            // -- Test Simulador--------------------------------------------------
+
+            function generar() {
+                var montosolicitado = parseInt($('#montoaprobado').val().replaceAll("\\.", ""));
+                var cuotas = parseInt($('#cuotas').val());
+                var tasainteres = parseFloat($('#tasainteres').val());
+                var PRIMA = 0.0;
+                var comision = parseInt($('#comision').val().replaceAll("\\.", ""));
+                var topeUf = 50;
+                var simulacion = simular(montosolicitado, cuotas, tasainteres, PRIMA, comision, topeUf);
+                $('#tab-subproductos tbody tr').each(function (t) {
+                    var fila = $(this)[0];
+                    var celdas = $(fila.cells);
+                    var celda_0 = $(celdas[0]);
+                    var check = $(celda_0).children('input');
+                    if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
+                        var celda_1 = $(celdas[1]);
+                        var celda_3 = $(celdas[3]);
+                        var hidden = $(celda_1).children('input')[1];
+                        var idsubproducto = $(hidden).val();
+                        var prima = parseFloat($(celda_3).text());
+                        var sub = {idsubproducto: idsubproducto, prima: prima};
+                        if (parseFloat($(celda_3).text()) > 0) {
+                            simulacion = simular(montosolicitado, cuotas, tasainteres, parseFloat($(celda_3).text()), comision, topeUf);
+                        }
+                    }
+                });
+                console.log(simulacion);
+                //console.log(montosolicitado + "  " + cuotas + "  " + tasainteres + "  " + PRIMA + "  " + comision + "  " + topeUf);
+            }
+
+            function getPrima(callback) {
+
+            }
         </script>
         <div class="container-fluid">
             <!-- The Modal -->
@@ -829,13 +865,16 @@
                                 <input disabled="disabled" onchange="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='impuesto' value=''/>
                             </td>
                         </tr>
+                        <tr>
+                            <td>
+                                <button onclick="insert();" type="button" class="btn btn-primary btn-sm">Simular</button>
+                            </td>
+                            <td>
+                                <button onclick='limpiar();' type="button" class="btn btn-default btn-sm">Limpiar</button>
+                            </td>
+                            <td colspan="2" ></td>
+                        </tr>
                     </table>
-                    <div class='col-sm-2'>
-                        <div id='creacion' class="form-group small">
-                            <button onclick="insert();" type="button" class="btn btn-primary btn-sm">Insertar</button>
-                            <button onclick='limpiar();' type="button" class="btn btn-default btn-sm float-right">Limpiar</button>
-                        </div>
-                    </div>
                 </div>
                 <div class='col-sm-4'>
                     <span style='font-weight: bold;'>Subproductos</span>
