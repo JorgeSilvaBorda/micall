@@ -1,6 +1,6 @@
 /build/
 /dist/
-nbproject/private/
-api/servicios/venta/node_modules
+/nbproject/
+/api/servicios/venta/node_modules
 nbproject
 docs/SIMULADOR_SAV.xls
