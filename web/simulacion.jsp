@@ -665,23 +665,16 @@
                 var comision = parseInt($('#comision').val().replaceAll("\\.", ""));
                 var topeUf = 50;
                 var simulacion = simular(montosolicitado, cuotas, tasainteres, PRIMA, comision, topeUf);
-                $('#tab-subproductos tbody tr').each(function (t) {
-                    var fila = $(this)[0];
-                    var celdas = $(fila.cells);
-                    var celda_0 = $(celdas[0]);
-                    var check = $(celda_0).children('input');
-                    if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
-                        var celda_1 = $(celdas[1]);
-                        var celda_3 = $(celdas[3]);
-                        var hidden = $(celda_1).children('input')[1];
-                        var idsubproducto = $(hidden).val();
-                        var prima = parseFloat($(celda_3).text());
-                        var sub = {idsubproducto: idsubproducto, prima: prima};
-                        if (parseFloat($(celda_3).text()) > 0) {
-                            simulacion = simular(montosolicitado, cuotas, tasainteres, parseFloat($(celda_3).text()), comision, topeUf);
-                        }
+                
+                var tabla = document.getElementById('tab-subproductos');
+                var trs = tabla.getElementsByTagName("tr");
+                for(var i = 0; i < trs.length; i++){
+                    var tds = trs[i].getElementsByTagName("td");
+                    for(var x = 0; x < tds.length; x ++){
+                        console.log(tds[x].innerHTML);
                     }
-                });
+                }
+                
                 console.log(simulacion);
                 //console.log(montosolicitado + "  " + cuotas + "  " + tasainteres + "  " + PRIMA + "  " + comision + "  " + topeUf);
             }

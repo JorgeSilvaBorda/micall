@@ -1,3 +1,5 @@
+var UF_HOY = null;
+var ARR_CUOTAS = [12, 24, 36, 48];
 var OPCIONES_DATATABLES = {
     dom: 'Bfrtip',
     buttons: false,
