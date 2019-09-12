@@ -1,6 +1,9 @@
 var UF_HOY = null;
+<<<<<<< Updated upstream
 var ARR_CUOTAS = [12, 24, 36, 48];
 
+=======
+>>>>>>> Stashed changes
 var OPCIONES_DATATABLES = {
     dom: 'Bfrtip',
     buttons: false,
@@ -27,6 +30,8 @@ var OPCIONES_FIXED = {
     header: true,
     headerOffset: $('#navbar').outerHeight()
 };
+
+var ARR_CUOTAS = [12, 24, 36, 48];
 
 String.prototype.replaceAll = function (search, replacement) {
     var target = this;
