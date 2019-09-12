@@ -653,6 +653,37 @@
                 $('#alerta').fadeOut(500);
                 $('#alerta').html('');
             }
+<<<<<<< Updated upstream
+=======
+
+            // -- Test Simulador--------------------------------------------------
+
+            function generar() {
+                var montosolicitado = parseInt($('#montoaprobado').val().replaceAll("\\.", ""));
+                var cuotas = parseInt($('#cuotas').val());
+                var tasainteres = parseFloat($('#tasainteres').val());
+                var PRIMA = 0.0;
+                var comision = parseInt($('#comision').val().replaceAll("\\.", ""));
+                var topeUf = 50;
+                var simulacion = simular(montosolicitado, cuotas, tasainteres, PRIMA, comision, topeUf);
+                
+                var tabla = document.getElementById('tab-subproductos');
+                var trs = tabla.getElementsByTagName("tr");
+                for(var i = 0; i < trs.length; i++){
+                    var tds = trs[i].getElementsByTagName("td");
+                    for(var x = 0; x < tds.length; x ++){
+                        console.log(tds[x].innerHTML);
+                    }
+                }
+                
+                console.log(simulacion);
+                //console.log(montosolicitado + "  " + cuotas + "  " + tasainteres + "  " + PRIMA + "  " + comision + "  " + topeUf);
+            }
+
+            function getPrima(callback) {
+
+            }
+>>>>>>> Stashed changes
         </script>
         <div class="container-fluid">
             <!-- The Modal -->
