@@ -15,7 +15,9 @@
     <body>
         <script type="text/javascript">
             var SIMULACION = null;
+            var UF_INDICADOR = 0.00;
             $(document).ready(function () {
+                
                 OPCIONES_DATATABLES.buttons = [];
                 //cargarSimulaciones(); //Quitado para no buscar al inicio.
                 cargaSelectEmpresa();
@@ -672,9 +674,34 @@
                     var tds = trs[i].getElementsByTagName("td");
                     for(var x = 0; x < tds.length; x ++){
                         console.log(tds[x].innerHTML);
+<<<<<<< Updated upstream
                     }
                 }
                 
+=======
+                    }
+                }
+                
+                /*
+                $('#tab-subproductos tbody tr').each(function (t) {
+                    var fila = $(this)[0];
+                    var celdas = $(fila.cells);
+                    var celda_0 = $(celdas[0]);
+                    var check = $(celda_0).children('input');
+                    if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
+                        var celda_1 = $(celdas[1]);
+                        var celda_3 = $(celdas[3]);
+                        var hidden = $(celda_1).children('input')[1];
+                        var idsubproducto = $(hidden).val();
+                        var prima = parseFloat($(celda_3).text());
+                        var sub = {idsubproducto: idsubproducto, prima: prima};
+                        if (parseFloat($(celda_3).text()) > 0) {
+                            simulacion = simular(montosolicitado, cuotas, tasainteres, parseFloat($(celda_3).text()), comision, topeUf);
+                        }
+                    }
+                });
+                */
+>>>>>>> Stashed changes
                 console.log(simulacion);
                 //console.log(montosolicitado + "  " + cuotas + "  " + tasainteres + "  " + PRIMA + "  " + comision + "  " + topeUf);
             }
