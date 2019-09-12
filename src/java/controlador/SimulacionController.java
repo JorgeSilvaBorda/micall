@@ -78,8 +78,9 @@ public class SimulacionController extends HttpServlet {
                 + "'" + simulacion.getString("vencimiento") + "',"
                 + simulacion.getInt("costototal") + ","
                 + simulacion.getInt("comision") + ","
-                + simulacion.getInt("impuesto") + ","
-                + simulacion.getBigInteger("idgrupo") + ")";
+                + simulacion.getInt("impuesto") + ")";
+                //+ simulacion.getInt("impuesto") + ","
+                //+ simulacion.getBigInteger("idgrupo") + ")";
         Conexion c = new Conexion();
         c.abrir();
         int liid = 0;
