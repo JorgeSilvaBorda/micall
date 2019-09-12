@@ -155,3 +155,64 @@ function truncDecimales(numero, decimales) {
         return parseFloat(salida);
     }
 }
+
+function cme(cuotas, monto, valorcuota) {
+    //var contador = 0;
+    var iff = 50.0000000;
+    var iff2 = 50.0000000;
+    var totalActualizado = 0.0;
+
+    while (totalActualizado !== monto) {
+        totalActualizado = caeParcial(iff, cuotas, monto, valorcuota);
+        iff2 = iff2 / 2;
+        if (totalActualizado < monto) {
+            iff = iff - iff2;
+        }
+        if (totalActualizado > monto) {
+            iff = iff + iff2;
+        }
+    }
+    var CME = iff;
+    return CME;
+}
+
+function cae(cuotas, monto, valorcuota) {
+    var iff = 50.0000000;
+    var iff2 = 50.0000000;
+    var totalActualizado = 0.0;
+
+    while (totalActualizado !== monto) {
+        totalActualizado = caeParcial(iff, cuotas, monto, valorcuota);
+        iff2 = iff2 / 2;
+        if (totalActualizado < monto) {
+            iff = iff - iff2;
+        }
+        if (totalActualizado > monto) {
+            iff = iff + iff2;
+        }
+    }
+    var CME = iff;
+    var CAE = iff * 12;
+    return CAE;
+}
+
+function caeParcial(iff, contcuotas, monto, valorcuota) {
+    var contador = 0;
+    var total_valor_actualizado = 0.0;
+    var valor_act_ini = 0.0;
+    var valor_actual = 0.0;
+    var fact_actual = 0.0;
+    while (contador <= contcuotas) {
+        fact_actual = 1 / Math.pow((1 + (iff / 100)), contador);
+        if (contador === 1) {
+            valor_act_ini = (valorcuota) * fact_actual;
+        }
+        if (contador > 1) {
+            valor_actual = valorcuota * fact_actual;
+        }
+        contador++;
+        total_valor_actualizado = valor_actual + total_valor_actualizado;
+    }
+    total_valor_actualizado = total_valor_actualizado + valor_act_ini;
+    return parseInt(total_valor_actualizado);
+}
