@@ -1,60 +1,76 @@
 function simular(montosolicitado, cuotas, tasainteres, primaseguro, comision, topeuf) {
-    var MONTOTOPE = montotope(getUf(), topeuf);
-    var TASAIMPUESTO = tasaimpuesto(cuotas);
-    var TASASEGURO = tasaseguro(primaseguro);
-    var MONTOASEGURADO = montoasegurado(montosolicitado, TASASEGURO, TASAIMPUESTO, MONTOTOPE);
-    var MONTOSEGURO = montoseguro(MONTOASEGURADO, TASASEGURO);
-    var MONTOAFECTO = montoafecto(montosolicitado, TASASEGURO, TASAIMPUESTO, MONTOSEGURO, MONTOASEGURADO);
-    var MONTONOAFECTO = montonoafecto(montosolicitado, MONTOAFECTO);
-    var IMPUESTOALCREDITO = impuestoalcredito(MONTOASEGURADO, TASAIMPUESTO, MONTONOAFECTO, MONTOAFECTO);
-    var MONTOSAVACAPITALIZAR = montosavacapitalizar(MONTOAFECTO, TASASEGURO, MONTONOAFECTO, TASAIMPUESTO);
-    var VALORCUOTA = valorcuota(MONTOSAVACAPITALIZAR, tasainteres, cuotas);
+
+    this.montotope = function () {
+        return (getUf() * topeuf);
+    };
+    this.tasaseguro = function () {
+        return (primaseguro / 100);
+    };
+    this.tasaimpuesto = function () {
+        if ((cuotas + 1) > 12) {
+            return 0.008;
+        } else {
+            return ((cuotas + 1) * 0.00066);
+        }
+    };
+    this.montoasegurado = function () {
+        if (montosolicitado / (1 - this.tasaseguro() - this.tasaimpuesto()) > montotope) {
+            return montotope;
+        } else {
+            return (montosolicitado / (1 - this.tasaseguro() - this.tasaimpuesto()) > montotope);
+        }
+    };
+    this.montoseguro = function () {
+        return (this.montoasegurado() * this.tasaseguro());
+    };
+    this.montoafecto = function () {
+        if (montosolicitado / (1 - this.tasaseguro() - this.tasaimpuesto()) > this.montoseguro()) {
+            return (this.montoasegurado() - this.montoseguro() - (this.montoasegurado() * this.tasaimpuesto()));
+        } else {
+            return montosolicitado;
+        }
+    };
+    this.montonoafecto = function () {
+        return (montosolicitado - this.montoafecto());
+    };
+    this.impuestoalcredito = function () {
+        return (this.montoasegurado() * this.tasaimpuesto()) + (this.montonoafecto() / (1 - this.tasaimpuesto()) - this.montoafecto());
+    };
+    this.montosavacapitalizar = function () {
+        return (this.montoafecto() * (1 / (1 - this.tasaseguro() - this.tasaimpuesto())) + this.montonoafecto() * (1 / (1 - this.tasaimpuesto())));
+    };
+    this.valorcuota = function () {
+        return (((this.montosavacapitalizar()) * (tasainteres / 100) / (1 - Math.pow((1 + (tasainteres / 100)), -cuotas))));
+    };
     var simulacion = {
         montosolicitado: montosolicitado,
         cuotas: cuotas,
         tasainteresmensual: tasainteres,
         comision: comision,
         tasainteresanual: (tasainteres * 12),
-        tasaimpuesto: TASAIMPUESTO,
-        impuestoalcredito: IMPUESTOALCREDITO,
-        montoafecto: MONTOAFECTO,
-        montonoafecto: MONTONOAFECTO,
-        montosavacapitalizar: MONTOSAVACAPITALIZAR,
-        costototal: (VALORCUOTA * cuotas),
-        cme: cme(cuotas, montosolicitado, VALORCUOTA),
-        cae: cae(cuotas, montosolicitado, VALORCUOTA),
+        tasaimpuesto: this.tasaimpuesto(cuotas),
+        impuestoalcredito: this.impuestoalcredito(this.montoasegurado(), this.tasaimpuesto(), this.montonoafecto(), this.montoafecto()),
+        montoafecto: this.montoafecto(),
+        montonoafecto: this.montonoafecto(),
+        montosavacapitalizar: this.montosavacapitalizar(),
+        costototal: (this.valorcuota() * cuotas),
+        cme: cme(cuotas, montosolicitado, this.valorcuota()),
+        cae: cae(cuotas, montosolicitado, this.valorcuota()),
         ufmomento: getUf(),
         seguro: []
     };
-    if (this.primaseguro > 0) {
+    if (primaseguro > 0) {
         simulacion.seguro = {
             topeuf: 50,
-            montotope: MONTOTOPE,
-            montoasegurado: MONTOASEGURADO,
-            montoseguro: MONTOSEGURO,
-            tasaseguro: TASASEGURO,
+            montotope: this.montotope(),
+            montoasegurado: this.montoasegurado(),
+            montoseguro: this.montoseguro(),
+            tasaseguro: this.tasaseguro(),
             primaseguro: primaseguro
         };
     }
-    return simulacion;
-}
 
-function tasaseguro(prima) {
-    return (prima / 100);
-}
-
-function topedinero(uf, topeuf) {
-    return (uf * topeuf);
-}
-
-function tasaimpuesto(cuotas) {
-    if ((cuotas + 1) > 12) {
-        return 0.008;
-    } else {
-        return ((cuotas + 1) * 0.00066);
-    }
-}
-
+<<<<<<< Updated upstream
 function montoasegurado(montosolicitado, tasaseguro, tasaimpuesto, montotope) {
     if (montosolicitado / (1 - tasaseguro - tasaimpuesto) > montotope) {
         return montotope;
@@ -96,6 +112,9 @@ function montotope(uf, topeuf) {
 
 function getUf() {
     return UF_HOY;
+=======
+    return simulacion;
+>>>>>>> Stashed changes
 }
 
 function cme(cuotas, monto, valorcuota) {
@@ -159,4 +178,8 @@ function truncDecimales(numero, decimales) {
         var salida = num + "." + dec.substring(0, decimales);
         return parseFloat(salida);
     }
+}
+
+function getUf() {
+    return 26672.2;
 }
