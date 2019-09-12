@@ -95,7 +95,7 @@ function montotope(uf, topeuf) {
 }
 
 function getUf() {
-    return 26672.2;
+    return UF_HOY;
 }
 
 function cme(cuotas, monto, valorcuota) {

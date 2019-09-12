@@ -1,3 +1,6 @@
+var UF_HOY = null;
+var ARR_CUOTAS = [12, 24, 36, 48];
+
 var OPCIONES_DATATABLES = {
     dom: 'Bfrtip',
     buttons: false,
@@ -113,6 +116,26 @@ function formatFecha(date) {
     }
 
     var fec = anioString + '-' + mesString + '-' + diaString;
+    return fec;
+}
+
+function formatFechaChile(date) {
+    var mesInt = date.getMonth() + 1;
+    var diaInt = date.getDate();
+    var anioInt = date.getFullYear();
+
+    var mesString = mesInt.toString();
+    var diaString = diaInt.toString();
+    var anioString = anioInt.toString();
+
+    if (mesInt < 10) {
+        mesString = '0' + mesString;
+    }
+    if (diaInt < 10) {
+        diaString = '0' + diaString;
+    }
+
+    var fec = diaString + '-' + mesString + '-' + anioString;
     return fec;
 }
 
