@@ -23,17 +23,18 @@
             <br />
             <div class="row">
                 <div class="col-sm-12">
-                    <h2>Estado Ventas</h2>
+                    <h2>Panel Estratégico</h2>
                 </div>
             </div>
             <div class="row">
                 <div class="col-sm-12">
                     <ul class="nav nav-tabs">
+                        
                         <li id="tab-resumen-venta-mes" onclick="cambiarTab(this, 'resumen-empresa-venta');" class="nav-item">
                             <a class="nav-link active" href="#">Resumen Ventas Mes</a>
                         </li>
                         <li id="tab-resumen-venta-dia" onclick="cambiarTab(this, 'resumen-empresa-dia-venta');" class="nav-item">
-                            <a class="nav-link active" href="#">Resumen Ventas Día</a>
+                            <a class="nav-link" href="#">Resumen Ventas Día</a>
                         </li>
                         <li id="tab-detalle-empresa-venta" onclick="cambiarTab(this, 'detalle-empresa-venta');" class="nav-item">
                             <a class="nav-link" href="#">Detalle Ventas</a>
