@@ -8,11 +8,31 @@
 %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <script type="text/javascript">
-    
-    $(document).ready(function(){
+
+    $(document).ready(function () {
         OPCIONES_FIXED.headerOffset = $('#navbar').outerHeight();
+        cargarUf();
     });
-    
+
+    function cargarUf() {
+        if (UF_HOY === null) {
+            $.ajax({
+                url: 'https://mindicador.cl/api/uf/' + formatFechaChile(new Date()),
+                type: 'get',
+                success: function (res) {
+                    var valorUfHoy = res.serie[0].valor;
+                    $('#UF-HOY').html("$ " + formatMiles(valorUfHoy.toString().split(".")[0]));
+                    UF_HOY = parseFloat(valorUfHoy);
+                }
+            });
+        }
+
+    }
+
+    function getUfHoyMain() {
+        return $('#UF-HOY').html().replaceAll("$ ", "");
+    }
+
     function cerrar() {
         window.location.href = "login.jsp";
     }
@@ -22,8 +42,8 @@
         $(li).addClass('active');
         $('#contenedor').load(nombre + '.jsp');
     }
-    
-    function mostrar(nombre){
+
+    function mostrar(nombre) {
         $('#contenedor').load(nombre + '.jsp');
     }
 </script>
@@ -31,7 +51,11 @@
     <div class="row">
         <div class="col-sm-12">
             <nav id="navbar" class="navbar small navbar-expand-sm navbar-light bg-light fixed-top"><img src='img/logo.png' height="60" width='62' />
-                <a class="navbar-brand" href="#">&nbsp;&nbsp;&nbsp;&nbsp;<% if(session.getAttribute("idtipousuario").toString().equals("3")){out.print("MiCall");}else{out.print(session.getAttribute("empresa"));} %></a>
+                <a class="navbar-brand" href="#">&nbsp;&nbsp;&nbsp;&nbsp;<% if (session.getAttribute("idtipousuario").toString().equals("3")) {
+                        out.print("MiCall");
+                    } else {
+                        out.print(session.getAttribute("empresa"));
+                    } %></a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#contenidoNavbar" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -52,6 +76,9 @@
                         }
                     %>
                     <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" role="button" aria-expanded="false"><strong>UF Hoy: </strong><span id="UF-HOY"></span></a>
+                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <% out.print(nombres);%>

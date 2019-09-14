@@ -32,7 +32,33 @@ public class SimulacionController extends HttpServlet {
             case "get-subproductos-simulacion":
                 out.print(getSubproductosSimulacion(entrada.getInt("idsimulacion")));
                 break;
+            case "get-id-grupo":
+                out.print(newGrupoSimulacion());
+                break;
         }
+    }
+
+    private JSONObject newGrupoSimulacion() {
+        JSONObject salida = new JSONObject();
+        String query = "CALL SP_INS_GRUPO_SIMULACION()";
+        Conexion c = new Conexion();
+        c.abrir();
+        ResultSet rs = c.ejecutarQuery(query);
+        int LIID = 0;
+        try {
+            while (rs.next()) {
+                LIID = rs.getInt("LIID");
+            }
+            salida.put("liid", LIID);
+        } catch (Exception ex) {
+            System.out.println("Problemas");
+            System.out.println(ex);
+            salida.put("estado", "error");
+            salida.put("liid", -1);
+        }
+        c.cerrar();
+        salida.put("estado", "ok");
+        return salida;
     }
 
     private JSONObject insSimulacion(JSONObject simulacion) {
@@ -53,6 +79,8 @@ public class SimulacionController extends HttpServlet {
                 + simulacion.getInt("costototal") + ","
                 + simulacion.getInt("comision") + ","
                 + simulacion.getInt("impuesto") + ")";
+                //+ simulacion.getInt("impuesto") + ","
+                //+ simulacion.getBigInteger("idgrupo") + ")";
         Conexion c = new Conexion();
         c.abrir();
         int liid = 0;
@@ -97,6 +125,7 @@ public class SimulacionController extends HttpServlet {
     public JSONObject getSimulacionesRutVendedorRutCliente(int rutvendedor, int rutcliente) {
         JSONObject salida = new JSONObject();
         String query = "CALL SP_GET_SIMULACIONES_RUTVENDEDOR_RUTCLIENTE(" + rutvendedor + ", " + rutcliente + ")";
+        System.out.println(query);
         Conexion c = new Conexion();
         c.abrir();
         ResultSet rs = c.ejecutarQuery(query);
@@ -111,24 +140,19 @@ public class SimulacionController extends HttpServlet {
                     filaSubs = "<td>" + rs.getInt("SUBPRODUCTOS") + " <a href='#' onclick='verSubproductosVendidos(" + rs.getInt("IDSIMULACION") + ");'>Detalle</a></td>";
                 }
                 String botones = "";
-                if(rs.getInt("IDVENTA") != -1){
+                if (rs.getInt("IDVENTA") != -1) {
                     cuerpo += "<tr class='table-success'>";
                     botones = "<td style='font-size: 10px;'><div id='botones' class=\"btn-group btn-group-sm\" role=\"group\" aria-label=\"First group\">\n"
-                        + "    <button style='font-size: 10px;' type=\"button\" class=\"btn btn-success\">Vender</button>\n"
-                        + "    <button onclick='marcarme(\"" + rs.getInt("IDVENTA") + "\", \"quitar\"); 'style='font-size: 10px;' type=\"button\" class=\"btn btn-secondary\">Quitar</button>\n"
-                        + "  </div></td>";
-                }else{
+                            + "    <button style='font-size: 10px;' type=\"button\" class=\"btn btn-success\">Vender</button>\n"
+                            + "    <button onclick='marcarme(\"" + rs.getInt("IDVENTA") + "\", \"quitar\"); 'style='font-size: 10px;' type=\"button\" class=\"btn btn-secondary\">Quitar</button>\n"
+                            + "  </div></td>";
+                } else {
                     cuerpo += "<tr>";
                     botones = "<td style='font-size: 10px;'><div id='botones' class=\"btn-group btn-group-sm\" role=\"group\" aria-label=\"First group\">\n"
-                        + "    <button onclick='marcarme(\"" + rs.getInt("IDSIMULACION") + "\", \"vender\");' style='font-size: 10px;' type=\"button\" class=\"btn btn-secondary\">Vender</button>\n"
-                        + "    <button style='font-size: 10px;' type=\"button\" class=\"btn btn-danger\">Quitar</button>\n"
-                        + "  </div></td>";
+                            + "    <button onclick='marcarme(\"" + rs.getInt("IDSIMULACION") + "\", \"vender\");' style='font-size: 10px;' type=\"button\" class=\"btn btn-secondary\">Vender</button>\n"
+                            + "    <button style='font-size: 10px;' type=\"button\" class=\"btn btn-danger\">Quitar</button>\n"
+                            + "  </div></td>";
                 }
-                
-                //cuerpo += "<td>" + rs.getString("NOMEMPRESA") + "</td>";
-                //cuerpo += "<td>" + rs.getString("RUTCLIENTE") + "-" + rs.getString("DVCLIENTE") + "</td>";
-                //cuerpo += "<td>" + rs.getString("NOMBRESCLIENTE") + " " + rs.getString("APELLIDOSCLIENTE") + "</td>";
-                //cuerpo += "<td>[" + rs.getString("CODCAMPANA") + "] " + rs.getString("NOMCAMPANA") + "</td>";
                 cuerpo += "<td>[" + rs.getString("CODPRODUCTO") + "] " + rs.getString("DESCPRODUCTO") + "</td>";
                 cuerpo += "<td>$ " + format.format(rs.getInt("MONTO")) + "</td>";
                 cuerpo += "<td>" + rs.getInt("CUOTAS") + "</td>";

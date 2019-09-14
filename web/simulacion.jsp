@@ -9,14 +9,15 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="funciones/simulador.js" type="text/javascript"></script>
         <title>Simulacion</title>
     </head>
     <body>
         <script type="text/javascript">
             var SIMULACION = null;
+            var UF_INDICADOR = 0.00;
             $(document).ready(function () {
-                OPCIONES_DATATABLES.buttons = [];
-                //cargarSimulaciones(); //Quitado para no buscar al inicio.
+                OPCIONES_DATATABLES.buttons = [];                 //cargarSimulaciones(); //Quitado para no buscar al inicio.
                 cargaSelectEmpresa();
                 $('#rutcliente').rut(
                         {
@@ -241,15 +242,13 @@
                     dvvendedor: '<% out.print(session.getAttribute("dvusuario"));%>',
                     rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", ""),
                     dvcliente: $('#rutcliente').val().split("-")[1],
-                    monto: parseInt($('#montoaprobado').val().replaceAll("\\.", "")),
-                    cuotas: $('#cuotas').val().replaceAll("\\.", ""),
+                    monto: parseInt($('#montoaprobado').val().replaceAll("\\.", "")), cuotas: $('#cuotas').val().replaceAll("\\.", ""),
                     valorcuota: $('#valorcuota').val().replaceAll("\\.", ""),
                     tasainteres: $('#tasainteres').val(),
                     tasaanual: $('#tasaanual').val(),
                     cae: $('#cae').val(),
                     vencimiento: $('#vencimiento').val(),
-                    costototal: parseInt($('#costototal').val().replaceAll("\\.", "")),
-                    comision: $('#comision').val().replaceAll("\\.", ""),
+                    costototal: parseInt($('#costototal').val().replaceAll("\\.", "")), comision: $('#comision').val().replaceAll("\\.", ""),
                     subproductos: []
                 };
                 $('#tab-subproductos tbody tr').each(function (t) {
@@ -264,22 +263,7 @@
                         simulacion.subproductos.push(idsubproducto);
                     }
                 });
-                if (simulacion.idcampana === '' ||
-                        simulacion.cae === '' ||
-                        simulacion.comision === '' ||
-                        simulacion.costototal === '' ||
-                        simulacion.cuotas === '' ||
-                        simulacion.dvcliente === '' ||
-                        simulacion.dvvendedor === '' ||
-                        simulacion.idcampana === '' ||
-                        simulacion.monto === '' ||
-                        simulacion.rutcliente === '' ||
-                        simulacion.rutvendedor === '' ||
-                        simulacion.tasainteres === '' ||
-                        simulacion.tasaanual === '' ||
-                        simulacion.valorcuota === '' ||
-                        simulacion.vencimiento === '') {
-
+                if (simulacion.idcampana === '' || simulacion.cae === '' || simulacion.comision === '' || simulacion.costototal === '' || simulacion.cuotas === '' || simulacion.dvcliente === '' || simulacion.dvvendedor === '' || simulacion.idcampana === '' || simulacion.monto === '' || simulacion.rutcliente === '' || simulacion.rutvendedor === '' || simulacion.tasainteres === '' || simulacion.tasaanual === '' || simulacion.valorcuota === '' || simulacion.vencimiento === '') {
                     alert("No ha ingresado todos los campos.");
                     return false;
                 }
@@ -425,47 +409,6 @@
                 simulacion.cae = truncDecimales(cae(simulacion.cuotas, simulacion.monto, simulacion.valorcuota), 2);
             }
 
-            function cae(cuotas, monto, valorcuota) {
-                var iff = 50.0000000;
-                var iff2 = 50.0000000;
-                var totalActualizado = 0.0;
-
-                while (totalActualizado !== monto) {
-                    totalActualizado = caeParcial(iff, cuotas, monto, valorcuota);
-                    iff2 = iff2 / 2;
-                    if (totalActualizado < monto) {
-                        iff = iff - iff2;
-                    }
-                    if (totalActualizado > monto) {
-                        iff = iff + iff2;
-                    }
-                }
-                var CME = iff;
-                var CAE = iff * 12;
-                return CAE;
-            }
-
-            function caeParcial(iff, contcuotas, monto, valorcuota) {
-                var contador = 0;
-                var total_valor_actualizado = 0.0;
-                var valor_act_ini = 0.0;
-                var valor_actual = 0.0;
-                var fact_actual = 0.0;
-
-                while (contador <= contcuotas) {
-                    fact_actual = 1 / Math.pow((1 + (iff / 100)), contador);
-                    if (contador === 1) {
-                        valor_act_ini = (valorcuota) * fact_actual;
-                    }
-                    if (contador > 1) {
-                        valor_actual = valorcuota * fact_actual;
-                    }
-                    contador++;
-                    total_valor_actualizado = valor_actual + total_valor_actualizado;
-                }
-                total_valor_actualizado = total_valor_actualizado + valor_act_ini;
-                return parseInt(total_valor_actualizado);
-            }
 
             function insert() {
                 if (validarCampos()) {
@@ -487,6 +430,8 @@
                         impuesto: $('#impuesto').val().replaceAll("\\.", ""),
                         subproductos: []
                     };
+
+
                     $('#tab-subproductos tbody tr').each(function (t) {
                         var fila = $(this)[0];
                         var celdas = $(fila.cells);
@@ -499,6 +444,8 @@
                             simulacion.subproductos.push({idsubproducto: idsubproducto});
                         }
                     });
+
+
                     var detalle = {
                         url: 'SimulacionController',
                         datos: {
@@ -512,6 +459,91 @@
                     });
                     cargarSimulaciones();
                 }
+            }
+
+            /*
+             function insert() {
+             if (validarCampos()) {
+             var idcampana = $('#hidIdCampana').val();
+             var rutusuario = '<% out.print(session.getAttribute("rutusuario")); %>';
+             var dvvendedor = '<% out.print(session.getAttribute("dvusuario"));%>';
+             var rutcliente = $('#rutcliente').val().split("-")[0].replaceAll("\\.", "");
+             var dvcliente = $('#rutcliente').val().split("-")[1];
+             var monto = $('#montoaprobado').val().replaceAll("\\.", "");
+             var cuotas = $('#cuotas').val().replaceAll("\\.", "");
+             var vencimiento = $('#vencimiento').val();
+             var tasainteres = $('#tasainteres').val();
+             
+             var arrCuotas = [];
+             for(var x = 0; x < ARR_CUOTAS.length; x++){
+             arrCuotas.push(ARR_CUOTAS[x]);
+             }
+             if(arrCuotas.indexOf(parseInt(cuotas)) === -1){
+             arrCuotas.push(parseInt(cuotas));
+             }
+             getIDGrupo(function (liid) {
+             console.log(liid);
+             for (var i = 0; i < arrCuotas.length; i++) {
+             var simulacion = generarSimulacion(arrCuotas[i]);
+             simulacion.cuotas = arrCuotas[i];
+             simulacion.idcampana = idcampana;
+             simulacion.rutvendedor = rutusuario;
+             simulacion.dvvendedor = dvvendedor;
+             simulacion.rutcliente = rutcliente;
+             simulacion.dvcliente = dvcliente;
+             simulacion.vencimiento = vencimiento;
+             simulacion.idgrupo = liid;
+             
+             $('#tab-subproductos tbody tr').each(function (t) {
+             var fila = $(this)[0];
+             var celdas = $(fila.cells);
+             var celda_0 = $(celdas[0]);
+             var check = $(celda_0).children('input');
+             if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
+             var celda_1 = $(celdas[1]);
+             var hidden = $(celda_1).children('input')[1];
+             var idsubproducto = $(hidden).val();
+             simulacion.subproductos.push({idsubproducto: idsubproducto});
+             }
+             });
+             
+             var detalle = {
+             url: 'SimulacionController',
+             datos: {
+             tipo: 'ins-simulacion',
+             simulacion: simulacion
+             }
+             };
+             insertarEspecial(detalle, function (obj) {
+             limpiar();
+             cargarSimulaciones();
+             });
+             }
+             
+             });
+             }
+             
+             console.log("Registros insertados.");
+             }
+             */
+            function getIDGrupo(callback) {
+                var datos = {
+                    tipo: 'get-id-grupo'
+                };
+                $.ajax({
+                    type: 'post',
+                    url: 'SimulacionController',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function (resp) {
+                        var obj = JSON.parse(resp);
+                        if (obj.estado === "ok") {
+                            //console.log("liid: " + obj.liid);
+                            callback(obj.liid);
+                        }
+                    }
+                });
             }
 
             function calcTasaAnual() {
@@ -652,6 +684,33 @@
             function ocultarAlert() {
                 $('#alerta').fadeOut(500);
                 $('#alerta').html('');
+            }
+
+            // -- Test Simulador--------------------------------------------------
+
+            function generarSimulacion(cuotas) {
+                var montosolicitado = parseInt($('#montoaprobado').val().replaceAll("\\.", ""));
+                var tasainteres = parseFloat($('#tasainteres').val());
+                var comision = parseInt($('#comision').val().replaceAll("\\.", ""));
+                var topeUf = 50;
+
+                var primaseguro = 0.0;
+                var tabla = document.getElementById('tab-subproductos');
+                var trs = tabla.getElementsByTagName("tr");
+                for (var i = 0; i < trs.length; i++) {
+                    var tds = trs[i].getElementsByTagName("td");
+                    if (primaseguro === 0.0) {
+                        for (var x = 0; x < tds.length; x++) {
+                            //Buscar acá el seguro ----------------------------------
+                            primaseguro = parseFloat(tds[3].innerHTML);
+                        }
+                    }
+                }
+
+                var simulacion = simular(montosolicitado, cuotas, tasainteres, primaseguro, comision, topeUf);
+                //console.log(simulacion);
+                SIMULACION = simulacion;
+                return simulacion;
             }
         </script>
         <div class="container-fluid">
@@ -829,13 +888,16 @@
                                 <input disabled="disabled" onchange="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='impuesto' value=''/>
                             </td>
                         </tr>
+                        <tr>
+                            <td>
+                                <button onclick="insert();" type="button" class="btn btn-primary btn-sm">Simular</button>
+                            </td>
+                            <td>
+                                <button onclick='limpiar();' type="button" class="btn btn-default btn-sm">Limpiar</button>
+                            </td>
+                            <td colspan="2" ></td>
+                        </tr>
                     </table>
-                    <div class='col-sm-2'>
-                        <div id='creacion' class="form-group small">
-                            <button onclick="insert();" type="button" class="btn btn-primary btn-sm">Insertar</button>
-                            <button onclick='limpiar();' type="button" class="btn btn-default btn-sm float-right">Limpiar</button>
-                        </div>
-                    </div>
                 </div>
                 <div class='col-sm-4'>
                     <span style='font-weight: bold;'>Subproductos</span>

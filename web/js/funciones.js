@@ -1,3 +1,4 @@
+var UF_HOY = null;
 var OPCIONES_DATATABLES = {
     dom: 'Bfrtip',
     buttons: false,
@@ -24,6 +25,8 @@ var OPCIONES_FIXED = {
     header: true,
     headerOffset: $('#navbar').outerHeight()
 };
+
+var ARR_CUOTAS = [12, 24, 36, 48];
 
 String.prototype.replaceAll = function (search, replacement) {
     var target = this;
@@ -116,6 +119,26 @@ function formatFecha(date) {
     return fec;
 }
 
+function formatFechaChile(date) {
+    var mesInt = date.getMonth() + 1;
+    var diaInt = date.getDate();
+    var anioInt = date.getFullYear();
+
+    var mesString = mesInt.toString();
+    var diaString = diaInt.toString();
+    var anioString = anioInt.toString();
+
+    if (mesInt < 10) {
+        mesString = '0' + mesString;
+    }
+    if (diaInt < 10) {
+        diaString = '0' + diaString;
+    }
+
+    var fec = diaString + '-' + mesString + '-' + anioString;
+    return fec;
+}
+
 function truncDecimales(numero, decimales) {
     var numString = numero.toString();
     if (numString.indexOf(".") !== -1) {
@@ -131,4 +154,65 @@ function truncDecimales(numero, decimales) {
         var salida = num + "." + dec.substring(0, decimales);
         return parseFloat(salida);
     }
+}
+
+function cme(cuotas, monto, valorcuota) {
+    //var contador = 0;
+    var iff = 50.0000000;
+    var iff2 = 50.0000000;
+    var totalActualizado = 0.0;
+
+    while (totalActualizado !== monto) {
+        totalActualizado = caeParcial(iff, cuotas, monto, valorcuota);
+        iff2 = iff2 / 2;
+        if (totalActualizado < monto) {
+            iff = iff - iff2;
+        }
+        if (totalActualizado > monto) {
+            iff = iff + iff2;
+        }
+    }
+    var CME = iff;
+    return CME;
+}
+
+function cae(cuotas, monto, valorcuota) {
+    var iff = 50.0000000;
+    var iff2 = 50.0000000;
+    var totalActualizado = 0.0;
+
+    while (totalActualizado !== monto) {
+        totalActualizado = caeParcial(iff, cuotas, monto, valorcuota);
+        iff2 = iff2 / 2;
+        if (totalActualizado < monto) {
+            iff = iff - iff2;
+        }
+        if (totalActualizado > monto) {
+            iff = iff + iff2;
+        }
+    }
+    var CME = iff;
+    var CAE = iff * 12;
+    return CAE;
+}
+
+function caeParcial(iff, contcuotas, monto, valorcuota) {
+    var contador = 0;
+    var total_valor_actualizado = 0.0;
+    var valor_act_ini = 0.0;
+    var valor_actual = 0.0;
+    var fact_actual = 0.0;
+    while (contador <= contcuotas) {
+        fact_actual = 1 / Math.pow((1 + (iff / 100)), contador);
+        if (contador === 1) {
+            valor_act_ini = (valorcuota) * fact_actual;
+        }
+        if (contador > 1) {
+            valor_actual = valorcuota * fact_actual;
+        }
+        contador++;
+        total_valor_actualizado = valor_actual + total_valor_actualizado;
+    }
+    total_valor_actualizado = total_valor_actualizado + valor_act_ini;
+    return parseInt(total_valor_actualizado);
 }
