@@ -1,9 +1,16 @@
 var CAMPANAS = [];
 $(document).ready(function () {
     cargarIni();
+    var OPCIONES_EXCEL = [
+        {
+            extend: 'excelHtml5',
+            title: 'MiCall-Resultante-Mes-' + formatFecha(new Date())
+        }
+    ];
+    OPCIONES_DATATABLES.buttons = OPCIONES_EXCEL;
 });
 
-function cargarIni(){
+function cargarIni() {
     cargarSelectCampana(function (obj) {
         $('#select-campana').html(obj.options);
         CAMPANAS = obj.campanas;
@@ -11,7 +18,6 @@ function cargarIni(){
 }
 
 function cargarSelectCampana(callback) {
-    console.log("va a cargar");
     var datos = {tipo: 'select-campanas-new'};
     $.ajax({
         url: 'CampanaController',
@@ -65,5 +71,7 @@ function cargarTabla(callback) {
 }
 
 function armarTabla(obj) {
+    $('.dataTable').DataTable().destroy();
     $('#cuerpo-resultante').html(obj.cuerpo);
+    $('#tabla-resultante').DataTable(OPCIONES_DATATABLES);
 }

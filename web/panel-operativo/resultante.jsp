@@ -56,7 +56,7 @@
 </div>
 <div class="row">
     <div class="col-sm-12">
-        <table class="table" style="font-size: 12px;">
+        <table id="tabla-resultante" class="table" style="font-size: 12px;" >
             <thead>
                 <tr>
                     <th>ID Llamada</th>

@@ -60,67 +60,90 @@ function cargarTabla(callback) {
 }
 
 function armarTabla(obj) {
-    
+
     obj.cabeceras.shift();
-    console.log(obj.cabeceras);
-    var cuerpo = "";
-    var opt = {
-        rows: obj.cabeceras
-    };
-    $('#detalle').pivot(obj.registros, opt);
-    /*
-     $(registros).each(function(){
-     
-     cuerpo += "<tr>";
-     cuerpo += "<td style='font-weight: bold;' >Rut<br />Cargados</td>";
-     cuerpo += "<td>" + $(this)[0].rutcargados + "</td>";
-     cuerpo += "</tr>";
-     
-     cuerpo += "<tr>";
-     cuerpo += "<td style='font-weight: bold;' >Rut<br />Llamados</td>";
-     cuerpo += "<td>" + $(this)[0].rutllamados + "</td>";
-     cuerpo += "</tr>";
-     
-     cuerpo += "<tr>";
-     cuerpo += "<td style='font-weight: bold;' >Fonos<br />Cargados</td>";
-     cuerpo += "<td>" + $(this)[0].rutfonocargados + "</td>";
-     cuerpo += "</tr>";
-     
-     cuerpo += "<tr>";
-     cuerpo += "<td style='font-weight: bold;' >Fonos<br />Llamados</td>";
-     cuerpo += "<td>" + $(this)[0].fonosllamados + "</td>";
-     cuerpo += "</tr>";
-     
-     cuerpo += "<tr>";
-     cuerpo += "<td style='font-weight: bold;' >Contactados</td>";
-     cuerpo += "<td>" + $(this)[0].contactados + "</td>";
-     cuerpo += "</tr>";
-     
-     cuerpo += "<tr>";
-     cuerpo += "<td style='font-weight: bold;' >No<br />Contactados</td>";
-     cuerpo += "<td>" + $(this)[0].nocontactados + "</td>";
-     cuerpo += "</tr>";
-     
-     cuerpo += "<tr>";
-     cuerpo += "<td style='font-weight: bold;' >Ventas</td>";
-     cuerpo += "<td>" + $(this)[0].venta + "</td>";
-     cuerpo += "</tr>";
-     
-     cuerpo += "<tr>";
-     cuerpo += "<td style='font-weight: bold;' >Contactabilidad<br />Telefónica</td>";
-     cuerpo += "<td>" + $(this)[0].contactabilidad + "</td>";
-     cuerpo += "</tr>";
-     
-     cuerpo += "<tr>";
-     cuerpo += "<td style='font-weight: bold;' >Contactabilidad<br/>Rut</td>";
-     cuerpo += "<td>" + $(this)[0].contactabilidadrut + "</td>";
-     cuerpo += "</tr>";
-     
-     cuerpo += "<tr>";
-     cuerpo += "<td style='font-weight: bold;' >Efectividad<br/>BBDD</td>";
-     cuerpo += "<td>" + $(this)[0].efectividadbbdd + "</td>";
-     cuerpo += "</tr>";
-     });
-     */
-    //$('#cuerpo-indicadores').html(cuerpo);
+    var fechaini = obj.fechaini;
+    var fechafin = obj.fechafin;
+
+    var anio = fechaini.split("-")[0].toString();
+    var mes = fechaini.split("-")[1].toString();
+    var diafin = parseInt(fechafin.split("-")[2]);
+
+
+    var tabla = "<table class='table table-condensed table-striped' style='font-size:10px;'><thead>";
+    tabla += "<tr>";
+    tabla += "<th>" + obj.cabeceras[0] + "</th>";
+    tabla += "<th>" + obj.cabeceras[1] + "</th>";
+    for (var i = 2; i < obj.cabeceras.length; i++) {
+        var encabezado = obj.cabeceras[i].split("-")[2];
+        tabla += "<th>" + encabezado + "</th>";
+    }
+    tabla += "</tr>";
+    tabla += "</thead>";
+    tabla += "<tbody>";
+    for (var i = 0; i < obj.registros.length; i++) {
+        tabla += "<tr>";
+        tabla += "<td style='font-weight: bold;'>" + reemplazarTexto(obj.registros[i]["CONCEPTO"]) + "</td>";
+        tabla += "<td style='font-weight: bold;'>" + obj.registros[i]["TOTAL"] + "</td>";
+        for (var x = 1; x <= diafin; x++) {
+            var dia = x;
+            if (parseInt(dia) < 10) {
+                dia = "0" + dia;
+            }
+
+            var campo = obj.registros[i][anio + "-" + mes + "-" + dia];
+            if (campo.indexOf(".") !== -1) {
+                campo = truncDecimales(campo, 2);
+            }
+            tabla += "<td>" + campo + "</td>";
+        }
+        tabla += "</tr>";
+    }
+    tabla += "</tbody>";
+    tabla += "</table>";
+    $('#detalle').html(tabla);
+    //Forma de resolverlo con PIVOT---------------------------------------------
+    //var opt = {
+    //    rows: obj.cabeceras
+    //};
+    //$('#detalle').pivot(obj.registros, opt);
+    //--------------------------------------------------------------------------
+}
+
+function reemplazarTexto(texto) {
+    switch (texto) {
+        case "RUTCARGADOS":
+            return "BBDD - Cargados";
+            break;
+        case "RUTLLAMADOS":
+            return "Recorrido Por Rut";
+            break;
+        case "RUTFONOCARGADOS":
+            return "Fonos Cargados";
+            break;
+        case "FONOSLLAMADOS":
+            return "Recorrido Por Fono";
+            break;
+        case "CONTACTADOS":
+            return "Contactados";
+            break;
+        case "NOCONTACTADOS":
+            return "No Contactados";
+            break;
+        case "VENTA":
+            return "Venta";
+            break;
+        case "CONTACTABILIDAD":
+            return "Contactabilidad/BBDD";
+            break;
+        case "CONTACTABILIDADRUT":
+            return "Contactabilidad/Rut";
+            break;
+        case "EFECTIVIDADBBDD":
+            return "Efectividad BBDD";
+            break;
+        default:
+            return texto;
+            break;
+    }
 }

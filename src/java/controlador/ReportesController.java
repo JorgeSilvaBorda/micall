@@ -474,14 +474,23 @@ public class ReportesController extends HttpServlet {
     private JSONObject bbdd(int idcampana) {
 	JSONObject salida = new JSONObject();
 	JSONArray registros = new JSONArray();
-	//CALL SP_GET_REPORTE_BBDD_DIA(1, DATE(NOW()));
 	String query = "CALL SP_GET_REPORTE_BBDD_DIA(" + idcampana + ", NOW())";
 	Conexion c = new Conexion();
 	c.abrir();
 	JSONArray cabeceras = new JSONArray();
 
 	ResultSet rs = c.ejecutarQuery(query);
-
+        String fechaini = "";
+        String fechafin = "";
+        try {
+            fechaini = rs.getMetaData().getColumnName(3);
+            int len = rs.getMetaData().getColumnCount();
+            fechafin = rs.getMetaData().getColumnName(len);
+        } catch (Exception ex) {
+            System.out.println("No se puede obtener fechaini fechafin");
+            System.out.println(ex);
+        }
+        
 	try {
 	    for (int i = 1; i < rs.getMetaData().getColumnCount() + 1; i++) {
 		cabeceras.put(i, rs.getMetaData().getColumnName(i));
@@ -501,6 +510,8 @@ public class ReportesController extends HttpServlet {
 	    }
 	    salida.put("estado", "ok");
 	    salida.put("registros", registros);
+            salida.put("fechaini", fechaini);
+            salida.put("fechafin", fechafin);
 	    salida.put("cabeceras", cabeceras);
 
 	} catch (JSONException | SQLException ex) {
@@ -554,7 +565,7 @@ public class ReportesController extends HttpServlet {
 	try {
 	    while (rs.next()) {
 		cuerpo += "<tr>";
-		cuerpo += "<td>" + rs.getInt("lead_id") + "</td>";
+		cuerpo += "<td>" + rs.getInt("uniqueid") + "</td>";
 		cuerpo += "<td>" + rs.getString("vendor_lead_code") + "</td>";
 		cuerpo += "<td>" + rs.getString("first_name") + "</td>";
 		cuerpo += "<td>" + rs.getString("last_name") + "</td>";
