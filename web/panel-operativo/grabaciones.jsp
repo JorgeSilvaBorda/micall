@@ -4,7 +4,7 @@
 <br />
 <div class="row">
     <div class="col-sm-4">
-        <h3>Ejecutivos</h3>
+        <h3>Grabaciones</h3>
     </div>
 </div>
-<script type="text/javascript" src="ejecutivos.js" ></script>
+<script type="text/javascript" src="panel-operativo/grabaciones.js" ></script>

@@ -15,7 +15,7 @@
                 var a = $(tab).children('a');
                 $(a).addClass('active');
                 $('#contenido-panel-operativo').html('');
-                $('#contenido-panel-operativo').load('panel-estrategico/' + nombre + '.jsp');
+                $('#contenido-panel-operativo').load('panel-operativo/' + nombre + '.jsp');
             }
         </script>
         <div class="container-fluid">

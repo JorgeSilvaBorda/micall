@@ -13,8 +13,8 @@
                 $('li.nav-item a.nav-link').removeClass('active');
                 var a = $(tab).children('a');
                 $(a).addClass('active');
-                $('#contenido-panel-empresa').html('');
-                $('#contenido-panel-empresa').load(nombre + '.jsp');
+                $('#contenido-panel-estrategico').html('');
+                $('#contenido-panel-estrategico').load(nombre + '.jsp');
             }
         </script>
         <div class="container-fluid">
@@ -46,7 +46,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-12" id="contenido-panel-empresa">
+                <div class="col-lg-12" id="contenido-panel-estrategico">
 
                 </div>
             </div>
