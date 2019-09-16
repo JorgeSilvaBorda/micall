@@ -33,9 +33,10 @@
                         <li id="bbdd" onclick="cambiarTab(this, 'bbdd');" class="nav-item">
                             <a class="nav-link" href="#">BBDD</a>
                         </li>
-                        <li id="ejecutivos" onclick="cambiarTab(this, 'ejecutivos');" class="nav-item">
+                        <!-- OCULTO MIENTRAS QUE SE PREPARA LA SALIDA DE DATOS -->
+                        <!--li id="ejecutivos" onclick="cambiarTab(this, 'ejecutivos');" class="nav-item">
                             <a class="nav-link" href="#">Ejecutivos</a>
-                        </li>
+                        </li-->
                         <li id="resultante" onclick="cambiarTab(this, 'resultante');" class="nav-item">
                             <a class="nav-link" href="#">Resultante</a>
                         </li>

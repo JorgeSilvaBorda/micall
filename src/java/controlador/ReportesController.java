@@ -59,6 +59,9 @@ public class ReportesController extends HttpServlet {
 	    case "resultante":
 		out.print(resultante(entrada.getInt("idcampana")));
 		break;
+                case "grabaciones":
+		out.print(grabaciones(entrada.getInt("idcampana")));
+		break;
 	    default:
 		break;
 	}
@@ -529,6 +532,38 @@ public class ReportesController extends HttpServlet {
 		cuerpo += "<td>" + rs.getInt("DURACIONSEGUNDOS") + "</td>";
 		cuerpo += "<td>" + rs.getString("INICIO") + "</td>";
 		cuerpo += "<td>" + rs.getString("TERMINO") + "</td>";
+		cuerpo += "</tr>";
+	    }
+	    salida.put("estado", "ok");
+	    salida.put("cuerpo", cuerpo);
+	} catch (JSONException | SQLException ex) {
+	    salida.put("estado", "error");
+	    System.out.println(ex);
+	}
+	c.cerrar();
+	return salida;
+    }
+    
+    private JSONObject grabaciones(int idcampana) {
+	JSONObject salida = new JSONObject();
+	String query = "CALL SP_GET_RECORDINGS_IDCAMPANA(" + idcampana + ")";
+	Conexion c = new Conexion();
+	c.abrir();
+	ResultSet rs = c.ejecutarQuery(query);
+	String cuerpo = "";
+	try {
+	    while (rs.next()) {
+		cuerpo += "<tr>";
+		cuerpo += "<td>" + rs.getInt("lead_id") + "</td>";
+		cuerpo += "<td>" + rs.getString("vendor_lead_code") + "</td>";
+		cuerpo += "<td>" + rs.getString("first_name") + "</td>";
+		cuerpo += "<td>" + rs.getString("last_name") + "</td>";
+		cuerpo += "<td>" + rs.getInt("phone_number") + "</td>";
+		cuerpo += "<td>" + rs.getString("ESTADOLLAMADO") + "</td>";
+		cuerpo += "<td>" + rs.getDate("FECHAHORAINI") + "</td>";
+		cuerpo += "<td>" + rs.getString("USER") + "</td>";
+                String enlace = "<a href='" + rs.getString("location") + "' download>Descargar</a>";
+                cuerpo += "<td>" + enlace + "</td>";
 		cuerpo += "</tr>";
 	    }
 	    salida.put("estado", "ok");
