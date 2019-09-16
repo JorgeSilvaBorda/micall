@@ -1,9 +1,6 @@
 var UF_HOY = null;
-<<<<<<< Updated upstream
 var ARR_CUOTAS = [12, 24, 36, 48];
 
-=======
->>>>>>> Stashed changes
 var OPCIONES_DATATABLES = {
     dom: 'Bfrtip',
     buttons: false,
