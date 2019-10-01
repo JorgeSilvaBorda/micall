@@ -82,7 +82,7 @@ function armarTabla(obj) {
     tabla += "<tbody>";
     for (var i = 0; i < obj.registros.length; i++) {
         tabla += "<tr>";
-        tabla += "<td style='font-weight: bold;'>" + reemplazarTexto(obj.registros[i]["CONCEPTO"]) + "</td>";
+        tabla += "<td style='font-weight: bold;'>" + reemplazarConcepto(obj.registros[i]["CONCEPTO"]) + "</td>";
         tabla += "<td style='font-weight: bold;'>" + obj.registros[i]["TOTAL"] + "</td>";
         for (var x = 1; x <= diafin; x++) {
             var dia = x;
@@ -117,9 +117,9 @@ function reemplazarConcepto(concepto) {
         case "RUTLLAMADOS":
             return "Recorrido Por Rut";
             break;
-        /*case "RUTFONOCARGADOS":
-            return "Recorrido Por Fono";
-            break;*/
+            /*case "RUTFONOCARGADOS":
+             return "Recorrido Por Fono";
+             break;*/
         case "FONOSLLAMADOS":
             return "Recorrido Por Fono";
             break;
@@ -131,6 +131,12 @@ function reemplazarConcepto(concepto) {
             break;
         case "VENTA":
             return "Ventas";
+            break;
+        case "CONTACTABILIDAD":
+            return "Contactabilidad/BBDD";
+            break;
+        case "EFECTIVIDADBBDD":
+            return "Efectividad/BBDD";
             break;
         default:
             return concepto;
