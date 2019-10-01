@@ -52,7 +52,6 @@ function cargarTabla(callback) {
             datos: JSON.stringify(datos)
         },
         success: function (resp) {
-            //console.log(resp);
             var obj = JSON.parse(resp);
             callback(obj);
         }
@@ -76,7 +75,7 @@ function armarTabla(obj) {
     tabla += "<th>" + obj.cabeceras[1] + "</th>";
     for (var i = 2; i < obj.cabeceras.length; i++) {
         var encabezado = obj.cabeceras[i].split("-")[2];
-        tabla += "<th>" + encabezado + "</th>";
+        tabla += "<th>" + reemplazarConcepto(encabezado) + "</th>";
     }
     tabla += "</tr>";
     tabla += "</thead>";
@@ -110,6 +109,36 @@ function armarTabla(obj) {
     //--------------------------------------------------------------------------
 }
 
+function reemplazarConcepto(concepto) {
+    switch (concepto) {
+        case "RUTCARGADOS":
+            return "BBDD - Cargados";
+            break;
+        case "RUTLLAMADOS":
+            return "Recorrido Por Rut";
+            break;
+        /*case "RUTFONOCARGADOS":
+            return "Recorrido Por Fono";
+            break;*/
+        case "FONOSLLAMADOS":
+            return "Recorrido Por Fono";
+            break;
+        case "CONTACTADOS":
+            return "Contactados";
+            break;
+        case "NOCONTACTADOS":
+            return "No Contactados";
+            break;
+        case "VENTA":
+            return "Ventas";
+            break;
+        default:
+            return concepto;
+            break;
+
+    }
+}
+
 function reemplazarTexto(texto) {
     switch (texto) {
         case "RUTCARGADOS":
@@ -131,7 +160,7 @@ function reemplazarTexto(texto) {
             return "No Contactados";
             break;
         case "VENTA":
-            return "Venta";
+            return "Ventas";
             break;
         case "CONTACTABILIDAD":
             return "Contactabilidad/BBDD";
