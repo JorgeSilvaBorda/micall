@@ -11,7 +11,7 @@
     <div class="form-group-small">
         <label for="select-campana" >Campaña</label>
         <select onchange="traeDatosCampana();" id="select-campana" class="form-control-sm">
-
+            
         </select>
     </div>
 </div>
@@ -20,17 +20,17 @@
     <div class="col-sm-9">
         <form>
             <div class="row">
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <div class="form-group small">
                         <label for="desde">Fecha Inicio</label> 
                     </div>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <div class="form-group small">
                         <label for="hasta">Fecha Fin</label> 
                     </div>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <div class="form-group small">
                         <label for="btnBuscar"></label> 
                     </div>
@@ -47,12 +47,13 @@
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group small">
-                        <button onclick="buscarEjecutivos();" id="btnBuscar" type="button" class="btn btn-success btn-sm">Buscar</button>
+                        <button onclick="buscar();" id="btnBuscar" type="button" class="btn btn-success btn-sm">Buscar</button>
                     </div>
                 </div>
             </div>
         </form>
     </div>
+    
 </div>
 <div class="row">
     <div class="col-sm-12">
@@ -73,7 +74,7 @@
                     <th>% Tmo Registro<br />De Llamada</th>
                     <th>Tmo<br />Pause</th>
                     <th>% Tmo<br />Pause</th>
-                    <th>Tmo<br />Merto</th>
+                    <th>Tmo<br />Muerto</th>
                     <th>% Tmo<br />Muerto</th>
                     <th>Tmo Hablando<br />Con Cliente</th>
                     <th>Productividad</th>

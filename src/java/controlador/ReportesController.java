@@ -560,7 +560,7 @@ public class ReportesController extends HttpServlet {
 
     private JSONObject grabaciones(int idcampana) {
         JSONObject salida = new JSONObject();
-        String query = "CALL SP_GET_RECORDINGS_IDCAMPANA(" + idcampana + ")";
+        String query = "CALL SP_GET_RECORDINGS_IDCAMPANA_2(" + idcampana + ")";
         Conexion c = new Conexion();
         c.abrir();
         ResultSet rs = c.ejecutarQuery(query);

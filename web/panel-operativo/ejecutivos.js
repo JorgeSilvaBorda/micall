@@ -4,7 +4,7 @@ $(document).ready(function () {
     var OPCIONES_EXCEL = [
         {
             extend: 'excelHtml5',
-            title: 'MiCall-Resultante-Mes-' + formatFecha(new Date())
+            title: 'MiCall-Ejecutivos-Mes-' + formatFecha(new Date())
         }
     ];
     OPCIONES_DATATABLES.buttons = OPCIONES_EXCEL;
