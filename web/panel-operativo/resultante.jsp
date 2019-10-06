@@ -20,17 +20,17 @@
     <div class="col-sm-9">
         <form>
             <div class="row">
-                <div class="col-sm-2">
+                <div class="col-sm-4">
                     <div class="form-group small">
                         <label for="desde">Fecha Inicio</label> 
                     </div>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-4">
                     <div class="form-group small">
                         <label for="hasta">Fecha Fin</label> 
                     </div>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-3">
                     <div class="form-group small">
                         <label for="btnBuscar"></label> 
                     </div>
