@@ -610,17 +610,17 @@ public class ReportesController extends HttpServlet {
                 cuerpo += "<td>" + rs.getString("PRIMCONEXION") + "</td>";
                 cuerpo += "<td>" + rs.getInt("LOGINTIME") + "</td>";
                 cuerpo += "<td>" + rs.getInt("TMOESPERA") + "</td>";
-                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOESPERA")) + "</td>";
+                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOESPERA")) + "%</td>";
                 cuerpo += "<td>" + rs.getInt("TMOLLAMADA") + "</td>";
-                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOLLAMADA")) + "</td>";
+                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOLLAMADA")) + "%</td>";
                 cuerpo += "<td>" + rs.getInt("TMOREGISTROLLAMADA") + "</td>";
-                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOREGISTROLLAMADA")) + "</td>";
+                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOREGISTROLLAMADA")) + "%</td>";
                 cuerpo += "<td>" + rs.getInt("TMOPAUSE") + "</td>";
-                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOPAUSE")) + "</td>";
+                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOPAUSE")) + "%</td>";
                 cuerpo += "<td>" + rs.getInt("TMOMUERTO") + "</td>";
-                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOMUERTO")) + "</td>";
+                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOMUERTO")) + "%</td>";
                 cuerpo += "<td>" + rs.getInt("TMOHABLCLIENTE") + "</td>";
-                cuerpo += "<td>" + format.format(rs.getDouble("PRODUCTIVIDAD")) + "</td>";
+                cuerpo += "<td>" + format.format(rs.getDouble("PRODUCTIVIDAD")) + "%</td>";
 
                 cuerpo += "</tr>";
             }
