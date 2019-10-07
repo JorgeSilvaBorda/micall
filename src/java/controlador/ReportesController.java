@@ -53,6 +53,18 @@ public class ReportesController extends HttpServlet {
             case "tabla-resumen-venta-empresa":
                 out.print(tablaResumenVentasEmpresa(entrada.getInt("idempresa")));
                 break;
+            case "bbdd":
+                out.print(bbdd(entrada.getInt("idcampana")));
+                break;
+            case "resultante":
+                out.print(resultante(entrada.getInt("idcampana")));
+                break;
+            case "grabaciones":
+                out.print(grabaciones(entrada.getInt("idcampana")));
+                break;
+            case "ejecutivos":
+                out.print(ejecutivos(entrada.getInt("idcampana")));
+                break;
             default:
                 break;
         }
@@ -122,7 +134,7 @@ public class ReportesController extends HttpServlet {
         c.cerrar();
         return salida;
     }
-    
+
     private JSONObject tablaDetalleVentasVendedor(JSONObject entrada) {
         JSONObject salida = new JSONObject();
         JSONArray ventas = new JSONArray();
@@ -457,6 +469,166 @@ public class ReportesController extends HttpServlet {
             System.out.println(e);
             salida.put("estado", "error");
             salida.put("error", e);
+        }
+        c.cerrar();
+        return salida;
+    }
+
+    private JSONObject bbdd(int idcampana) {
+        JSONObject salida = new JSONObject();
+        JSONArray registros = new JSONArray();
+        String query = "CALL SP_GET_REPORTE_BBDD_DIA(" + idcampana + ", NOW())";
+        Conexion c = new Conexion();
+        c.abrir();
+        JSONArray cabeceras = new JSONArray();
+
+        ResultSet rs = c.ejecutarQuery(query);
+        String fechaini = "";
+        String fechafin = "";
+        try {
+            fechaini = rs.getMetaData().getColumnName(3);
+            int len = rs.getMetaData().getColumnCount();
+            fechafin = rs.getMetaData().getColumnName(len);
+        } catch (Exception ex) {
+            System.out.println("No se puede obtener fechaini fechafin");
+            System.out.println(ex);
+        }
+
+        try {
+            for (int i = 1; i < rs.getMetaData().getColumnCount() + 1; i++) {
+                cabeceras.put(i, rs.getMetaData().getColumnName(i));
+            }
+        } catch (Exception ex) {
+            System.out.println("No se pueden mapear las cabeceras");
+            System.out.println(ex);
+        }
+
+        try {
+            while (rs.next()) {
+                JSONObject registro = new JSONObject();
+                for (int i = 1; i < rs.getMetaData().getColumnCount() + 1; i++) {
+                    registro.put(rs.getMetaData().getColumnName(i), rs.getObject(rs.getMetaData().getColumnName(i)));
+                }
+                registros.put(registro);
+            }
+            salida.put("estado", "ok");
+            salida.put("registros", registros);
+            salida.put("fechaini", fechaini);
+            salida.put("fechafin", fechafin);
+            salida.put("cabeceras", cabeceras);
+
+        } catch (JSONException | SQLException ex) {
+            salida.put("estado", "error");
+            System.out.println(ex);
+        }
+        c.cerrar();
+        return salida;
+    }
+
+    private JSONObject resultante(int idcampana) {
+        JSONObject salida = new JSONObject();
+        String query = "CALL SP_GET_REPORTE_RESULTANTE(" + idcampana + ")";
+        Conexion c = new Conexion();
+        c.abrir();
+        ResultSet rs = c.ejecutarQuery(query);
+        String cuerpo = "";
+        try {
+            while (rs.next()) {
+                cuerpo += "<tr>";
+                cuerpo += "<td>" + rs.getInt("IDLLAMADA") + "</td>";
+                cuerpo += "<td>" + rs.getString("RUTCLIENTE") + "</td>";
+                cuerpo += "<td>" + rs.getString("NOMBRES") + "</td>";
+                cuerpo += "<td>" + rs.getString("APELLIDOS") + "</td>";
+                cuerpo += "<td>" + rs.getInt("FONO") + "</td>";
+                cuerpo += "<td>" + rs.getString("RESOLUCION") + "</td>";
+                cuerpo += "<td>" + rs.getDate("FECHA") + "</td>";
+                cuerpo += "<td>" + rs.getString("AGENTE") + "</td>";
+                cuerpo += "<td>" + rs.getInt("DURACIONSEGUNDOS") + "</td>";
+                cuerpo += "<td>" + rs.getString("INICIO") + "</td>";
+                cuerpo += "<td>" + rs.getString("TERMINO") + "</td>";
+                cuerpo += "</tr>";
+            }
+            salida.put("estado", "ok");
+            salida.put("cuerpo", cuerpo);
+        } catch (JSONException | SQLException ex) {
+            salida.put("estado", "error");
+            System.out.println(ex);
+        }
+        c.cerrar();
+        return salida;
+    }
+
+    private JSONObject grabaciones(int idcampana) {
+        JSONObject salida = new JSONObject();
+        String query = "CALL SP_GET_RECORDINGS_IDCAMPANA_2(" + idcampana + ")";
+        Conexion c = new Conexion();
+        c.abrir();
+        ResultSet rs = c.ejecutarQuery(query);
+        String cuerpo = "";
+        try {
+            while (rs.next()) {
+                cuerpo += "<tr>";
+                cuerpo += "<td>" + rs.getInt("uniqueid") + "</td>";
+                cuerpo += "<td>" + rs.getString("vendor_lead_code") + "</td>";
+                cuerpo += "<td>" + rs.getString("first_name") + "</td>";
+                cuerpo += "<td>" + rs.getString("last_name") + "</td>";
+                cuerpo += "<td>" + rs.getInt("phone_number") + "</td>";
+                cuerpo += "<td>" + rs.getString("ESTADOLLAMADO") + "</td>";
+                cuerpo += "<td>" + rs.getDate("FECHAHORAINI") + "</td>";
+                cuerpo += "<td>" + rs.getString("USER") + "</td>";
+                String enlace = "<a href='" + rs.getString("location") + "' download>Descargar</a>";
+                cuerpo += "<td>" + enlace + "</td>";
+                cuerpo += "</tr>";
+            }
+            salida.put("estado", "ok");
+            salida.put("cuerpo", cuerpo);
+        } catch (JSONException | SQLException ex) {
+            salida.put("estado", "error");
+            System.out.println(ex);
+        }
+        c.cerrar();
+        return salida;
+    }
+    
+    private JSONObject ejecutivos(int idcampana) {
+        JSONObject salida = new JSONObject();
+        String query = "CALL SP_GET_REPORTE_EJECUTIVOS(" + idcampana + ")";
+        Conexion c = new Conexion();
+        c.abrir();
+        ResultSet rs = c.ejecutarQuery(query);
+        String cuerpo = "";
+        DecimalFormat format = new DecimalFormat("###,###,###.##");
+        try {
+            while (rs.next()) {
+                cuerpo += "<tr>";
+                
+                cuerpo += "<td>" + rs.getString("NOMBRESEJECUTIVO") + "</td>";
+                // cuerpo += "<td>" + modelo.Util.formatRut(rs.getString("RUTEJECUTIVO")) + "</td>";
+                cuerpo += "<td>" + rs.getString("RUTEJECUTIVO") + "</td>";
+                cuerpo += "<td>" + rs.getInt("VENTAS") + "</td>";
+                cuerpo += "<td>" + rs.getInt("LLAMADAS") + "</td>";
+                cuerpo += "<td>" + rs.getString("PRIMCONEXION") + "</td>";
+                cuerpo += "<td>" + rs.getInt("LOGINTIME") + "</td>";
+                cuerpo += "<td>" + rs.getInt("TMOESPERA") + "</td>";
+                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOESPERA")) + "%</td>";
+                cuerpo += "<td>" + rs.getInt("TMOLLAMADA") + "</td>";
+                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOLLAMADA")) + "%</td>";
+                cuerpo += "<td>" + rs.getInt("TMOREGISTROLLAMADA") + "</td>";
+                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOREGISTROLLAMADA")) + "%</td>";
+                cuerpo += "<td>" + rs.getInt("TMOPAUSE") + "</td>";
+                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOPAUSE")) + "%</td>";
+                cuerpo += "<td>" + rs.getInt("TMOMUERTO") + "</td>";
+                cuerpo += "<td>" + format.format(rs.getDouble("PORCTMOMUERTO")) + "%</td>";
+                cuerpo += "<td>" + rs.getInt("TMOHABLCLIENTE") + "</td>";
+                cuerpo += "<td>" + format.format(rs.getDouble("PRODUCTIVIDAD")) + "%</td>";
+
+                cuerpo += "</tr>";
+            }
+            salida.put("estado", "ok");
+            salida.put("cuerpo", cuerpo);
+        } catch (JSONException | SQLException ex) {
+            salida.put("estado", "error");
+            System.out.println(ex);
         }
         c.cerrar();
         return salida;
