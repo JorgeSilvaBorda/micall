@@ -20,12 +20,12 @@
     <div class="col-sm-9">
         <form>
             <div class="row">
-                <div class="col-sm-2">
+                <div class="col-sm-3">
                     <div class="form-group small">
                         <label for="desde">Fecha Inicio</label> 
                     </div>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-3">
                     <div class="form-group small">
                         <label for="hasta">Fecha Fin</label> 
                     </div>
@@ -37,12 +37,12 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-2">
+                <div class="col-sm-3">
                     <div class="form-group small">
                         <input disabled="disabled" type="date" id="desde" class="form-control form-control-sm"/> 
                     </div>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-3">
                     <input disabled="disabled" type="date" id="hasta" class="form-control form-control-sm"/> 
                 </div>
                 <div class="col-sm-2">
