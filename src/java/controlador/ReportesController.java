@@ -537,10 +537,11 @@ public class ReportesController extends HttpServlet {
                 cuerpo += "<tr>";
                 cuerpo += "<td>" + rs.getInt("IDLLAMADA") + "</td>";
                 cuerpo += "<td>" + rs.getString("RUTCLIENTE") + "</td>";
-                cuerpo += "<td>" + rs.getString("NOMBRES") + "</td>";
-                cuerpo += "<td>" + rs.getString("APELLIDOS") + "</td>";
+                //cuerpo += "<td>" + rs.getString("NOMBRES") + "</td>";
+                //cuerpo += "<td>" + rs.getString("APELLIDOS") + "</td>";
                 cuerpo += "<td>" + rs.getInt("FONO") + "</td>";
                 cuerpo += "<td>" + rs.getString("RESOLUCION") + "</td>";
+                cuerpo += "<td>" + rs.getString("COMMENTS") + "</td>";
                 cuerpo += "<td>" + rs.getDate("FECHA") + "</td>";
                 cuerpo += "<td>" + rs.getString("AGENTE") + "</td>";
                 cuerpo += "<td>" + rs.getInt("DURACIONSEGUNDOS") + "</td>";

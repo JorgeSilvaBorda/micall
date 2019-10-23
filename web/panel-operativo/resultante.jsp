@@ -17,7 +17,7 @@
 </div>
 <br />
 <div class="row">
-    <div class="col-sm-9">
+    <div class="col-sm-12">
         <form>
             <div class="row">
                 <div class="col-sm-4">
@@ -65,6 +65,7 @@
                     <th>Apellidos</th>
                     <th>Teléfono</th>
                     <th>Resolución</th>
+                    <th>Observaciones</th>
                     <th>Fecha</th>
                     <th>Agente</th>
                     <th>Duración</th>
