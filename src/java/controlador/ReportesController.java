@@ -527,28 +527,43 @@ public class ReportesController extends HttpServlet {
 
     private JSONObject resultante(int idcampana) {
         JSONObject salida = new JSONObject();
-        String query = "CALL SP_GET_REPORTE_RESULTANTE(" + idcampana + ")";
+        String query = "CALL SP_GET_REPORTE_RESULTANTE_2(" + idcampana + ")";
         Conexion c = new Conexion();
         c.abrir();
         ResultSet rs = c.ejecutarQuery(query);
         String cuerpo = "";
+        int cont = 0;
         try {
             while (rs.next()) {
-                cuerpo += "<tr>";
-                cuerpo += "<td>" + rs.getInt("IDLLAMADA") + "</td>";
-                cuerpo += "<td>" + rs.getString("RUTCLIENTE") + "</td>";
-                cuerpo += "<td>" + rs.getString("NOMBRES") + "</td>";
-                cuerpo += "<td>" + rs.getString("APELLIDOS") + "</td>";
-                cuerpo += "<td>" + rs.getInt("FONO") + "</td>";
-                cuerpo += "<td>" + rs.getString("RESOLUCION") + "</td>";
-                cuerpo += "<td>" + rs.getDate("FECHA") + "</td>";
-                cuerpo += "<td>" + rs.getString("AGENTE") + "</td>";
-                cuerpo += "<td>" + rs.getInt("DURACIONSEGUNDOS") + "</td>";
-                cuerpo += "<td>" + rs.getString("INICIO") + "</td>";
-                cuerpo += "<td>" + rs.getString("TERMINO") + "</td>";
-                cuerpo += "</tr>";
+                cont++;
+            }
+        } catch (Exception ex) {
+            System.out.println("No se puede obtener la cuenta de filas");
+            System.out.println(ex);
+        }
+
+        try {
+            rs.beforeFirst();
+            while (rs.next()) {
+                if (rs.getInt("uniqueid") > 0) {
+                    cuerpo += "<tr>";
+                    cuerpo += "<td>" + rs.getInt("uniqueid") + "</td>";
+                    cuerpo += "<td>" + modelo.Util.formatRut(rs.getString("vendor_lead_code")) + "</td>";
+                    cuerpo += "<td>" + rs.getInt("phone_number") + "</td>";
+                    cuerpo += "<td>" + rs.getString("status_name") + "</td>";
+                    //cuerpo += "<td>" + rs.getString("SEQUENCE") + (!rs.getString("comments").equals("") ? ">" + rs.getString("comments") : "") + "</td>";
+                    cuerpo += "<td>" + rs.getString("comments") + "</td>";
+                    cuerpo += "<td>" + rs.getDate("FECHA") + "</td>";
+                    cuerpo += "<td>" + rs.getString("user") + "</td>";
+                    cuerpo += "<td>" + rs.getInt("length_in_sec") + "</td>";
+                    cuerpo += "<td>" + rs.getString("HORAINI") + "</td>";
+                    cuerpo += "<td>" + rs.getString("HORAFIN") + "</td>";
+                    cuerpo += "</tr>";
+                }
+
             }
             salida.put("estado", "ok");
+            salida.put("filas", cont);
             salida.put("cuerpo", cuerpo);
         } catch (JSONException | SQLException ex) {
             salida.put("estado", "error");
@@ -589,7 +604,7 @@ public class ReportesController extends HttpServlet {
         c.cerrar();
         return salida;
     }
-    
+
     private JSONObject ejecutivos(int idcampana) {
         JSONObject salida = new JSONObject();
         String query = "CALL SP_GET_REPORTE_EJECUTIVOS(" + idcampana + ")";
@@ -601,7 +616,7 @@ public class ReportesController extends HttpServlet {
         try {
             while (rs.next()) {
                 cuerpo += "<tr>";
-                
+
                 cuerpo += "<td>" + rs.getString("NOMBRESEJECUTIVO") + "</td>";
                 // cuerpo += "<td>" + modelo.Util.formatRut(rs.getString("RUTEJECUTIVO")) + "</td>";
                 cuerpo += "<td>" + rs.getString("RUTEJECUTIVO") + "</td>";

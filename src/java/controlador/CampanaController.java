@@ -63,8 +63,9 @@ public class CampanaController extends HttpServlet {
 	try {
 	    while (rs.next()) {
 		filas += "<tr>";
-		filas += "<td><input type='hidden' value='" + rs.getInt("IDCAMPANA") + "'>" + modelo.Util.formatRut(rs.getInt("RUTEMPRESA") + "-" + rs.getString("DVEMPRESA")) + "</td>";
+		filas += "<td><input type='hidden' value='" + rs.getInt("IDCAMPANA") + "'><input type='hidden' value='" + rs.getInt("IDTIPOCAMPANA") + "'>" + modelo.Util.formatRut(rs.getInt("RUTEMPRESA") + "-" + rs.getString("DVEMPRESA")) + "</td>";
 		filas += "<td>" + rs.getString("NOMBRE") + "</td>";
+                filas += "<td>" + rs.getString("CODTIPOCAMPANA") + "</td>";
 		filas += "<td>" + rs.getString("CODCAMPANA") + "</td>";
 		filas += "<td>" + rs.getString("NOMCAMPANA") + "</td>";
 		filas += "<td>" + rs.getString("DESCPRODUCTO") + "</td>";
@@ -105,7 +106,8 @@ public class CampanaController extends HttpServlet {
 		+ "'" + campana.getString("codcampana") + "', "
 		+ "'" + campana.getString("fechaini") + "', "
 		+ "'" + campana.getString("fechafin") + "', "
-		+ campana.getBigInteger("meta") + ")";
+		+ campana.getBigInteger("meta") + ","
+                + campana.getInt("idtipocampana") + ")";
 	Conexion c = new Conexion();
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
@@ -189,6 +191,9 @@ public class CampanaController extends HttpServlet {
 	    while (rs.next()) {
 		JSONObject campana = new JSONObject();
 		campana.put("idcampana", rs.getInt("IDCAMPANA"));
+                campana.put("idtipocampana", rs.getInt("IDTIPOCAMPANA"));
+                campana.put("codtipocampana", rs.getString("CODTIPOCAMPANA"));
+                campana.put("nomtipocampana", rs.getString("NOMTIPOCAMPANA"));
 		campana.put("codcampana", rs.getString("CODCAMPANA"));
 		campana.put("nomcampana", rs.getString("NOMCAMPANA"));
 		campana.put("fechaini", rs.getDate("FECHAINI"));
@@ -257,6 +262,9 @@ public class CampanaController extends HttpServlet {
 		idCampana = rs.getInt("IDCAMPANA");
 		campana.put("idcampana", rs.getInt("IDCAMPANA"));
 		campana.put("idproducto", rs.getInt("IDPRODUCTO"));
+                campana.put("idtipocampana", rs.getInt("IDTIPOCAMPANA"));
+                campana.put("codtipocampana", rs.getString("CODTIPOCAMPANA"));
+                campana.put("nomtipocampana", rs.getString("NOMTIPOCAMPANA"));
 		campana.put("idempresa", rs.getInt("IDEMPRESA"));
 		campana.put("rutcliente", rs.getInt("RUT"));
 		campana.put("dvcliente", rs.getString("DV"));
@@ -347,6 +355,9 @@ public class CampanaController extends HttpServlet {
 
 		campana.put("idcampana", rs.getInt("IDCAMPANA"));
 		campana.put("idproducto", rs.getInt("IDPRODUCTO"));
+                campana.put("idtipocampana", rs.getInt("IDTIPOCAMPANA"));
+                campana.put("codtipocampana", rs.getString("CODTIPOCAMPANA"));
+                campana.put("nomtipocampana", rs.getString("NOMTIPOCAMPANA"));
 		campana.put("idempresa", rs.getInt("IDEMPRESA"));
 		campana.put("rutcliente", rs.getInt("RUT"));
 		campana.put("dvcliente", rs.getString("DV"));

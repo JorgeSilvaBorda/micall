@@ -11,6 +11,7 @@
                 OPCIONES_DATATABLES.buttons = [];
                 //cargar select empresa
                 llenarSelectEmpresa();
+                cargaSelectTipoCampana();
                 traerCampanas();
             });
 
@@ -37,6 +38,35 @@
                     objetivo: 'select-empresa'
                 };
                 cargarSelect(det);
+            }
+
+            function cargaSelectTipoCampana() {
+                var datos = {
+                    tipo: 'select-tipo-campana'
+                };
+                $.ajax({
+                    type: 'post',
+                    url: 'TipoCampanaController',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function(resp){
+                        var obj = JSON.parse(resp);
+                        if (obj.estado === 'ok'){
+                            $('#select-tipo-campana').html(obj.options);
+                        }else{
+                            console.log("Error al traer los tipos de campaña.");
+                            console.log("Mensaje");
+                            console.log(obj.mensaje);
+                        }
+                    },
+                    error: function(a, b, c){
+                        console.log(a);
+                        console.log(b);
+                        console.log(c);
+                    }
+                });
+                
             }
 
             function cargaSelectProducto() {
@@ -76,6 +106,7 @@
                 var nomcampana = $('#nomcampana').val();
                 //var idempresa = $('#select-empresa').val(); //solo efectos de validación
                 var idproducto = $('#select-producto').val();
+                var idtipocampana = $('#select-tipo-campana').val();
                 var desde = $('#desde').val();
                 var hasta = $('#hasta').val();
                 var meta = $('#meta').val();
@@ -83,6 +114,7 @@
                 var campana = {
                     codcampana: codcampana,
                     nomcampana: nomcampana,
+                    idtipocampana: idtipocampana,
                     idproducto: parseInt(idproducto),
                     fechaini: desde,
                     fechafin: hasta,
@@ -126,6 +158,10 @@
             }
 
             function validar(campana) {
+                if(campana.idtipocampana === 0 || campana.idtipocampana === '' || campana.idtipocampana === undefined || campana.idtipocampana === null){
+                   alert("Debe seleccionar el tipo de campaña que desea crear.");
+                   return false;
+                }
                 if (campana.codcampana === '' || campana.codcampana === null || campana.codcampana === undefined) {
                     alert('Debe ingresar el código de la campaña.');
                     return false;
@@ -186,7 +222,9 @@
             function limpiar() {
                 $('#select-empresa option').removeAttr('selected');
                 $('#select-producto option').removeAttr('selected');
+                $('#select-tipo-campana option').removeAttr('selected');
                 $('#select-empresa').val('0');
+                $('#select-tipo-campana').val('0');
                 $('#select-producto').html('');
                 $('#cuerpo-tab-subproducto').html('');
                 $('#desde').val('');
@@ -239,12 +277,12 @@
                     console.log($(this));
                 }
             }
-            
-            function setFechaHasta(){
+
+            function setFechaHasta() {
                 var fechaDesde = new Date($('#desde').val());
                 fechaDesde.setDate(fechaDesde.getDate() + 1);
                 var hastaString = formatFecha(fechaDesde);
-                
+
                 $('#hasta').val(hastaString);
             }
         </script>
@@ -306,6 +344,11 @@
                 <div class="col-sm-4">
                     <form>
                         <div class="form-group small">
+                            <label for="select-tipo-campana">Tipo Campaña</label>
+                            <select class="form-control form-control-sm" id="select-tipo-campana">
+                            </select>
+                        </div>
+                        <div class="form-group small">
                             <label for="select-empresa">Empresa</label>
                             <select onchange="cargaSelectProducto();" class="form-control form-control-sm" id="select-empresa">
                             </select>
@@ -313,7 +356,6 @@
                         <div class="form-group small">
                             <label for="select-producto">Producto</label>
                             <select class="form-control form-control-sm" id="select-producto">
-
                             </select>
                         </div>
                         <div class="form-group small">
@@ -379,6 +421,7 @@
                             <tr>
                                 <th>Rut</th>
                                 <th>Empresa</th>
+                                <th>Tipo</th>
                                 <th>Código</th>
                                 <th>Nombre</th>
                                 <th>Producto</th>
