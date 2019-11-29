@@ -48,6 +48,7 @@
             return false;
         }
         if (diffFechas(desde, hasta) < 0) {
+            console.log(diffFechas(desde, hasta));
             alert("La fecha de inicio no puede ser superior a la de término de la búsqueda.");
             return false;
         }
@@ -82,15 +83,11 @@
         tab += "<tr>";
         tab += "<th>Subproducto</th>";
         tab += "<th>Prima</th>";
-        //tab += "<th>Meta Monto</th>";
-        //tab += "<th>Meta Cantidad</th>";
         tab += "</tr></thead><tbody>";
         $(subproductos).each(function () {
             tab += "<tr>";
             tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
             tab += "<td>" + $(this)[0].prima + "</td>";
-            //tab += "<td>$" + formatMiles($(this)[0].montometa) + "</td>";
-            //tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
             tab += "</tr>";
         });
         tab += "</tbody></table>";
@@ -99,8 +96,6 @@
 
     function armarTabla(arr) {
         var tab = "";
-
-
         $.each(arr, function () {
             var subs = parseInt($(this)[0].subproductos);
             var tdSubs = "";

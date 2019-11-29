@@ -32,6 +32,14 @@
         <servlet-name>ReportesController</servlet-name>
         <servlet-class>controlador.ReportesController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>VentaController</servlet-name>
+        <servlet-class>controlador.VentaController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TipoCampanaController</servlet-name>
+        <servlet-class>controlador.TipoCampanaController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>EmpresaController</servlet-name>
         <url-pattern>/EmpresaController</url-pattern>
@@ -63,6 +71,14 @@
     <servlet-mapping>
         <servlet-name>ReportesController</servlet-name>
         <url-pattern>/ReportesController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>VentaController</servlet-name>
+        <url-pattern>/VentaController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TipoCampanaController</servlet-name>
+        <url-pattern>/TipoCampanaController</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

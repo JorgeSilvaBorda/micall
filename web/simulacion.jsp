@@ -9,13 +9,15 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="funciones/simulador.js" type="text/javascript"></script>
         <title>Simulacion</title>
     </head>
     <body>
         <script type="text/javascript">
+            var SIMULACION = null;
+            var UF_INDICADOR = 0.00;
             $(document).ready(function () {
-                OPCIONES_DATATABLES.buttons = [];
-                cargarSimulaciones();
+                OPCIONES_DATATABLES.buttons = [];                 //cargarSimulaciones(); //Quitado para no buscar al inicio.
                 cargaSelectEmpresa();
                 $('#rutcliente').rut(
                         {
@@ -28,6 +30,75 @@
                 });
             });
 
+            function marcarme(idsimulacion, operacion) {
+                switch (operacion) {
+                    case "vender":
+                        vender(idsimulacion);
+                        break;
+                    case "quitar":
+                        quitar(idsimulacion);
+                        break;
+                }
+            }
+
+            function vender(idsimulacion) {
+                var datos = {
+                    tipo: 'ins-venta',
+                    idsimulacion: idsimulacion,
+                    rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", "")
+                };
+
+                $.ajax({
+                    url: "VentaController",
+                    type: 'post',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function (response) {
+                        var obj = JSON.parse(response);
+                        if (obj.estado === 'ok') {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-simulacion').html(obj.cuerpotabla);
+                            $('#tabla-simulaciones').DataTable(OPCIONES_DATATABLES);
+                        }
+                    },
+                    error: function (a, b, c) {
+                        console.log(a);
+                        console.log(b);
+                        console.log(c);
+                    }
+                });
+            }
+
+            function quitar(idventa) {
+                var datos = {
+                    tipo: 'del-venta',
+                    idventa: idventa,
+                    rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", "")
+                };
+
+                $.ajax({
+                    url: "VentaController",
+                    type: 'post',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function (response) {
+                        var obj = JSON.parse(response);
+                        if (obj.estado === 'ok') {
+                            $('.dataTable').DataTable().destroy();
+                            $('#cuerpo-tab-simulacion').html(obj.cuerpotabla);
+                            $('#tabla-simulaciones').DataTable(OPCIONES_DATATABLES);
+                        }
+                    },
+                    error: function (a, b, c) {
+                        console.log(a);
+                        console.log(b);
+                        console.log(c);
+                    }
+                });
+            }
+
             function cargaSelectEmpresa() {
                 var det = {
                     tipo: 'carga-select-empresa',
@@ -38,15 +109,22 @@
             }
 
             function cargarSimulaciones() {
+                $('#cuerpo-tab-simulacion').html("");
+                var rutcliente = $('#rutcliente').val().split("-")[0].replaceAll("\\.", "");
                 var detalle = {
                     url: 'SimulacionController',
                     bodyDestino: 'cuerpo-tab-simulacion',
                     datos: {
-                        tipo: 'get-simulaciones-rutvendedor',
+                        tipo: 'get-simulaciones-rutvendedor-rutcliente',
+                        rutcliente: rutcliente,
                         rutvendedor: parseInt('<% out.print(session.getAttribute("rutusuario")); %>')
                     }
                 };
-                traerListado(detalle);
+                traerListado(detalle, function (cuerpotabla) {
+                    $('.dataTable').DataTable().destroy();
+                    $('#cuerpo-tab-simulacion').html(cuerpotabla);
+                    $('#tabla-simulaciones').DataTable(OPCIONES_DATATABLES);
+                });
             }
 
             function armarModalCampanas(campanas) {
@@ -83,9 +161,7 @@
                     tab += "<td>" + descproducto + "</td>";
                     tab += "<td><button onclick='seleccionarCampana(" + idcampana + ", " + idempresa + ");' type='button' class='btn btn-sm btn-default'>Seleccionar</button></td>";
                     tab += "</tr>";
-                    //console.log(campanas);
                 });
-
                 tab += "</tbody></table>";
                 $('#cuerpo-modal').html(tab);
                 $('#modal-campanas').modal();
@@ -95,7 +171,8 @@
                 var datos = {
                     tipo: 'get-camapana-idcampana-idempresa',
                     idcampana: idcampana,
-                    idempresa: idempresa
+                    idempresa: idempresa,
+                    rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", "")
                 };
                 $.ajax({
                     url: 'CampanaController',
@@ -107,6 +184,7 @@
                         var obj = JSON.parse(res);
                         if (obj.estado === 'ok') {
                             pintarDatos(obj.campana, obj.cuerpotabla);
+                            cargarSimulaciones();
                             $('#montoaprobado').focus();
                             $('#btnCerrarModal').click();
                         } else {
@@ -118,7 +196,7 @@
             }
 
             function buscar() {
-                if($('#select-empresa').val() === '0'){
+                if ($('#select-empresa').val() === '0') {
                     alert("Debe seleccionar la empresa para la que se desea simular.");
                     return false;
                 }
@@ -142,9 +220,11 @@
                             if (obj.campanas.length > 1) {
                                 //Son varias campañas para el rut. Escoger...
                                 armarModalCampanas(obj.campanas);
+                                //Las simulaciones para el rut en este caso, se cargan en: seleccionarCampana()
                             } else {
                                 pintarDatos(obj.campanas[0], obj.cuerpotabla);
                                 $('#montoaprobado').focus();
+                                cargarSimulaciones(); //Cuando es campaña única, se cargan las simulaciones hechas previamente al rut
                             }
 
                         } else {
@@ -156,22 +236,19 @@
 
             function validarCampos() {
                 calcTasaAnual();
-                
                 var simulacion = {
                     idcampana: $('#hidIdCampana').val(),
                     rutvendedor: '<% out.print(session.getAttribute("rutusuario")); %>',
                     dvvendedor: '<% out.print(session.getAttribute("dvusuario"));%>',
                     rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", ""),
                     dvcliente: $('#rutcliente').val().split("-")[1],
-                    monto: parseInt($('#montoaprobado').val().replaceAll("\\.", "")),
-                    cuotas: $('#cuotas').val().replaceAll("\\.", ""),
+                    monto: parseInt($('#montoaprobado').val().replaceAll("\\.", "")), cuotas: $('#cuotas').val().replaceAll("\\.", ""),
                     valorcuota: $('#valorcuota').val().replaceAll("\\.", ""),
                     tasainteres: $('#tasainteres').val(),
                     tasaanual: $('#tasaanual').val(),
                     cae: $('#cae').val(),
                     vencimiento: $('#vencimiento').val(),
-                    costototal: parseInt($('#costototal').val().replaceAll("\\.", "")),
-                    comision: $('#comision').val().replaceAll("\\.", ""),
+                    costototal: parseInt($('#costototal').val().replaceAll("\\.", "")), comision: $('#comision').val().replaceAll("\\.", ""),
                     subproductos: []
                 };
                 $('#tab-subproductos tbody tr').each(function (t) {
@@ -186,22 +263,7 @@
                         simulacion.subproductos.push(idsubproducto);
                     }
                 });
-                if (simulacion.idcampana === '' ||
-                        simulacion.cae === '' ||
-                        simulacion.comision === '' ||
-                        simulacion.costototal === '' ||
-                        simulacion.cuotas === '' ||
-                        simulacion.dvcliente === '' ||
-                        simulacion.dvvendedor === '' ||
-                        simulacion.idcampana === '' ||
-                        simulacion.monto === '' ||
-                        simulacion.rutcliente === '' ||
-                        simulacion.rutvendedor === '' ||
-                        simulacion.tasainteres === '' ||
-                        simulacion.tasaanual === '' ||
-                        simulacion.valorcuota === '' ||
-                        simulacion.vencimiento === '') {
-
+                if (simulacion.idcampana === '' || simulacion.cae === '' || simulacion.comision === '' || simulacion.costototal === '' || simulacion.cuotas === '' || simulacion.dvcliente === '' || simulacion.dvvendedor === '' || simulacion.idcampana === '' || simulacion.monto === '' || simulacion.rutcliente === '' || simulacion.rutvendedor === '' || simulacion.tasainteres === '' || simulacion.tasaanual === '' || simulacion.valorcuota === '' || simulacion.vencimiento === '') {
                     alert("No ha ingresado todos los campos.");
                     return false;
                 }
@@ -222,33 +284,131 @@
                 }
 
                 var costocuotas = parseInt(simulacion.valorcuota) * parseInt(simulacion.cuotas);
-                /*if (!(costocuotas > montoAprobado)) {
-                    alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto aprobado ($" + formatMiles(montoAprobado) + ")");
-                    return false;
-                }*/
                 //20190825 - Se valida contra el monto simulado (No contra el monto aprobado).
                 if (!(costocuotas > simulacion.monto)) {
                     alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser mayor al monto simulado ($" + formatMiles(simulacion.monto) + ")");
                     return false;
                 }
-                if (!(costocuotas <= simulacion.costototal)) {
+                if ((costocuotas > simulacion.costototal)) {
                     alert("El valor cuota multiplicado por la cantidad de cuotas ($" + formatMiles(costocuotas) + "), debe ser menor o igual al costo total ($" + formatMiles(simulacion.costototal) + ")");
                     return false;
                 }
                 var tasa = parseFloat($('#tasainteres').val().replaceAll(",", "."));
-                if(tasa < 0.01){
+                if (tasa < 0.01) {
                     alert("Debe ingresar una tasa de interés válida");
                     return false;
                 }
-                
+
                 var tasaAnual = parseFloat($('#tasaanuual').val());
-                if(tasaAnual < 0.001){
+                if (tasaAnual < 0.001) {
                     alert("La tasa anual no pede ser menor a 0.001");
                     return false;
                 }
-
+                SIMULACION = simulacion;
                 return true;
             }
+
+            function calcularTodo() {
+                if ($('#cuotas').val() !== '' && $('#cuotas').val() !== 0 && $('#montoaprobado').val().replaceAll("\\.", "") !== '' && $('#tasainteres').val() !== '') {
+                    calcValores();
+                }
+            }
+
+            function calcValores() {
+                var UF = 26672.2;
+                var topeUF = 50;
+                var topeDinero = topeUF * UF;
+                var simulacion = {
+                    cuotas: parseInt($('#cuotas').val()),
+                    valorcuota: 0,
+                    costototal: 0,
+                    monto: parseInt($('#montoaprobado').val().replaceAll("\\.", "")),
+                    montoaprobado: parseInt($('#hidMontoAprobado').val()),
+                    tasainteres: parseFloat($('#tasainteres').val()),
+                    tasaanual: (parseFloat($('#tasainteres').val()) * 12),
+                    tasaimpuesto: 0.0,
+                    montoasegurado: 0,
+                    montoseguro: 0,
+                    tasaseguro: 0.0,
+                    impuestoalcredito: 0,
+                    montoafecto: 0,
+                    montonoafecto: 0,
+                    montoacapitalizar: 0,
+                    subproductos: []
+                };
+                $('#tab-subproductos tbody tr').each(function (t) {
+                    var fila = $(this)[0];
+                    var celdas = $(fila.cells);
+                    var celda_0 = $(celdas[0]);
+                    var check = $(celda_0).children('input');
+                    if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
+                        var celda_1 = $(celdas[1]);
+                        var celda_3 = $(celdas[3]);
+                        var hidden = $(celda_1).children('input')[1];
+                        var idsubproducto = $(hidden).val();
+                        var prima = parseFloat($(celda_3).text());
+                        var sub = {idsubproducto: idsubproducto, prima: prima};
+                        simulacion.subproductos.push(sub);
+                    }
+                });
+
+                var impuesto = 0;
+                if (simulacion.cuotas + 1 > 12) {
+                    impuesto = 0.008;
+                } else {
+                    impuesto = 0.00066 * (simulacion.cuotas + 1);
+                }
+                simulacion.tasaimpuesto = impuesto;
+                //Trabajar solo con el primer seguro
+                if (simulacion.subproductos.length > 0) {
+                    var subproducto = simulacion.subproductos[0];
+                    simulacion.tasaseguro = subproducto.prima / 100;
+                    var tasaSeguro = (subproducto.prima / 100);
+                    var montoAsegurado;
+                    if ((simulacion.monto / (1 - tasaSeguro - simulacion.tasaimpuesto)) > topeDinero) {
+                        montoAsegurado = topeDinero;
+                    } else {
+                        montoAsegurado = simulacion.monto / (1 - tasaSeguro - simulacion.tasaimpuesto);
+                    }
+                    simulacion.montoasegurado = parseInt(montoAsegurado);
+                    simulacion.montoseguro = parseInt(simulacion.montoasegurado * tasaSeguro);
+                } else {
+                    var tasaSeguro = 0;
+                    if ((simulacion.monto / (1 - tasaSeguro - simulacion.tasaimpuesto)) > topeDinero) {
+                        montoAsegurado = topeDinero;
+                    } else {
+                        montoAsegurado = simulacion.monto / (1 - tasaSeguro - simulacion.tasaimpuesto);
+                    }
+                    simulacion.montoasegurado = parseInt(montoAsegurado);
+                    simulacion.montoseguro = parseInt(simulacion.montoasegurado * tasaSeguro);
+                }
+
+
+                var montoAfecto = 0;
+                if ((simulacion.monto / (1 - simulacion.tasaseguro - simulacion.tasaimpuesto)) > topeDinero) {
+                    montoAfecto = topeDinero;
+                } else {
+                    montoAfecto = (simulacion.monto / (1 - simulacion.tasaseguro - simulacion.tasaimpuesto));
+                }
+                simulacion.montoafecto = montoAfecto;
+                simulacion.montonoafecto = simulacion.monto - simulacion.montoafecto;
+                var impuestoAlCredito = (simulacion.montoasegurado * simulacion.tasaimpuesto) + (simulacion.montonoafecto / (1 - simulacion.tasaimpuesto) - simulacion.montonoafecto);
+                simulacion.impuestoalcredito = parseInt(impuestoAlCredito);
+                var montoACapitalizar = 0;
+                montoACapitalizar = simulacion.montoafecto * (1 / (1 - simulacion.tasaseguro - simulacion.tasaimpuesto)) + simulacion.montonoafecto * (1 / (1 - simulacion.tasaimpuesto));
+                simulacion.montoacapitalizar = parseInt(montoACapitalizar);
+                var valorCuota = (((simulacion.montoacapitalizar) * (simulacion.tasainteres / 100) / (1 - Math.pow((1 + (simulacion.tasainteres / 100)), -simulacion.cuotas))));
+                simulacion.valorcuota = parseInt(valorCuota);
+                simulacion.costototal = parseInt(simulacion.valorcuota * simulacion.cuotas);
+
+                $('#valorcuota').val(formatMiles(simulacion.valorcuota.toString()));
+                $('#costototal').val(formatMiles(simulacion.costototal.toString()));
+                $('#impuesto').val(formatMiles(parseInt(simulacion.impuestoalcredito).toString()));
+
+                $('#cae').val(truncDecimales(cae(simulacion.cuotas, simulacion.monto, simulacion.valorcuota), 2));
+                simulacion.cae = truncDecimales(cae(simulacion.cuotas, simulacion.monto, simulacion.valorcuota), 2);
+            }
+
 
             function insert() {
                 if (validarCampos()) {
@@ -267,8 +427,11 @@
                         vencimiento: $('#vencimiento').val(),
                         costototal: $('#costototal').val().replaceAll("\\.", ""),
                         comision: $('#comision').val().replaceAll("\\.", ""),
+                        impuesto: $('#impuesto').val().replaceAll("\\.", ""),
                         subproductos: []
                     };
+
+
                     $('#tab-subproductos tbody tr').each(function (t) {
                         var fila = $(this)[0];
                         var celdas = $(fila.cells);
@@ -281,6 +444,8 @@
                             simulacion.subproductos.push({idsubproducto: idsubproducto});
                         }
                     });
+
+
                     var detalle = {
                         url: 'SimulacionController',
                         datos: {
@@ -292,84 +457,145 @@
                         limpiar();
                         cargarSimulaciones();
                     });
+                    cargarSimulaciones();
                 }
             }
-            
-            /*
-            function calcTasaAnual() {
-                var tasa = parseFloat($('#tasainteres').val().replaceAll(",", "."));
-                var tasaAnual = (tasa * 12).toString();
-                var decimales = "";
-                var enteros = "";
-                if (tasaAnual.indexOf(",") !== -1) {
-                    decimales = tasaAnual.split(",")[1];
-                    enteros = tasaAnual.split(",")[0];
-                }
-                if (tasaAnual.indexOf(".") !== -1) {
-                    decimales = tasaAnual.split(".")[1];
-                    enteros = tasaAnual.split(".")[0];
-                }
-                if(tasaAnual.indexOf(".") === -1 && tasaAnual.indexOf(",") === -1){
-                    if(!isNaN(tasaAnual)){
-                        
-                    }
-                }
 
-                decimales = decimales.substring(0, 2);
-                $('#tasaanual').val(enteros + "." + decimales);
-            }
-            */
-            
-            function calcTasaAnual(){
-                var valido = false;
-                /**
-                 * Inicializar en '0.0'.
-                 * Cualquier error no controlado la dejará por defecto en cero.
-                 * Validador debe controlar que sea mayor a 0.01
-                 */
-                
-                var tasainteres = $('#tasainteres').val().toString();
-                if(tasainteres.indexOf(".") === -1 && tasainteres.indexOf(",") === -1){
-                    //validar isNaN
-                    if(isNaN(tasainteres)){//##1
-                        //console.log("Tasa interés no numérica");
-                        $('#tasaanual').val(0.0); //
-                    }else{
-                        var tasaA = parseFloat(tasainteres) * 12;
-                        tasaA = Number((parseFloat(tasaA)).toFixed(2)); //Incorporados como redondeo
-                        $('#tasaanual').val(tasaA);
-                        valido = true;
-                    }
-                }else{
-                    if(tasainteres.indexOf(",") !== -1){
-                        tasainteres = tasainteres.relaceAll(",", ".");
-                    }
-                    
-                    var tasaA = parseFloat(tasainteres) * 12;
-                    tasaA = Number((parseFloat(tasaA)).toFixed(2)); //Incorporados como redondeo
-                    $('#tasaanual').val(tasaA);
-                    valido = true;
-                }
-                if(!valido){
-                    $('#tasaanual').val(0.0);
-                }
-            }
-            
-            function verSubproductosVendidos(idsimulacion){
+            /*
+             function insert() {
+             if (validarCampos()) {
+             var idcampana = $('#hidIdCampana').val();
+             var rutusuario = '<% out.print(session.getAttribute("rutusuario")); %>';
+             var dvvendedor = '<% out.print(session.getAttribute("dvusuario"));%>';
+             var rutcliente = $('#rutcliente').val().split("-")[0].replaceAll("\\.", "");
+             var dvcliente = $('#rutcliente').val().split("-")[1];
+             var monto = $('#montoaprobado').val().replaceAll("\\.", "");
+             var cuotas = $('#cuotas').val().replaceAll("\\.", "");
+             var vencimiento = $('#vencimiento').val();
+             var tasainteres = $('#tasainteres').val();
+             
+             var arrCuotas = [];
+             for(var x = 0; x < ARR_CUOTAS.length; x++){
+             arrCuotas.push(ARR_CUOTAS[x]);
+             }
+             if(arrCuotas.indexOf(parseInt(cuotas)) === -1){
+             arrCuotas.push(parseInt(cuotas));
+             }
+             getIDGrupo(function (liid) {
+             console.log(liid);
+             for (var i = 0; i < arrCuotas.length; i++) {
+             var simulacion = generarSimulacion(arrCuotas[i]);
+             simulacion.cuotas = arrCuotas[i];
+             simulacion.idcampana = idcampana;
+             simulacion.rutvendedor = rutusuario;
+             simulacion.dvvendedor = dvvendedor;
+             simulacion.rutcliente = rutcliente;
+             simulacion.dvcliente = dvcliente;
+             simulacion.vencimiento = vencimiento;
+             simulacion.idgrupo = liid;
+             
+             $('#tab-subproductos tbody tr').each(function (t) {
+             var fila = $(this)[0];
+             var celdas = $(fila.cells);
+             var celda_0 = $(celdas[0]);
+             var check = $(celda_0).children('input');
+             if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
+             var celda_1 = $(celdas[1]);
+             var hidden = $(celda_1).children('input')[1];
+             var idsubproducto = $(hidden).val();
+             simulacion.subproductos.push({idsubproducto: idsubproducto});
+             }
+             });
+             
+             var detalle = {
+             url: 'SimulacionController',
+             datos: {
+             tipo: 'ins-simulacion',
+             simulacion: simulacion
+             }
+             };
+             insertarEspecial(detalle, function (obj) {
+             limpiar();
+             cargarSimulaciones();
+             });
+             }
+             
+             });
+             }
+             
+             console.log("Registros insertados.");
+             }
+             */
+            function getIDGrupo(callback) {
                 var datos = {
-                    tipo: 'get-subproductos-simulacion',
-                    idsimulacion: idsimulacion
+                    tipo: 'get-id-grupo'
                 };
-                
                 $.ajax({
                     type: 'post',
                     url: 'SimulacionController',
                     data: {
                         datos: JSON.stringify(datos)
                     },
-                    success: function(resp){
+                    success: function (resp) {
                         var obj = JSON.parse(resp);
-                        if(obj.estado === 'ok'){
+                        if (obj.estado === "ok") {
+                            //console.log("liid: " + obj.liid);
+                            callback(obj.liid);
+                        }
+                    }
+                });
+            }
+
+            function calcTasaAnual() {
+                var valido = false;
+                /**
+                 * Inicializar en '0.0'.
+                 * Cualquier error no controlado la dejará por defecto en cero.
+                 * Validador debe controlar que sea mayor a 0.01
+                 */
+
+                var tasainteres = $('#tasainteres').val().toString();
+                if (tasainteres.indexOf(".") === -1 && tasainteres.indexOf(",") === -1) {
+                    //validar isNaN
+                    if (isNaN(tasainteres)) {//##1
+                        //console.log("Tasa interés no numérica");
+                        $('#tasaanual').val(0.0); //
+                    } else {
+                        var tasaA = parseFloat(tasainteres) * 12;
+                        tasaA = Number((parseFloat(tasaA)).toFixed(2)); //Incorporados como redondeo
+                        $('#tasaanual').val(tasaA);
+                        valido = true;
+                    }
+                } else {
+                    if (tasainteres.indexOf(",") !== -1) {
+                        tasainteres = tasainteres.relaceAll(",", ".");
+                    }
+
+                    var tasaA = parseFloat(tasainteres) * 12;
+                    tasaA = Number((parseFloat(tasaA)).toFixed(2)); //Incorporados como redondeo
+                    $('#tasaanual').val(tasaA);
+                    valido = true;
+                }
+                if (!valido) {
+                    $('#tasaanual').val(0.0);
+                }
+            }
+
+            function verSubproductosVendidos(idsimulacion) {
+                var datos = {
+                    tipo: 'get-subproductos-simulacion',
+                    idsimulacion: idsimulacion
+                };
+
+                $.ajax({
+                    type: 'post',
+                    url: 'SimulacionController',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function (resp) {
+                        var obj = JSON.parse(resp);
+                        if (obj.estado === 'ok') {
                             //pintar popup
                             $('#cuerpo-modal-subproductos').html(armarTablaSubproductos(obj.subproductos));
                             $('#modal-subproductos').modal();
@@ -377,28 +603,27 @@
                     }
                 });
             }
-            
-            function armarTablaSubproductos(subproductos){
+
+            function armarTablaSubproductos(subproductos) {
                 var tab = "<table id='tab-subproductos' class='table-sm small' style='border: none; border-collapse: collapse;'><thead>";
                 tab += "<tr>";
                 tab += "<th>Subproducto</th>";
-                tab += "<th>Prima</th>";
-                tab += "<th>Meta Monto</th>";
-                tab += "<th>Meta Cantidad</th>";
+                tab += "<th>% Prima</th>";
+                tab += "<th>$ Prima</th>";
                 tab += "</tr></thead><tbody>";
-                $(subproductos).each(function(){
+                $(subproductos).each(function () {
                     tab += "<tr>";
                     tab += "<td>[" + $(this)[0].codsubproducto + "] " + $(this)[0].descsubproducto + "</td>";
-                        tab += "<td>" + $(this)[0].prima + "</td>";
-                        tab += "<td>$" + formatMiles($(this)[0].montometa) + "</td>";
-                        tab += "<td>" + formatMiles($(this)[0].cantidadmeta) + "</td>";
-                        tab += "</tr>";
-                    });
-                    tab += "</tbody></table>";
-                    return tab;
-                }
+                    tab += "<td>" + $(this)[0].prima + " %</td>";
+                    tab += "<td>$ " + $(this)[0].montoseguro + "</td>";
+                    tab += "</tr>";
+                });
+                tab += "</tbody></table>";
+                return tab;
+            }
 
             function pintarDatos(campana, subproductos) {
+                //console.log(campana);
                 $('#hidIdCampana').val(campana.idcampana);
                 $('#hidMontoAprobado').val(campana.montoaprobado);
                 $('#cuerpo-subproductos').html(subproductos);
@@ -432,7 +657,7 @@
                 $('#direccion').html('');
                 $('#montoaprobado').val('');
                 $('#montometa').html('');
-                $('#rutcliente').val('');
+                //$('#rutcliente').val(''); //No limpiar RutCliente 
 
                 //Limpieza de inputs
                 $('#valorcuota').val('');
@@ -443,7 +668,9 @@
                 $('#costototal').val('');
                 $('#vencimiento').val('');
                 $('#comision').val('');
+                $('#impuesto').val('');
                 $('#select-empresa').val('0');
+                SIMULACION = null;
             }
 
             function mostrarAlert(clase, mensaje) {
@@ -457,6 +684,33 @@
             function ocultarAlert() {
                 $('#alerta').fadeOut(500);
                 $('#alerta').html('');
+            }
+
+            // -- Test Simulador--------------------------------------------------
+
+            function generarSimulacion(cuotas) {
+                var montosolicitado = parseInt($('#montoaprobado').val().replaceAll("\\.", ""));
+                var tasainteres = parseFloat($('#tasainteres').val());
+                var comision = parseInt($('#comision').val().replaceAll("\\.", ""));
+                var topeUf = 50;
+
+                var primaseguro = 0.0;
+                var tabla = document.getElementById('tab-subproductos');
+                var trs = tabla.getElementsByTagName("tr");
+                for (var i = 0; i < trs.length; i++) {
+                    var tds = trs[i].getElementsByTagName("td");
+                    if (primaseguro === 0.0) {
+                        for (var x = 0; x < tds.length; x++) {
+                            //Buscar acá el seguro ----------------------------------
+                            primaseguro = parseFloat(tds[3].innerHTML);
+                        }
+                    }
+                }
+
+                var simulacion = simular(montosolicitado, cuotas, tasainteres, primaseguro, comision, topeUf);
+                //console.log(simulacion);
+                SIMULACION = simulacion;
+                return simulacion;
             }
         </script>
         <div class="container-fluid">
@@ -485,7 +739,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="modal fade" id="modal-subproductos">
                 <div class="modal-dialog modal-lg" >
                     <div class="modal-content">
@@ -509,7 +763,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <input type='hidden' id='hidIdCampana' value='' />
             <input type='hidden' id='hidMontoAprobado' value='' />
             <br />
@@ -544,7 +798,6 @@
                     </form>
 
                 </div>
-
                 <div class='col-sm-6'>
                     <table id='tab-detalles' class='table-sm small' style='border: none; border-collapse: collapse;'>
                         <tr>
@@ -578,50 +831,41 @@
                             <td id='apellidoscliente'></td>
                         </tr>
                         <tr>
-                            <td style='font-weight: bold;'>Meta</td>
-                            <td id='montometa'></td>
-
                             <td style='font-weight: bold;'>Dirección</td>
                             <td id='direccion'></td>
                         </tr>
                         <tr>
                             <td style='font-weight: bold;'>Monto aprobado</td>
                             <td>
-                                <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='montoaprobado' value=''/>
+                                <input onkeyup="formatMilesInput(this);
+                                        calcularTodo();" class='form-control form-control-sm cambiante' type='text' id='montoaprobado' value=''/>
                             </td>
 
                             <td style='font-weight: bold;'>Cuotas</td>
                             <td>
-                                <input class='form-control form-control-sm' type='text' id='cuotas' value=''/>
+                                <input onkeyup="calcularTodo();" class='form-control form-control-sm cambiante' type='text' id='cuotas' value=''/>
                             </td>
                         </tr>
                         <tr>
                             <td style='font-weight: bold;'>Valor cuota</td>
                             <td>
-                                <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='valorcuota' value=''/>
+                                <input disabled="disabled" onchange="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='valorcuota' value=''/>
                             </td>
 
                             <td style='font-weight: bold;'>Tasa interés</td>
                             <td>
-                                <input class='form-control form-control-sm' onkeyup="calcTasaAnual();" type='number' step='0.01' id='tasainteres' value=''/>
+                                <input class='form-control form-control-sm' onkeyup="calcTasaAnual();
+                                        calcularTodo();" type='number' step='0.01' id='tasainteres' value=''/>
                             </td>
-                            <!--td style='font-weight: bold;'>Tasa anual</td>
-                            <td>
-                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasaanual' value=''/>
-                            </td-->
                         </tr>
                         <tr>
                             <td style='font-weight: bold;'>Tasa anual</td>
                             <td>
                                 <input class='form-control form-control-sm' disabled="disabled" type='number' step='0.01' id='tasaanual' value=''/>
                             </td>
-                            <!--td style='font-weight: bold;'>Tasa interés</td>
-                            <td>
-                                <input class='form-control form-control-sm' type='number' step='0.01' id='tasainteres' value=''/>
-                            </td-->
                             <td style='font-weight: bold;'>CAE</td>
                             <td>
-                                <input class='form-control form-control-sm' type='number' step='0.01' id='cae' value=''/>
+                                <input disabled="disabled" class='form-control form-control-sm' type='number' step='0.01' id='cae' value=''/>
                             </td> 
                         </tr>
                         <tr>
@@ -631,24 +875,29 @@
                             </td>
                             <td style='font-weight: bold;'>Costo total</td>
                             <td>
-                                <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='costototal' value=''/>
+                                <input disabled="disabled" onchange="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='costototal' value=''/>
                             </td>
-
                         </tr>
                         <tr>
                             <td style='font-weight: bold;'>Comisión</td>
                             <td>
                                 <input onkeyup="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='comision' value=''/>
                             </td>
+                            <td style='font-weight: bold;'>Impuesto</td>
+                            <td>
+                                <input disabled="disabled" onchange="formatMilesInput(this);" class='form-control form-control-sm' type='text' id='impuesto' value=''/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button onclick="insert();" type="button" class="btn btn-primary btn-sm">Simular</button>
+                            </td>
+                            <td>
+                                <button onclick='limpiar();' type="button" class="btn btn-default btn-sm">Limpiar</button>
+                            </td>
+                            <td colspan="2" ></td>
                         </tr>
                     </table>
-                    <div class='col-sm-2'>
-                        <div id='creacion' class="form-group small">
-                            <button onclick="insert();" type="button" class="btn btn-primary btn-sm">Insertar</button>
-                            <button onclick='limpiar();' type="button" class="btn btn-default btn-sm float-right">Limpiar</button>
-                        </div>
-                    </div>
-
                 </div>
                 <div class='col-sm-4'>
                     <span style='font-weight: bold;'>Subproductos</span>
@@ -659,8 +908,8 @@
                                 <th>Código</th>
                                 <th>Descripcion</th>
                                 <th>Prima</th>
-                                <th>Monto meta</th>
-                                <th>Cant. meta</th>
+                                <!-- th>Monto meta</th -->
+                                <!-- th>Cant. meta</th -->
                             </tr>
                         </thead>
                         <tbody id='cuerpo-subproductos'>
@@ -677,14 +926,16 @@
                     <table id="tabla-simulaciones" class="table table-sm small table-borderless table-hover table-striped">
                         <thead>
                             <tr>
-                                <th>Empresa</th>
-                                <th>Rut cliente</th>
-                                <th>Nombres</th>
-                                <th>Código producto</th>
                                 <th>Producto</th>
                                 <th>Monto</th>
-                                <th>Cuotas</th>
+                                <th>#<br />Cuotas</th>
+                                <th>$<br />Cuota</th>
+                                <th>$<br />Impuesto al crédito</th>
+                                <th>$<br />CTC</th>
+                                <th>%<br />Tasa</th>
+                                <th>%<br />CAE</th>
                                 <th>Subproductos</th>
+                                <th>Venta</th>
                             </tr>
                         </thead>
                         <tbody id="cuerpo-tab-simulacion">

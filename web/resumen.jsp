@@ -9,7 +9,7 @@
         var rutfullvendedor = '<% out.print(session.getAttribute("rutusuario") + "-" + session.getAttribute("dvusuario"));%>';
         rutfullvendedor = rutfullvendedor.replaceAll("-", "");
         var datos = {
-            tipo: 'carga-tab-resumen-vendedor',
+            tipo: 'carga-tab-resumen-ventas-vendedor',
             rutfullvendedor: rutfullvendedor
         };
         $.ajax({
@@ -58,15 +58,11 @@
         var tab = "";
         $.each(arr, function () {
             tab += "<tr>";
-            //tab += "<td>" + $(this)[0].codproducto + "</td>";
-
             tab += "<td>" + $(this)[0].nomempresa + "</td>";
             tab += "<td>[" + $(this)[0].codcampana + "] " + $(this)[0].nomcampana + "</td>";
             tab += "<td>[" + $(this)[0].codproducto + "] " + $(this)[0].descproducto + "</td>";
-            //tab += "<td>$" + formatMiles($(this)[0].meta) + "</td>";
             tab += "<td>$" + formatMiles($(this)[0].montoacum) + "</td>";
             tab += "<td>" + $(this)[0].cantidad + "</td>";
-            //tab += "<td>" + $(this)[0].porcacum + "%</td>";
             tab += "</tr>";
         });
         return tab;

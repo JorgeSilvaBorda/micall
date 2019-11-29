@@ -12,7 +12,7 @@
     });
     function cargarResumen() {
         var datos = {
-            tipo: 'tabla-resumen-ventas-empresa',
+            tipo: 'tabla-resumen-simulaciones-empresa',
             rutusuario: '<% out.print(session.getAttribute("rutusuario"));%>'
         };
         $.ajax({

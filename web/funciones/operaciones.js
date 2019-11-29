@@ -4,6 +4,7 @@ function traerListado(detalle, callback) {
     $.ajax({
         type: 'post',
         url: detalle.url,
+        cache: false,
         data: {
             datos: JSON.stringify(detalle.datos)
         },
@@ -35,8 +36,25 @@ function insertar(detalle, callback) {
         success: function (res) {
             var obj = JSON.parse(res);
             if (obj.estado === 'ok') {
+                alert('Registros ingresados correctamente.'); //Se cambia para probar refresh de insert
                 callback(obj);
-                alert('Registros ingresados correctamente.');
+            }
+        }
+    });
+}
+
+function insertarEspecial(detalle, callback) {
+    $.ajax({
+        type: 'post',
+        url: detalle.url,
+        data: {
+            datos: JSON.stringify(detalle.datos)
+        },
+        success: function (res) {
+            var obj = JSON.parse(res);
+            if (obj.estado === 'ok') {
+                //alert('Registros ingresados correctamente.'); //Se cambia para probar refresh de insert
+                callback(obj);
             }
         }
     });

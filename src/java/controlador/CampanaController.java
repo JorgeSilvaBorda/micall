@@ -35,6 +35,9 @@ public class CampanaController extends HttpServlet {
 	    case "select-campanas":
 		out.print(selectCampana(entrada.getInt("idempresa")));
 		break;
+	    case "select-campanas-new":
+		out.print(selectCampanaNew(request));
+		break;
 	    case "detalle-subproducto":
 		out.print(getDetalle(entrada.getInt("idcampana")));
 		break;
@@ -42,7 +45,7 @@ public class CampanaController extends HttpServlet {
 		out.print(getCampanaEmpresaRutcliente(entrada.getInt("rutcliente"), entrada.getInt("idempresa")));
 		break;
 	    case "get-camapana-idcampana-idempresa":
-		out.print(getCamapanaIdcampanaIdempresa(entrada.getInt("idcampana"), entrada.getInt("idempresa")));
+		out.print(getCamapanaIdcampanaIdempresa(entrada.getInt("idcampana"), entrada.getInt("idempresa"), entrada.getInt("rutcliente")));
 		break;
 	    default:
 		break;
@@ -60,8 +63,9 @@ public class CampanaController extends HttpServlet {
 	try {
 	    while (rs.next()) {
 		filas += "<tr>";
-		filas += "<td><input type='hidden' value='" + rs.getInt("IDCAMPANA") + "'>" + modelo.Util.formatRut(rs.getInt("RUTEMPRESA") + "-" + rs.getString("DVEMPRESA")) + "</td>";
+		filas += "<td><input type='hidden' value='" + rs.getInt("IDCAMPANA") + "'><input type='hidden' value='" + rs.getInt("IDTIPOCAMPANA") + "'>" + modelo.Util.formatRut(rs.getInt("RUTEMPRESA") + "-" + rs.getString("DVEMPRESA")) + "</td>";
 		filas += "<td>" + rs.getString("NOMBRE") + "</td>";
+                filas += "<td>" + rs.getString("CODTIPOCAMPANA") + "</td>";
 		filas += "<td>" + rs.getString("CODCAMPANA") + "</td>";
 		filas += "<td>" + rs.getString("NOMCAMPANA") + "</td>";
 		filas += "<td>" + rs.getString("DESCPRODUCTO") + "</td>";
@@ -102,7 +106,8 @@ public class CampanaController extends HttpServlet {
 		+ "'" + campana.getString("codcampana") + "', "
 		+ "'" + campana.getString("fechaini") + "', "
 		+ "'" + campana.getString("fechafin") + "', "
-		+ campana.getBigInteger("meta") + ")";
+		+ campana.getBigInteger("meta") + ","
+                + campana.getInt("idtipocampana") + ")";
 	Conexion c = new Conexion();
 	c.abrir();
 	ResultSet rs = c.ejecutarQuery(query);
@@ -171,6 +176,41 @@ public class CampanaController extends HttpServlet {
 	return salida;
     }
 
+    public JSONObject selectCampanaNew(HttpServletRequest request) {
+	System.out.println("");
+	JSONObject salida = new JSONObject();
+	JSONArray campanas = new JSONArray();
+	String query = "CALL SP_SELECT_CAMPANAS_IDEMPRESA(" + Integer.parseInt(request.getSession().getAttribute("idempresa").toString()) + ")";
+	Conexion c = new Conexion();
+	c.abrir();
+	ResultSet rs = c.ejecutarQuery(query);
+	String options = modelo.Util.armarSelect(rs, "0", "Seleccione", "IDCAMPANA", "TEXTO");
+	
+	try {
+	    rs.beforeFirst();
+	    while (rs.next()) {
+		JSONObject campana = new JSONObject();
+		campana.put("idcampana", rs.getInt("IDCAMPANA"));
+                campana.put("idtipocampana", rs.getInt("IDTIPOCAMPANA"));
+                campana.put("codtipocampana", rs.getString("CODTIPOCAMPANA"));
+                campana.put("nomtipocampana", rs.getString("NOMTIPOCAMPANA"));
+		campana.put("codcampana", rs.getString("CODCAMPANA"));
+		campana.put("nomcampana", rs.getString("NOMCAMPANA"));
+		campana.put("fechaini", rs.getDate("FECHAINI"));
+		campana.put("fechafin", rs.getDate("FECHAFIN"));
+		campanas.put(campana);
+	    }
+	    salida.put("campanas", campanas);
+	} catch (Exception ex) {
+	    System.out.println("No se pudo obtener el detalle de las campañas");
+	    System.out.println(ex);
+	}
+	c.cerrar();
+	salida.put("estado", "ok");
+	salida.put("options", options);
+	return salida;
+    }
+
     private JSONObject getDetalle(int idcampana) {
 	JSONObject salida = new JSONObject();
 	String query = "CALL SP_GET_DETALLE_SUBPRODUCTOS(" + idcampana + ")";
@@ -186,8 +226,8 @@ public class CampanaController extends HttpServlet {
 		cuerpotabla += "<td>[" + rs.getString("CODSUBPRODUCTO") + "] " + rs.getString("DESCSUBPRODUCTO") + "</td>";
 		//cuerpotabla += "<td>" + rs.getString("DESCSUBPRODUCTO") + "</td>";
 		cuerpotabla += "<td>" + rs.getBigDecimal("PRIMA") + "</td>";
-		cuerpotabla += "<td>$" + format.format(rs.getDouble("MONTOMETA")) + "</td>";
-		cuerpotabla += "<td>" + rs.getInt("CANTIDADMETA") + "</td>";
+		//cuerpotabla += "<td>$" + format.format(rs.getDouble("MONTOMETA")) + "</td>";
+		//cuerpotabla += "<td>" + rs.getInt("CANTIDADMETA") + "</td>";
 
 		cuerpotabla += "</tr>";
 	    }
@@ -222,6 +262,9 @@ public class CampanaController extends HttpServlet {
 		idCampana = rs.getInt("IDCAMPANA");
 		campana.put("idcampana", rs.getInt("IDCAMPANA"));
 		campana.put("idproducto", rs.getInt("IDPRODUCTO"));
+                campana.put("idtipocampana", rs.getInt("IDTIPOCAMPANA"));
+                campana.put("codtipocampana", rs.getString("CODTIPOCAMPANA"));
+                campana.put("nomtipocampana", rs.getString("NOMTIPOCAMPANA"));
 		campana.put("idempresa", rs.getInt("IDEMPRESA"));
 		campana.put("rutcliente", rs.getInt("RUT"));
 		campana.put("dvcliente", rs.getString("DV"));
@@ -267,10 +310,11 @@ public class CampanaController extends HttpServlet {
 	c = new Conexion();
 	c.abrir();
 	query = "CALL SP_GET_DETALLE_SUBPRODUCTOS(" + idCampana + ")";
-	
+
 	ResultSet result = c.ejecutarQuery(query);
+
 	String tab = "";
-	
+
 	try {
 	    while (result.next()) {
 		tab += "<tr>";
@@ -278,8 +322,8 @@ public class CampanaController extends HttpServlet {
 		tab += "<td><input type='hidden' value='" + result.getInt("IDCAMPANA") + "' /><input type='hidden' value='" + result.getInt("IDSUBPRODUCTO") + "' />" + result.getString("CODSUBPRODUCTO") + "</td>";
 		tab += "<td>" + result.getString("DESCSUBPRODUCTO") + "</td>";
 		tab += "<td>" + result.getBigDecimal("PRIMA") + "</td>";
-		tab += "<td>$" + format.format(result.getDouble("MONTOMETA")) + "</td>";
-		tab += "<td>" + result.getInt("CANTIDADMETA") + "</td>";
+		//tab += "<td>$" + format.format(result.getDouble("MONTOMETA")) + "</td>";
+		//tab += "<td>" + result.getInt("CANTIDADMETA") + "</td>";
 		tab += "</tr>";
 	    }
 	    salida.put("estado", "ok");
@@ -291,15 +335,15 @@ public class CampanaController extends HttpServlet {
 	    salida.put("mensaje", ex);
 	}
 	c.cerrar();
-	System.out.println(salida);
 	return salida;
     }
 
-    private JSONObject getCamapanaIdcampanaIdempresa(int idcampana, int idempresa) {
+    private JSONObject getCamapanaIdcampanaIdempresa(int idcampana, int idempresa, int rutcliente) {
 	JSONObject salida = new JSONObject();
 	String query = "CALL SP_GET_CAMPANA_IDCAMPANA_IDEMPRESA("
 		+ idcampana + ","
-		+ idempresa + ")";
+		+ idempresa + ","
+		+ rutcliente + ")";
 
 	Conexion c = new Conexion();
 	c.abrir();
@@ -308,9 +352,12 @@ public class CampanaController extends HttpServlet {
 	DecimalFormat format = new DecimalFormat("###,###,###,###.##");
 	try {
 	    while (rs.next()) {
-		
+
 		campana.put("idcampana", rs.getInt("IDCAMPANA"));
 		campana.put("idproducto", rs.getInt("IDPRODUCTO"));
+                campana.put("idtipocampana", rs.getInt("IDTIPOCAMPANA"));
+                campana.put("codtipocampana", rs.getString("CODTIPOCAMPANA"));
+                campana.put("nomtipocampana", rs.getString("NOMTIPOCAMPANA"));
 		campana.put("idempresa", rs.getInt("IDEMPRESA"));
 		campana.put("rutcliente", rs.getInt("RUT"));
 		campana.put("dvcliente", rs.getString("DV"));
@@ -352,16 +399,16 @@ public class CampanaController extends HttpServlet {
 	query = "CALL SP_GET_DETALLE_SUBPRODUCTOS(" + salida.getJSONObject("campana").getInt("idcampana") + ")";
 	ResultSet result = c.ejecutarQuery(query);
 	String tab = "";
-	
+
 	try {
 	    while (result.next()) {
 		tab += "<tr>";
-		tab += "<td><input type='checkbox' /></td>";
+		tab += "<td><input onclick='calcularTodo();' type='checkbox' /></td>";
 		tab += "<td><input type='hidden' value='" + result.getInt("IDCAMPANA") + "' /><input type='hidden' value='" + result.getInt("IDSUBPRODUCTO") + "' />" + result.getString("CODSUBPRODUCTO") + "</td>";
 		tab += "<td>" + result.getString("DESCSUBPRODUCTO") + "</td>";
 		tab += "<td>" + result.getBigDecimal("PRIMA") + "</td>";
-		tab += "<td>$" + format.format(result.getDouble("MONTOMETA")) + "</td>";
-		tab += "<td>" + result.getInt("CANTIDADMETA") + "</td>";
+		//tab += "<td>$" + format.format(result.getDouble("MONTOMETA")) + "</td>";
+		//tab += "<td>" + result.getInt("CANTIDADMETA") + "</td>";
 		tab += "</tr>";
 	    }
 	    salida.put("estado", "ok");
