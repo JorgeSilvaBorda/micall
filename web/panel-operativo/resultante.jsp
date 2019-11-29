@@ -61,8 +61,6 @@
                 <tr>
                     <th>ID Llamada</th>
                     <th>Rut</th>
-                    <th>Nombres</th>
-                    <th>Apellidos</th>
                     <th>Teléfono</th>
                     <th>Resolución</th>
                     <th>Observaciones</th>

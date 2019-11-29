@@ -72,6 +72,8 @@ function cargarTabla(callback) {
 
 function armarTabla(obj) {
     $('.dataTable').DataTable().destroy();
-    $('#cuerpo-resultante').html(obj.cuerpo);
-    $('#tabla-resultante').DataTable(OPCIONES_DATATABLES);
+    if(parseInt(obj.filas) > 0){
+        $('#cuerpo-resultante').html(obj.cuerpo);
+        $('#tabla-resultante').DataTable(OPCIONES_DATATABLES);
+    }
 }
