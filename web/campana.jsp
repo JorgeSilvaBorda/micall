@@ -14,6 +14,7 @@
                 llenarSelectEmpresa();
                 cargaSelectTipoCampana();
                 traerCampanas();
+                $('#meta').attr("disabled", "disabled");
             });
 
             function traerCampanas() {
@@ -51,23 +52,23 @@
                     data: {
                         datos: JSON.stringify(datos)
                     },
-                    success: function(resp){
+                    success: function (resp) {
                         var obj = JSON.parse(resp);
-                        if (obj.estado === 'ok'){
+                        if (obj.estado === 'ok') {
                             $('#select-tipo-campana').html(obj.options);
-                        }else{
+                        } else {
                             console.log("Error al traer los tipos de campaña.");
                             console.log("Mensaje");
                             console.log(obj.mensaje);
                         }
                     },
-                    error: function(a, b, c){
+                    error: function (a, b, c) {
                         console.log(a);
                         console.log(b);
                         console.log(c);
                     }
                 });
-                
+
             }
 
             function cargaSelectProducto() {
@@ -94,12 +95,33 @@
                         }
                     };
                     $('#cuerpo-tab-subproductos').html('');
-                    traerListado(detSubs, function (resp) {
+                    var idtipocampana = parseInt($('#select-tipo-campana').val());
+                    if (idtipocampana === 3) {
+                        traerListado(detSubs, function (resp) {
 
-                    });
+                        });
+                    }
+
                 } else {
                     $('#select-producto').html('');
                 }
+            }
+
+            function changeTipoCampana() {
+                var idtipocampana = parseInt($('#select-tipo-campana').val());
+                if (idtipocampana === 0 || idtipocampana === 1 || idtipocampana === 2) {
+                    desactivarCampos();
+                } else {
+                    activarCampos();
+                }
+            }
+
+            function desactivarCampos() {
+                $('#meta').attr("disabled", "disabled");
+            }
+
+            function activarCampos() {
+                $('#meta').removeAttr("disabled");
             }
 
             function insert() {
@@ -111,7 +133,11 @@
                 var desde = $('#desde').val();
                 var hasta = $('#hasta').val();
                 var meta = $('#meta').val();
-
+                if (idtipocampana === 3) {
+                    meta = parseInt(meta.replaceAll("\\.", ""));
+                } else {
+                    meta = -1;
+                }
                 var campana = {
                     codcampana: codcampana,
                     nomcampana: nomcampana,
@@ -119,7 +145,7 @@
                     idproducto: parseInt(idproducto),
                     fechaini: desde,
                     fechafin: hasta,
-                    meta: parseInt(meta.replaceAll("\\.", "")),
+                    meta: meta,
                     subproductos: []
                 };
 
@@ -159,9 +185,9 @@
             }
 
             function validar(campana) {
-                if(campana.idtipocampana === 0 || campana.idtipocampana === '' || campana.idtipocampana === undefined || campana.idtipocampana === null){
-                   alert("Debe seleccionar el tipo de campaña que desea crear.");
-                   return false;
+                if (campana.idtipocampana === 0 || campana.idtipocampana === '' || campana.idtipocampana === undefined || campana.idtipocampana === null) {
+                    alert("Debe seleccionar el tipo de campaña que desea crear.");
+                    return false;
                 }
                 if (campana.codcampana === '' || campana.codcampana === null || campana.codcampana === undefined) {
                     alert('Debe ingresar el código de la campaña.');
@@ -190,9 +216,13 @@
                     alert('Debe ingresar la fecha de término para la campaña.');
                     return false;
                 }
-                if (campana.meta === '' || campana.meta === null || campana.meta === undefined || campana.meta === 0 || campana.meta === '0' || isNaN(campana.meta)) {
-                    alert('Debe indicar el monto de la meta para la campaña.');
-                    return false;
+
+                var idtipocampana = $('#select-tipo-campana').val();
+                if (parseInt(idtipocampana) === 3) {
+                    if (campana.meta === '' || campana.meta === null || campana.meta === undefined || campana.meta === 0 || campana.meta === '0' || isNaN(campana.meta)) {
+                        alert('Debe indicar el monto de la meta para la campaña.');
+                        return false;
+                    }
                 }
                 if (campana.subproductos.length > 0) {
                     $(campana.subproductos).each(function (i) {
@@ -346,7 +376,7 @@
                     <form>
                         <div class="form-group small">
                             <label for="select-tipo-campana">Tipo Campaña</label>
-                            <select class="form-control form-control-sm" id="select-tipo-campana">
+                            <select onchange="changeTipoCampana();" class="form-control form-control-sm" id="select-tipo-campana">
                             </select>
                         </div>
                         <div class="form-group small">

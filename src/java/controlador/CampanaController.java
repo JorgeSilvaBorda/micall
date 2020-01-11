@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -98,7 +99,13 @@ public class CampanaController extends HttpServlet {
 	JSONObject salida = new JSONObject();
 	JSONArray subproductos = campana.getJSONArray("subproductos");
 	Iterator i = subproductos.iterator();
-
+        BigInteger meta = campana.getBigInteger("meta");
+        String txtMeta = "";
+        if(meta.equals(-1)){
+            txtMeta = "NULL";
+        }else{
+            txtMeta = meta.toString();
+        }
 	//Insertar Campaña
 	String query = "CALL SP_INS_CAMPANA("
 		+ campana.getInt("idproducto") + ", "
@@ -106,7 +113,8 @@ public class CampanaController extends HttpServlet {
 		+ "'" + campana.getString("codcampana") + "', "
 		+ "'" + campana.getString("fechaini") + "', "
 		+ "'" + campana.getString("fechafin") + "', "
-		+ campana.getBigInteger("meta") + ","
+		//+ campana.getBigInteger("meta") + ","
+                + txtMeta + ","
                 + campana.getInt("idtipocampana") + ")";
 	Conexion c = new Conexion();
 	c.abrir();
