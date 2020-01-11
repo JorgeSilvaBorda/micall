@@ -24,7 +24,9 @@
                 };
                 cargarSelect(det);
                 $('#rut').rut({
-                    formatOn: 'keyup'
+                    formatOn: 'keyup',
+                    minumumLength: 8,
+                    validateOn: 'change'
                 });
 
             });
@@ -68,19 +70,37 @@
                 var rutusuario = $('#rut').val().replaceAll("\\.", "").split("-")[0];
                 var dvusuario = $('#rut').val().split("-")[1];
                 //primero validar que sea rut válido.
+
+                //20200111 ----- Validar largo de rut mínimo 8---------------------
+                
+                if (rutfullusuario.length < 8) {
+                    $('#btnInsert').attr("disabled", "disabled");
+                    mostrarAlert("alert-danger", "El rut ingresado no es válido.");
+                    return false;
+                }else{
+                    $('#btnInsert').removeAttr("disabled");
+                    ocultarAlert();
+                    return false;
+                }
+                
+                //-----------------------------------------------------------------
+                
                 if ($.validateRut(rutfullusuario)) {
                     esNuevoRut(function (esNuevo) {
                         if (esNuevo) {
                             $('#btnInsert').removeAttr("disabled");
                             ocultarAlert();
+                            return false;
                         } else {
                             $('#btnInsert').attr("disabled", "disabled");
                             mostrarAlert("alert-danger", "El rut ya existe en la base de datos.");
+                            return false;
                         }
                     });
                 } else {
                     mostrarAlert("alert-danger", "El rut ingresado es inválido");
                     $('#btnInsert').attr("disabled", "disabled");
+                    return false;
                 }
             }
 
@@ -272,7 +292,7 @@
                             url: 'UsuarioController',
                             objetivo: 'select-tipo-usuario'
                         };
-                        cargarSelect(det);                        
+                        cargarSelect(det);
                         cancelarEdicion();
                     });
                 }
@@ -441,7 +461,7 @@
                         </div>
                         <div class="form-group small">
                             <label for="rut">Rut</label>
-                            <input onblur="validarCampoRut();" id="rut" type="text" class="form-control form-control-sm" /> 
+                            <input onchange="validarCampoRut();" id="rut" type="text" class="form-control form-control-sm" /> 
                         </div>
                         <div id="alerta" class="alert oculto">
 
