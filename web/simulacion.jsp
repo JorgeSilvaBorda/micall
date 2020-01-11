@@ -9,6 +9,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="initial-scale=1">
         <script src="funciones/simulador.js" type="text/javascript"></script>
         <title>Simulacion</title>
     </head>
