@@ -34,6 +34,7 @@
                             if (obj.estado === 'ok') {
                                 alert('Contraseña cambiada exitosamente.');
                                 limpiar();
+                                window.location.href = 'http://localhost:8080/micall/index.jsp';
                             } else if (obj.estado === 'error') {
                                 alert(obj.mensaje);
                             }
