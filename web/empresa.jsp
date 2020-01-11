@@ -25,7 +25,7 @@
                 });
 
                 $('#rut').rut({
-                    formatOn: 'keyup'
+                    formatOn: 'change'
                 });
 
             });
