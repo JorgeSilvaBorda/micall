@@ -128,7 +128,7 @@ public class UsuarioController extends HttpServlet {
                 filas += "<td>" + modelo.Util.formatRut(rs.getString("RUTEMPRESA") + "-" + rs.getString("DVEMPRESA")) + "</td>";
                 filas += "<td>" + rs.getString("NOMBRE") + "</td>";
                 filas += "<td><input type='hidden' value='" + rs.getInt("IDTIPOUSUARIO") + "' />" + rs.getString("DESCTIPOUSUARIO") + "</td>";
-                filas += "<td><button style='font-size:10px; padding: 0.1 rem 0.1 rem;' type='button' class='btn btn-sm btn-warning' onclick='edit(this)'>Editar</button><button style='font-size:10px;  padding: 0.1 rem 0.1 rem;' type='button' class='btn btn-sm btn-danger' onclick='del(this)'>Eliminar</button><button style='font-size:10px;  padding: 0.1 rem 0.1 rem;' type='button' class='btn btn-sm btn-success' onclick='modalCambiar(this)'>Cambio pass</button></td>";
+                filas += "<td><button style='font-size:10px; padding: 0.1 rem 0.1 rem;' type='button' class='btn btn-sm btn-warning' onclick='edit(this)'>Editar</button><!-- button style='font-size:10px;  padding: 0.1 rem 0.1 rem;' type='button' class='btn btn-sm btn-danger' onclick='del(this)'>Eliminar</button --><button style='font-size:10px;  padding: 0.1 rem 0.1 rem;' type='button' class='btn btn-sm btn-success' onclick='modalCambiar(this)'>Cambio pass</button></td>";
                 filas += "</tr>";
             }
             salida.put("cuerpotabla", filas);
