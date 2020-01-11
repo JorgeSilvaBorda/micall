@@ -391,11 +391,11 @@
                         </div>
                         <div class="form-group small">
                             <label for="codcampana">Código</label>
-                            <input id="codcampana" type="text" class="form-control form-control-sm" />
+                            <input id="codcampana" type="text" maxlength="50" class="form-control form-control-sm" />
                         </div>
                         <div class="form-group small">
                             <label for="nomcampana">Nombre</label>
-                            <input id="nomcampana" type="text" class="form-control form-control-sm" />
+                            <input id="nomcampana" type="text" maxlength="100" class="form-control form-control-sm" />
                         </div>
 
 
