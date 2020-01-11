@@ -83,7 +83,7 @@ public class UsuarioController extends HttpServlet {
             salida.put("filas", cont);
             if (cont < 1) {
                 salida.put("estado", "no-valido");
-                salida.put("mensaje", "Las credenciales que ingresó no coinciden con las registradas.");
+                salida.put("mensaje", "No se encuentra el registro de usuario/clave ingresados.");
             } else {
                 salida.put("estado", "ok");
                 HttpSession session = request.getSession();
