@@ -1,14 +1,11 @@
 /build/
 /dist/
 /nbproject/
-<<<<<<< HEAD
 /api/servicios/venta/node_modules
 nbproject
-=======
 nbproject
 nbproject/private/
 api/servicios/venta/node_modules
 /api/servicios/venta/node_modules
->>>>>>> feature/integracion-uf
 docs/SIMULADOR_SAV.xls
 /docs/SIMULADOR_SAV.xls
