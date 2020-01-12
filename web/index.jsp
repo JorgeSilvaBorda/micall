@@ -21,6 +21,7 @@
         <script src="js/jquery.rut.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
         <script src="js/datatables/datatables.min.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
         <script src="js/datatables/FixedHeader-3.1.4/js/fixedHeader.bootstrap4.min.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
+        <script src="js/datatables/Buttons-1.5.6/js/buttons.print.min.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
         <script src="js/funciones.js?=<% out.print(modelo.Util.generaRandom(10000, 99999)); %>" type="text/javascript"></script>
         <script src="js/datatables/Buttons-1.5.6/js/buttons.html5.js" type="text/javascript"></script>
         <script src="js/datatables/JSZip-2.5.0/jszip.js" type="text/javascript"></script>

@@ -613,6 +613,7 @@ public class ReportesController extends HttpServlet {
         ResultSet rs = c.ejecutarQuery(query);
         String cuerpo = "";
         DecimalFormat format = new DecimalFormat("###,###,###.##");
+        int registros = 0;
         try {
             while (rs.next()) {
                 cuerpo += "<tr>";
@@ -638,8 +639,11 @@ public class ReportesController extends HttpServlet {
                 cuerpo += "<td>" + format.format(rs.getDouble("PRODUCTIVIDAD")) + "%</td>";
 
                 cuerpo += "</tr>";
+                
+                registros ++;
             }
             salida.put("estado", "ok");
+            salida.put("registros", registros);
             salida.put("cuerpo", cuerpo);
         } catch (JSONException | SQLException ex) {
             salida.put("estado", "error");
