@@ -77,11 +77,10 @@
                 if (rutfullusuario.length < 8) {
                     $('#btnInsert').attr("disabled", "disabled");
                     mostrarAlert("alert-danger", "El rut ingresado no es válido.");
-                    return false;
+                    console.log("No es rut válido");
                 }else{
                     $('#btnInsert').removeAttr("disabled");
                     ocultarAlert();
-                    return false;
                 }
                 
                 //-----------------------------------------------------------------
@@ -91,17 +90,15 @@
                         if (esNuevo) {
                             $('#btnInsert').removeAttr("disabled");
                             ocultarAlert();
-                            return false;
                         } else {
                             $('#btnInsert').attr("disabled", "disabled");
                             mostrarAlert("alert-danger", "El rut ya existe en la base de datos.");
-                            return false;
+                            console.log("Rut ya existe");
                         }
                     });
                 } else {
                     mostrarAlert("alert-danger", "El rut ingresado es inválido");
                     $('#btnInsert').attr("disabled", "disabled");
-                    return false;
                 }
             }
 
@@ -172,7 +169,6 @@
                                 callback(false);
                             }
                         }
-
                     },
                     error: function (a, b, c) {
                         console.log(a);
