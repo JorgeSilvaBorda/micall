@@ -580,6 +580,7 @@ public class ReportesController extends HttpServlet {
         c.abrir();
         ResultSet rs = c.ejecutarQuery(query);
         String cuerpo = "";
+        int registros = 0;
         try {
             while (rs.next()) {
                 cuerpo += "<tr>";
@@ -594,8 +595,10 @@ public class ReportesController extends HttpServlet {
                 String enlace = "<a href='" + rs.getString("location") + "' download>Descargar</a>";
                 cuerpo += "<td>" + enlace + "</td>";
                 cuerpo += "</tr>";
+                registros ++;
             }
             salida.put("estado", "ok");
+            salida.put("registros", registros);
             salida.put("cuerpo", cuerpo);
         } catch (JSONException | SQLException ex) {
             salida.put("estado", "error");

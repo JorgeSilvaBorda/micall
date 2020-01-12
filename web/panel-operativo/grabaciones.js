@@ -1,9 +1,10 @@
 var CAMPANAS = [];
 $(document).ready(function () {
     cargarIni();
+    OPCIONES_DATATABLES.buttons = [];
 });
 
-function cargarIni(){
+function cargarIni() {
     cargarSelectCampana(function (obj) {
         $('#select-campana').html(obj.options);
         CAMPANAS = obj.campanas;
@@ -40,6 +41,7 @@ function traeDatosCampana() {
 }
 
 function buscarGrabaciones() {
+    $('.dataTable').DataTable().destroy();
     cargarTabla(function (obj) {
         armarTabla(obj);
     });
@@ -65,5 +67,18 @@ function cargarTabla(callback) {
 }
 
 function armarTabla(obj) {
+    OPCIONES_DATATABLES.buttons = [];
+
+    if (parseInt(obj.registros) > 0) {
+        var OPCIONES_EXCEL = [
+            {
+                extend: 'excelHtml5',
+                title: 'MiCall-Ejecutivos-Mes-' + formatFecha(new Date())
+            }
+        ];
+        OPCIONES_DATATABLES.buttons = OPCIONES_EXCEL;
+    }
+    $('.dataTable').DataTable().destroy();
     $('#cuerpo-grabaciones').html(obj.cuerpo);
+    $('#tabla-grabaciones').DataTable(OPCIONES_DATATABLES);
 }

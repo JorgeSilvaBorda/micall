@@ -17,7 +17,7 @@
 </div>
 <br />
 <div class="row">
-    <div class="col-sm-9">
+    <div class="col-sm-12">
         <form>
             <div class="row">
                 <div class="col-sm-2">
@@ -56,7 +56,7 @@
 </div>
 <div class="row">
     <div class="col-sm-12">
-        <table class="table" style="font-size: 12px;">
+        <table id="tabla-grabaciones" class="table" style="font-size: 12px;">
             <thead>
                 <tr>
                     <th>ID Llamada</th>
