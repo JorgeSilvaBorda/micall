@@ -25,7 +25,9 @@
                 });
 
                 $('#rut').rut({
-                    formatOn: 'change'
+                    formatOn: 'keyup',
+                    minumumLength: 8,
+                    validateOn: 'change'
                 });
 
             });
