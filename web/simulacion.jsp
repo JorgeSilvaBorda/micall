@@ -13,7 +13,7 @@
         <script src="funciones/simulador.js" type="text/javascript"></script>
         <title>Simulacion</title>
     </head>
-    <body>
+    <body lang="es-CL">
         <script type="text/javascript">
             var SIMULACION = null;
             var UF_INDICADOR = 0.00;
@@ -838,8 +838,7 @@
                         <tr>
                             <td style='font-weight: bold;'>Monto aprobado</td>
                             <td>
-                                <input onkeyup="formatMilesInput(this);
-                                        calcularTodo();" class='form-control form-control-sm cambiante' type='text' id='montoaprobado' value=''/>
+                                <input onkeyup="formatMilesInput(this);calcularTodo();" class='form-control form-control-sm cambiante' type='text' id='montoaprobado' value=''/>
                             </td>
 
                             <td style='font-weight: bold;'>Cuotas</td>
