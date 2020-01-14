@@ -218,6 +218,7 @@
                     success: function (res) {
                         var obj = JSON.parse(res);
                         if (obj.estado === 'ok') {
+                            console.log(obj);
                             if (obj.campanas.length > 1) {
                                 //Son varias campañas para el rut. Escoger...
                                 armarModalCampanas(obj.campanas);
@@ -410,90 +411,28 @@
                 simulacion.cae = truncDecimales(cae(simulacion.cuotas, simulacion.monto, simulacion.valorcuota), 2);
             }
 
-
-            function insert() {
-                if (validarCampos()) {
-                    var simulacion = {
-                        idcampana: $('#hidIdCampana').val(),
-                        rutvendedor: '<% out.print(session.getAttribute("rutusuario")); %>',
-                        dvvendedor: '<% out.print(session.getAttribute("dvusuario"));%>',
-                        rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", ""),
-                        dvcliente: $('#rutcliente').val().split("-")[1],
-                        monto: $('#montoaprobado').val().replaceAll("\\.", ""),
-                        cuotas: $('#cuotas').val().replaceAll("\\.", ""),
-                        valorcuota: $('#valorcuota').val().replaceAll("\\.", ""),
-                        tasainteres: $('#tasainteres').val(),
-                        tasaanual: $('#tasaanual').val(),
-                        cae: $('#cae').val(),
-                        vencimiento: $('#vencimiento').val(),
-                        costototal: $('#costototal').val().replaceAll("\\.", ""),
-                        comision: $('#comision').val().replaceAll("\\.", ""),
-                        impuesto: $('#impuesto').val().replaceAll("\\.", ""),
-                        subproductos: []
-                    };
-
-
-                    $('#tab-subproductos tbody tr').each(function (t) {
-                        var fila = $(this)[0];
-                        var celdas = $(fila.cells);
-                        var celda_0 = $(celdas[0]);
-                        var check = $(celda_0).children('input');
-                        if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
-                            var celda_1 = $(celdas[1]);
-                            var hidden = $(celda_1).children('input')[1];
-                            var idsubproducto = $(hidden).val();
-                            simulacion.subproductos.push({idsubproducto: idsubproducto});
-                        }
-                    });
-
-
-                    var detalle = {
-                        url: 'SimulacionController',
-                        datos: {
-                            tipo: 'ins-simulacion',
-                            simulacion: simulacion
-                        }
-                    };
-                    insertar(detalle, function (obj) {
-                        limpiar();
-                        cargarSimulaciones();
-                    });
-                    cargarSimulaciones();
-                }
-            }
-
             /*
              function insert() {
              if (validarCampos()) {
-             var idcampana = $('#hidIdCampana').val();
-             var rutusuario = '<% out.print(session.getAttribute("rutusuario")); %>';
-             var dvvendedor = '<% out.print(session.getAttribute("dvusuario"));%>';
-             var rutcliente = $('#rutcliente').val().split("-")[0].replaceAll("\\.", "");
-             var dvcliente = $('#rutcliente').val().split("-")[1];
-             var monto = $('#montoaprobado').val().replaceAll("\\.", "");
-             var cuotas = $('#cuotas').val().replaceAll("\\.", "");
-             var vencimiento = $('#vencimiento').val();
-             var tasainteres = $('#tasainteres').val();
+             var simulacion = {
+             idcampana: $('#hidIdCampana').val(),
+             rutvendedor: '<% out.print(session.getAttribute("rutusuario")); %>',
+             dvvendedor: '<% out.print(session.getAttribute("dvusuario"));%>',
+             rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", ""),
+             dvcliente: $('#rutcliente').val().split("-")[1],
+             monto: $('#montoaprobado').val().replaceAll("\\.", ""),
+             cuotas: $('#cuotas').val().replaceAll("\\.", ""),
+             valorcuota: $('#valorcuota').val().replaceAll("\\.", ""),
+             tasainteres: $('#tasainteres').val(),
+             tasaanual: $('#tasaanual').val(),
+             cae: $('#cae').val(),
+             vencimiento: $('#vencimiento').val(),
+             costototal: $('#costototal').val().replaceAll("\\.", ""),
+             comision: $('#comision').val().replaceAll("\\.", ""),
+             impuesto: $('#impuesto').val().replaceAll("\\.", ""),
+             subproductos: []
+             };
              
-             var arrCuotas = [];
-             for(var x = 0; x < ARR_CUOTAS.length; x++){
-             arrCuotas.push(ARR_CUOTAS[x]);
-             }
-             if(arrCuotas.indexOf(parseInt(cuotas)) === -1){
-             arrCuotas.push(parseInt(cuotas));
-             }
-             getIDGrupo(function (liid) {
-             console.log(liid);
-             for (var i = 0; i < arrCuotas.length; i++) {
-             var simulacion = generarSimulacion(arrCuotas[i]);
-             simulacion.cuotas = arrCuotas[i];
-             simulacion.idcampana = idcampana;
-             simulacion.rutvendedor = rutusuario;
-             simulacion.dvvendedor = dvvendedor;
-             simulacion.rutcliente = rutcliente;
-             simulacion.dvcliente = dvcliente;
-             simulacion.vencimiento = vencimiento;
-             simulacion.idgrupo = liid;
              
              $('#tab-subproductos tbody tr').each(function (t) {
              var fila = $(this)[0];
@@ -508,6 +447,7 @@
              }
              });
              
+             
              var detalle = {
              url: 'SimulacionController',
              datos: {
@@ -515,18 +455,79 @@
              simulacion: simulacion
              }
              };
-             insertarEspecial(detalle, function (obj) {
+             insertar(detalle, function (obj) {
              limpiar();
              cargarSimulaciones();
              });
+             cargarSimulaciones();
              }
-             
-             });
-             }
-             
-             console.log("Registros insertados.");
-             }
-             */
+             }*/
+
+ 
+            function insert() {
+                if (validarCampos()) {
+                    var idcampana = $('#hidIdCampana').val();
+                    var rutusuario = '<% out.print(session.getAttribute("rutusuario")); %>';
+                    var dvvendedor = '<% out.print(session.getAttribute("dvusuario"));%>';
+                    var rutcliente = $('#rutcliente').val().split("-")[0].replaceAll("\\.", "");
+                    var dvcliente = $('#rutcliente').val().split("-")[1];
+                    var monto = $('#montoaprobado').val().replaceAll("\\.", "");
+                    var cuotas = $('#cuotas').val().replaceAll("\\.", "");
+                    var vencimiento = $('#vencimiento').val();
+                    var tasainteres = $('#tasainteres').val();
+
+                    var arrCuotas = [];
+                    for (var x = 0; x < ARR_CUOTAS.length; x++) {
+                        arrCuotas.push(ARR_CUOTAS[x]);
+                    }
+                    if (arrCuotas.indexOf(parseInt(cuotas)) === -1) {
+                        arrCuotas.push(parseInt(cuotas));
+                    }
+                    getIDGrupo(function (liid) {
+                        console.log(liid);
+                        for (var i = 0; i < arrCuotas.length; i++) {
+                            var simulacion = generarSimulacion(arrCuotas[i]);
+                            simulacion.cuotas = arrCuotas[i];
+                            simulacion.idcampana = idcampana;
+                            simulacion.rutvendedor = rutusuario;
+                            simulacion.dvvendedor = dvvendedor;
+                            simulacion.rutcliente = rutcliente;
+                            simulacion.dvcliente = dvcliente;
+                            simulacion.vencimiento = vencimiento;
+                            simulacion.idgrupo = liid;
+
+                            $('#tab-subproductos tbody tr').each(function (t) {
+                                var fila = $(this)[0];
+                                var celdas = $(fila.cells);
+                                var celda_0 = $(celdas[0]);
+                                var check = $(celda_0).children('input');
+                                if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
+                                    var celda_1 = $(celdas[1]);
+                                    var hidden = $(celda_1).children('input')[1];
+                                    var idsubproducto = $(hidden).val();
+                                    simulacion.subproductos.push({idsubproducto: idsubproducto});
+                                }
+                            });
+
+                            var detalle = {
+                                url: 'SimulacionController',
+                                datos: {
+                                    tipo: 'ins-simulacion',
+                                    simulacion: simulacion
+                                }
+                            };
+                            insertarEspecial(detalle, function (obj) {
+                                limpiar();
+                                cargarSimulaciones();
+                            });
+                        }
+
+                    });
+                }
+
+                console.log("Registros insertados.");
+            }
+
             function getIDGrupo(callback) {
                 var datos = {
                     tipo: 'get-id-grupo'

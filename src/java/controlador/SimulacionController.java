@@ -22,6 +22,8 @@ public class SimulacionController extends HttpServlet {
         PrintWriter out = response.getWriter();
         response.setContentType("text/html; charset=UTF-8");
         JSONObject entrada = new JSONObject(request.getParameter("datos"));
+        System.out.println("Entrada");
+        System.out.println(entrada);
         switch (entrada.getString("tipo")) {
             case "ins-simulacion":
                 out.print(insSimulacion(entrada.getJSONObject("simulacion")));
@@ -50,6 +52,8 @@ public class SimulacionController extends HttpServlet {
                 LIID = rs.getInt("LIID");
             }
             salida.put("liid", LIID);
+            System.out.println("New Grupo: ");
+            System.out.println(salida);
         } catch (Exception ex) {
             System.out.println("Problemas");
             System.out.println(ex);
@@ -62,6 +66,7 @@ public class SimulacionController extends HttpServlet {
     }
 
     private JSONObject insSimulacion(JSONObject simulacion) {
+        System.out.println(simulacion);
         JSONObject salida = new JSONObject();
         String query = "CALL SP_INS_SIMULACION("
                 + simulacion.getInt("idcampana") + ","
