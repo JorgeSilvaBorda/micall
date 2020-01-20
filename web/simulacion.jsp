@@ -218,6 +218,7 @@
                     success: function (res) {
                         var obj = JSON.parse(res);
                         if (obj.estado === 'ok') {
+                            console.log(obj);
                             if (obj.campanas.length > 1) {
                                 //Son varias campañas para el rut. Escoger...
                                 armarModalCampanas(obj.campanas);
@@ -393,7 +394,7 @@
                 }
                 simulacion.montoafecto = montoAfecto;
                 simulacion.montonoafecto = simulacion.monto - simulacion.montoafecto;
-                var impuestoAlCredito = (simulacion.montoasegurado * simulacion.tasaimpuesto) + (simulacion.montonoafecto / (1 - simulacion.tasaimpuesto) - simulacion.montonoafecto);
+                var impuestoAlCredito = (simulacion.montoasegurado * simulacion.tasaimpuesto) + (simulacion.montonoafecto / (1 - simulacion.tasaimpuesto - simulacion.montonoafecto));
                 simulacion.impuestoalcredito = parseInt(impuestoAlCredito);
                 var montoACapitalizar = 0;
                 montoACapitalizar = simulacion.montoafecto * (1 / (1 - simulacion.tasaseguro - simulacion.tasaimpuesto)) + simulacion.montonoafecto * (1 / (1 - simulacion.tasaimpuesto));
@@ -410,28 +411,48 @@
                 simulacion.cae = truncDecimales(cae(simulacion.cuotas, simulacion.monto, simulacion.valorcuota), 2);
             }
 
-
-            function insert() {
-                if (validarCampos()) {
+            function calcValoresSimulacion() {
+                var cuotasBase = parseInt($('#cuotas').val());
+                console.log("entra a simular multiple");
+                var arrSimulaciones = [];
+                var UF = 26672.2;
+                var topeUF = 50;
+                var topeDinero = topeUF * UF;
+                var arrCuotas = [];
+                for (var x = 0; x < ARR_CUOTAS.length; x++) {
+                    arrCuotas.push(ARR_CUOTAS[x]);
+                }
+                if (arrCuotas.indexOf(parseInt(cuotasBase)) === -1) {
+                    arrCuotas.push(parseInt(cuotasBase));
+                }
+                for (var i = 0; i < arrCuotas.length; i++) {
+                    console.log("simular con " + arrCuotas[i] + " cuotas");
                     var simulacion = {
                         idcampana: $('#hidIdCampana').val(),
                         rutvendedor: '<% out.print(session.getAttribute("rutusuario")); %>',
                         dvvendedor: '<% out.print(session.getAttribute("dvusuario"));%>',
                         rutcliente: $('#rutcliente').val().split("-")[0].replaceAll("\\.", ""),
                         dvcliente: $('#rutcliente').val().split("-")[1],
-                        monto: $('#montoaprobado').val().replaceAll("\\.", ""),
-                        cuotas: $('#cuotas').val().replaceAll("\\.", ""),
-                        valorcuota: $('#valorcuota').val().replaceAll("\\.", ""),
-                        tasainteres: $('#tasainteres').val(),
-                        tasaanual: $('#tasaanual').val(),
-                        cae: $('#cae').val(),
                         vencimiento: $('#vencimiento').val(),
-                        costototal: $('#costototal').val().replaceAll("\\.", ""),
                         comision: $('#comision').val().replaceAll("\\.", ""),
-                        impuesto: $('#impuesto').val().replaceAll("\\.", ""),
-                        subproductos: []
+                        cuotas: parseInt(arrCuotas[i]),
+                        valorcuota: 0,
+                        costototal: 0,
+                        monto: parseInt($('#montoaprobado').val().replaceAll("\\.", "")),
+                        montoaprobado: parseInt($('#hidMontoAprobado').val()),
+                        tasainteres: parseFloat($('#tasainteres').val()),
+                        tasaanual: (parseFloat($('#tasainteres').val()) * 12),
+                        tasaimpuesto: 0.0,
+                        montoasegurado: 0,
+                        montoseguro: 0,
+                        tasaseguro: 0.0,
+                        impuesto: 0,
+                        montoafecto: 0,
+                        montonoafecto: 0,
+                        montoacapitalizar: 0,
+                        subproductos: [],
+                        idgrupo: null
                     };
-
 
                     $('#tab-subproductos tbody tr').each(function (t) {
                         var fila = $(this)[0];
@@ -440,93 +461,92 @@
                         var check = $(celda_0).children('input');
                         if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
                             var celda_1 = $(celdas[1]);
+                            var celda_3 = $(celdas[3]);
                             var hidden = $(celda_1).children('input')[1];
                             var idsubproducto = $(hidden).val();
-                            simulacion.subproductos.push({idsubproducto: idsubproducto});
+                            var prima = parseFloat($(celda_3).text());
+                            var sub = {idsubproducto: idsubproducto, prima: prima};
+                            simulacion.subproductos.push(sub);
                         }
                     });
-
-
-                    var detalle = {
-                        url: 'SimulacionController',
-                        datos: {
-                            tipo: 'ins-simulacion',
-                            simulacion: simulacion
+                    var impuesto = 0;
+                    if (simulacion.cuotas + 1 > 12) {
+                        impuesto = 0.008;
+                    } else {
+                        impuesto = 0.00066 * (simulacion.cuotas + 1);
+                    }
+                    simulacion.tasaimpuesto = impuesto;
+                    //Trabajar solo con el primer seguro
+                    if (simulacion.subproductos.length > 0) {
+                        var subproducto = simulacion.subproductos[0];
+                        simulacion.tasaseguro = subproducto.prima / 100;
+                        var tasaSeguro = (subproducto.prima / 100);
+                        var montoAsegurado;
+                        if ((simulacion.monto / (1 - tasaSeguro - simulacion.tasaimpuesto)) > topeDinero) {
+                            montoAsegurado = topeDinero;
+                        } else {
+                            montoAsegurado = simulacion.monto / (1 - tasaSeguro - simulacion.tasaimpuesto);
                         }
-                    };
-                    insertar(detalle, function (obj) {
-                        limpiar();
-                        cargarSimulaciones();
-                    });
-                    cargarSimulaciones();
+                        simulacion.montoasegurado = parseInt(montoAsegurado);
+                        simulacion.montoseguro = parseInt(simulacion.montoasegurado * tasaSeguro);
+                    } else {
+                        var tasaSeguro = 0;
+                        if ((simulacion.monto / (1 - tasaSeguro - simulacion.tasaimpuesto)) > topeDinero) {
+                            montoAsegurado = topeDinero;
+                        } else {
+                            montoAsegurado = simulacion.monto / (1 - tasaSeguro - simulacion.tasaimpuesto);
+                        }
+                        simulacion.montoasegurado = parseInt(montoAsegurado);
+                        simulacion.montoseguro = parseInt(simulacion.montoasegurado * tasaSeguro);
+                    }
+                    var montoAfecto = 0;
+                    if ((simulacion.monto / (1 - simulacion.tasaseguro - simulacion.tasaimpuesto)) > topeDinero) {
+                        montoAfecto = topeDinero;
+                    } else {
+                        montoAfecto = (simulacion.monto / (1 - simulacion.tasaseguro - simulacion.tasaimpuesto));
+                    }
+                    simulacion.montoafecto = montoAfecto;
+                    simulacion.montonoafecto = simulacion.monto - simulacion.montoafecto;
+                    var impuestoAlCredito = (simulacion.montoasegurado * simulacion.tasaimpuesto) + (simulacion.montonoafecto / (1 - simulacion.tasaimpuesto - simulacion.montonoafecto));
+                    simulacion.impuesto = parseInt(impuestoAlCredito);
+                    var montoACapitalizar = 0;
+                    montoACapitalizar = simulacion.montoafecto * (1 / (1 - simulacion.tasaseguro - simulacion.tasaimpuesto)) + simulacion.montonoafecto * (1 / (1 - simulacion.tasaimpuesto));
+                    simulacion.montoacapitalizar = parseInt(montoACapitalizar);
+                    var valorCuota = (((simulacion.montoacapitalizar) * (simulacion.tasainteres / 100) / (1 - Math.pow((1 + (simulacion.tasainteres / 100)), -simulacion.cuotas))));
+                    simulacion.valorcuota = parseInt(valorCuota);
+                    simulacion.costototal = parseInt(simulacion.valorcuota * simulacion.cuotas);
+                    simulacion.cae = truncDecimales(cae(simulacion.cuotas, simulacion.monto, simulacion.valorcuota), 2);
+                    arrSimulaciones.push(simulacion);
                 }
+
+                getIDGrupo(function (liid) {
+                    for (var i = 0; i < arrSimulaciones.length; i++) {
+                        arrSimulaciones[i].idgrupo = liid;
+                        var dat = {
+                            tipo: 'ins-simulacion',
+                            simulacion: arrSimulaciones[i]
+                        };
+                        $.ajax({
+                            url: 'SimulacionController',
+                            type: 'post',
+                            data: {
+                                datos: JSON.stringify(dat)
+                            },
+                            success: function (resp) {
+
+                            },
+                            error: function (a, b, c) {
+                                console.log(a);
+                                console.log(b);
+                                console.log(c);
+                            }
+
+                        });
+                        console.log(arrSimulaciones[i]);
+                    }
+                });
             }
 
-            /*
-             function insert() {
-             if (validarCampos()) {
-             var idcampana = $('#hidIdCampana').val();
-             var rutusuario = '<% out.print(session.getAttribute("rutusuario")); %>';
-             var dvvendedor = '<% out.print(session.getAttribute("dvusuario"));%>';
-             var rutcliente = $('#rutcliente').val().split("-")[0].replaceAll("\\.", "");
-             var dvcliente = $('#rutcliente').val().split("-")[1];
-             var monto = $('#montoaprobado').val().replaceAll("\\.", "");
-             var cuotas = $('#cuotas').val().replaceAll("\\.", "");
-             var vencimiento = $('#vencimiento').val();
-             var tasainteres = $('#tasainteres').val();
-             
-             var arrCuotas = [];
-             for(var x = 0; x < ARR_CUOTAS.length; x++){
-             arrCuotas.push(ARR_CUOTAS[x]);
-             }
-             if(arrCuotas.indexOf(parseInt(cuotas)) === -1){
-             arrCuotas.push(parseInt(cuotas));
-             }
-             getIDGrupo(function (liid) {
-             console.log(liid);
-             for (var i = 0; i < arrCuotas.length; i++) {
-             var simulacion = generarSimulacion(arrCuotas[i]);
-             simulacion.cuotas = arrCuotas[i];
-             simulacion.idcampana = idcampana;
-             simulacion.rutvendedor = rutusuario;
-             simulacion.dvvendedor = dvvendedor;
-             simulacion.rutcliente = rutcliente;
-             simulacion.dvcliente = dvcliente;
-             simulacion.vencimiento = vencimiento;
-             simulacion.idgrupo = liid;
-             
-             $('#tab-subproductos tbody tr').each(function (t) {
-             var fila = $(this)[0];
-             var celdas = $(fila.cells);
-             var celda_0 = $(celdas[0]);
-             var check = $(celda_0).children('input');
-             if (check[0].checked) { //Si el check de subproducto se encuentra marcado, mapear los subproductos
-             var celda_1 = $(celdas[1]);
-             var hidden = $(celda_1).children('input')[1];
-             var idsubproducto = $(hidden).val();
-             simulacion.subproductos.push({idsubproducto: idsubproducto});
-             }
-             });
-             
-             var detalle = {
-             url: 'SimulacionController',
-             datos: {
-             tipo: 'ins-simulacion',
-             simulacion: simulacion
-             }
-             };
-             insertarEspecial(detalle, function (obj) {
-             limpiar();
-             cargarSimulaciones();
-             });
-             }
-             
-             });
-             }
-             
-             console.log("Registros insertados.");
-             }
-             */
             function getIDGrupo(callback) {
                 var datos = {
                     tipo: 'get-id-grupo'
@@ -540,11 +560,16 @@
                     success: function (resp) {
                         var obj = JSON.parse(resp);
                         if (obj.estado === "ok") {
-                            //console.log("liid: " + obj.liid);
                             callback(obj.liid);
+                            cargarSimulaciones();
+                            limpiar();
                         }
                     }
                 });
+            }
+
+            function insert() {
+                calcValoresSimulacion();
             }
 
             function calcTasaAnual() {
@@ -838,7 +863,8 @@
                         <tr>
                             <td style='font-weight: bold;'>Monto aprobado</td>
                             <td>
-                                <input onkeyup="formatMilesInput(this);calcularTodo();" class='form-control form-control-sm cambiante' type='text' id='montoaprobado' value=''/>
+                                <input onkeyup="formatMilesInput(this);
+                                        calcularTodo();" class='form-control form-control-sm cambiante' type='text' id='montoaprobado' value=''/>
                             </td>
 
                             <td style='font-weight: bold;'>Cuotas</td>

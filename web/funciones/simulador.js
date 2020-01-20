@@ -14,11 +14,20 @@ function simular(montosolicitado, cuotas, tasainteres, primaseguro, comision, to
         }
     };
     this.montoasegurado = function () {
-        if ((montosolicitado / (1 - this.tasaseguro() - this.tasaimpuesto())) > this.montotope()) {
-            return this.montotope();
+        var montoAsegurado;
+        if ((montosolicitado / (1 - this.tasaseguro() - this.tasaimpuesto())) > this.montotope) {
+            montoAsegurado = this.montotope;
         } else {
-            return (montosolicitado / (1 - this.tasaseguro() - this.tasaimpuesto()));
+            montoAsegurado = montosolicitado / (1 - this.tasaseguro() - this.tasaimpuesto());
         }
+        return montoAsegurado;
+        /*
+         if ((montosolicitado / (1 - this.tasaseguro() - this.tasaimpuesto())) > this.montotope()) {
+         return this.montotope();
+         } else {
+         return (montosolicitado / (1 - this.tasaseguro() - this.tasaimpuesto()));
+         }
+         */
     };
     this.montoseguro = function () {
         return (this.montoasegurado() * this.tasaseguro());
@@ -34,7 +43,9 @@ function simular(montosolicitado, cuotas, tasainteres, primaseguro, comision, to
         return (montosolicitado - this.montoafecto());
     };
     this.impuestoalcredito = function () {
-        return ((this.montoasegurado() * this.tasaimpuesto()) + (this.montonoafecto() / (1 - this.tasaimpuesto() - this.montoafecto())));
+        var impuestoAlCredito = (this.montoasegurado() * this.tasaimpuesto()) + (this.montonoafecto() / (1 - this.tasaimpuesto() - this.montoafecto()));
+        return impuestoAlCredito;
+        //return ((this.montoasegurado() * this.tasaimpuesto()) + (this.montonoafecto() / (1 - this.tasaimpuesto() - this.montoafecto())));
     };
     this.montosavacapitalizar = function () {
         return (this.montoafecto() * (1 / (1 - this.tasaseguro() - this.tasaimpuesto())) + this.montonoafecto() * (1 / (1 - this.tasaimpuesto())));
@@ -107,3 +118,4 @@ function truncDecimales(numero, decimales) {
 function getUf() {
     return UF_HOY;
 }
+

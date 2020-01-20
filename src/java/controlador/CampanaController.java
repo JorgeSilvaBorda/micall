@@ -252,6 +252,8 @@ public class CampanaController extends HttpServlet {
     }
 
     private JSONObject getCampanaEmpresaRutcliente(int rutcliente, int idempresa) {
+        System.out.println("idempresa: " + idempresa);
+        System.out.println("rutcliente: " + rutcliente);
 	JSONObject salida = new JSONObject();
 	String query = "CALL SP_GET_CAMPANA_EMPRESA_RUTCLIETE("
 		+ rutcliente + ","

@@ -1,4 +1,4 @@
-var UF_HOY = null;
+var UF_HOY = 26672.2;
 var OPCIONES_DATATABLES = {
     dom: 'Bfrtip',
     buttons: false,
