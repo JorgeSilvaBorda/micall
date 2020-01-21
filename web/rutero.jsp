@@ -10,7 +10,7 @@
         <script type="text/javascript">
             var TIPOOP = null;
             $(document).ready(function () {
-               OPCIONES_DATATABLES.buttons = [];
+                OPCIONES_DATATABLES.buttons = [];
                 cargaSelectCampana();
                 traerRuterosEmpresa();
                 $('#select-campana').val('0');
@@ -20,6 +20,7 @@
             var RUTERO = null;
             var NOMARCHIVO = "";
             document.getElementById('archivo').onchange = function () {
+                var contenido;
                 if (TIPOOP === 'ingreso') {
                     var cont = 1;
                     var file = this.files[0];
@@ -30,12 +31,14 @@
                         ERRORES = 0;
                         MENSAJES = [];
                         var lineas = this.result.split("\n");
+                        contenido = this.result;
                         var rutero = {
                             nomarchivo: NOMARCHIVO.name,
                             idcampana: $('#select-campana').val(),
                             registros: 0,
                             filas: []
                         };
+                        /*
                         for (var i = 1; i < lineas.length; i++) { //Comienza en 1. La primera línea es cabecera
                             if (lineas[i].length > 10) {
                                 var linea = lineas[i].split(";");
@@ -75,17 +78,37 @@
                                     fono3: fono3,
                                     posicion: i
                                 };
-                                if (validarFila(filaRutero)) {
-                                    rutero.filas.push(filaRutero);
-                                    rutero.registros++;
-                                } else {
-                                    ERRORES++;
-                                }
+                                rutero.filas.push(filaRutero);
+                                rutero.registros++;
                             }
                             cont++;
                         }
+                        */
                         RUTERO = rutero;
-                        armarTablaRutero(rutero);
+                        var da = {
+                            tipo: 'valida-rutero',
+                            contenido: contenido
+                        };
+                        
+                        $.ajax({
+                            url: 'RuteroController',
+                            type: 'post',
+                            data: {
+                                datos: JSON.stringify(da)
+                            },
+                            success: function (resp) {
+
+                            },
+                            error: function(a, b, c){
+                                console.log("Error:");
+                                console.log(a);
+                                console.log(b);
+                                console.log(c);
+                            }
+                        });
+                        
+                        //armarTablaRutero(rutero);
+                        //console.log(contenido);
                     };
                     reader.readAsText(file, 'UTF-8');
                 } else if (TIPOOP === 'eliminacion') {
@@ -127,7 +150,7 @@
                         armarTablaRuteroEliminacion(rutero);
                     };
                     reader.readAsText(file, 'UTF-8');
-                }else if(TIPOOP === null){
+                } else if (TIPOOP === null) {
                     alert("Debe seleccionar el tipo de operación para la carga del rutero.");
                 }
             };
@@ -291,7 +314,7 @@
                 $('#tab-rutero').DataTable(OPCIONES_DATATABLES);
                 $('#tabla-ruteros-empresa').DataTable(OPCIONES_DATATABLES);
             }
-            
+
             function armarTablaRuteroEliminacion(rutero) {
                 var tab = "<table style='width: 200px;' id='tab-rutero' class='table table-sm small table-striped table-condensed table-hover'><thead>";
                 tab += "<tr>";

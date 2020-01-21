@@ -1,6 +1,8 @@
 package controlador;
 
 import clases.json.JSONObject;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,15 +12,23 @@ import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
 import modelo.Conexion;
+import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 
+@WebServlet("/upload")
+@MultipartConfig
 public class RuteroController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
         JSONObject entrada = new JSONObject(request.getParameter("datos"));
         PrintWriter out = response.getWriter();
         response.setContentType("text/html; charset=UTF-8");
+        System.out.println(entrada);
         switch (entrada.getString("tipo")) {
             case "ins-rutero":
                 out.print(insRutero(entrada.getJSONObject("rutero"), entrada.getInt("idusuario")));
@@ -29,20 +39,25 @@ public class RuteroController extends HttpServlet {
             case "del-rutero":
                 out.print(delRutero(entrada.getJSONObject("rutero"), entrada.getInt("idusuario")));
                 break;
+            case "valida-rutero":
+                //System.out.println(entrada.getString("contenido").replace("\r\n", System.getProperty("line.separator")));
+                out.print(procesaContenidoRutero(entrada));
+                break;
             default:
                 break;
         }
+
     }
 
     private JSONObject insRutero(JSONObject rutero, int idusuario) {
         JSONObject ruteroid = getIdNewRutero();
         JSONObject salida = new JSONObject();
-        if(ruteroid.getInt("idrutero") == 0){
+        if (ruteroid.getInt("idrutero") == 0) {
             salida.put("estado", "error");
             salida.put("mensaje", "No se puede obtener el ID de Rutero");
             return salida;
         }
-        
+
         int idcampana = rutero.getInt("idcampana");
         Iterator i = rutero.getJSONArray("filas").iterator();
         while (i.hasNext()) {
@@ -118,7 +133,7 @@ public class RuteroController extends HttpServlet {
     private JSONObject delRutero(JSONObject rutero, int idusuario) {
         JSONObject ruteroid = getIdNewRutero();
         JSONObject salida = new JSONObject();
-        if(ruteroid.getInt("idrutero") == 0){
+        if (ruteroid.getInt("idrutero") == 0) {
             salida.put("estado", "error");
             salida.put("mensaje", "No se puede obtener el ID de Rutero");
             return salida;
@@ -142,15 +157,15 @@ public class RuteroController extends HttpServlet {
         salida.put("estado", "ok");
         return salida;
     }
-    
-    private JSONObject getIdNewRutero(){
+
+    private JSONObject getIdNewRutero() {
         String query = "CALL SP_GET_ID_RUTERO()";
         Conexion c = new Conexion();
         c.abrir();
         JSONObject salida = new JSONObject();
         ResultSet rs = c.ejecutarQuery(query);
         try {
-            while(rs.next()){
+            while (rs.next()) {
                 salida.put("idrutero", rs.getInt("IDRUTERO"));
                 salida.put("fechacreacion", rs.getDate("FECHACREACION"));
             }
@@ -163,6 +178,37 @@ public class RuteroController extends HttpServlet {
         }
         c.cerrar();
         return salida;
+    }
+
+    private JSONObject procesaContenidoRutero(JSONObject entrada) {
+        //Generar archivo con el contenido--------------------------------------
+        String RUTA_DEFAULT = "RUTERO.csv"; // [EN DURO] !!!! Corregir. Parametrizar en .properties 
+        File newRutero = new File(RUTA_DEFAULT);
+        //String nomarchivo = entrada.getString("nomarchivo");
+        String[] filas = entrada.getString("contenido").split("\r\n");
+        int filasProcesadas = 0;
+        for(String fila : filas){
+            //System.out.println(fila);
+            procesarFila(fila);
+            
+            filasProcesadas ++;
+        }
+        
+        //System.out.println(filas);
+        JSONObject salida = new JSONObject();
+        salida.put("estado", "ok");
+        return salida;
+    }
+    
+    private /*String[]*/ void procesarFila(String fila){
+        String[] campos = fila.split(";");
+        String[] arrSalida = new String[2];
+        System.out.println(campos.length);
+        //[VALIDACIONES]--------------------------------------------------------
+        //Validar Largo --------------------------------------------------------
+        if(campos.length < 19){
+            
+        }
     }
 
 }
