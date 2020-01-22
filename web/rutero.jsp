@@ -19,6 +19,7 @@
             var ERRORES = 0;
             var RUTERO = null;
             var NOMARCHIVO = "";
+            var CONTENIDO_EN_PROCESO = "";
             document.getElementById('archivo').onchange = function () {
                 var contenido;
                 if (TIPOOP === 'ingreso') {
@@ -53,7 +54,13 @@
                             success: function (resp) {
                                 var obj = JSON.parse(resp);
                                 if (obj.estado === "ok") {
-                                    console.log(obj);
+                                    if(parseInt(obj.filasBuenas) > 0){
+                                        $('#btnInsert').attr("disabled", "disabled");
+                                        CONTENIDO_EN_PROCESO = contenido;
+                                    }else{
+                                        $('#btnInsert').removeAttr("disabled");
+                                        CONTENIDO_EN_PROCESO = "";
+                                    }
                                     armarTablaResultados(obj);
                                 } else {
                                     console.log("Problemas en rutero de inserción");
@@ -100,7 +107,13 @@
                             success: function (resp) {
                                 var obj = JSON.parse(resp);
                                 if (obj.estado === "ok") {
-                                    console.log(obj);
+                                    if(parseInt(obj.filasBuenas) > 0){
+                                        $('#btnInsert').attr("disabled", "disabled");
+                                        CONTENIDO_EN_PROCESO = contenido;
+                                    }else{
+                                        $('#btnInsert').removeAttr("disabled");
+                                        CONTENIDO_EN_PROCESO = "";
+                                    }
                                     armarTablaResultados(obj);
                                 } else {
                                     console.log("Problemas en rutero eliminación");
@@ -437,6 +450,7 @@
                 ERRORES = 0;
                 RUTERO = null;
                 NOMARCHIVO = "";
+                CONTENIDO_EN_PROCESO = "";
             }
 
             function habilitarCarga() {
