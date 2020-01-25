@@ -31,13 +31,13 @@ public class RuteroController extends HttpServlet {
         //System.out.println(entrada);
         switch (entrada.getString("tipo")) {
             case "ins-rutero":
-                out.print(insRutero(entrada.getJSONObject("rutero"), entrada.getInt("idusuario")));
+                out.print(insRutero(entrada.getString("contenido"), entrada.getInt("idusuario"), entrada.getInt("idcampana"), entrada.getString("nomarchivo")));
                 break;
             case "traer-ruteros-empresa":
                 out.print(traerRuterosEmpresa(entrada.getInt("rutempresa")));
                 break;
             case "del-rutero":
-                out.print(delRutero(entrada.getJSONObject("rutero"), entrada.getInt("idusuario")));
+                out.print(delRutero(entrada.getString("contenido"), entrada.getInt("idusuario"), entrada.getInt("idcampana"), entrada.getString("nomarchivo")));
                 break;
             case "valida-ins-rutero":
                 out.print(procesaContenidoRutero(entrada));
@@ -51,7 +51,8 @@ public class RuteroController extends HttpServlet {
 
     }
 
-    private JSONObject insRutero(JSONObject rutero, int idusuario) {
+    private JSONObject insRutero(String contenido, int idusuario, int idcampana, String nomarchivo) {
+        String[] filas = contenido.split("\r\n");
         JSONObject ruteroid = getIdNewRutero();
         JSONObject salida = new JSONObject();
         if (ruteroid.getInt("idrutero") == 0) {
@@ -60,35 +61,39 @@ public class RuteroController extends HttpServlet {
             return salida;
         }
 
-        int idcampana = rutero.getInt("idcampana");
-        Iterator i = rutero.getJSONArray("filas").iterator();
-        while (i.hasNext()) {
-            JSONObject fila = (JSONObject) i.next();
-            String query = "CALL SP_INS_FILA_RUTERO("
-                    + idcampana + ","
-                    + fila.getInt("rutcliente") + ","
-                    + "'" + fila.getString("dvcliente") + "',"
-                    + "'" + fila.getString("nombres") + "',"
-                    + "'" + fila.getString("apellidos") + "',"
-                    + "'" + fila.getString("genero") + "',"
-                    + "'" + fila.getString("fechanac") + "',"
-                    + "'" + fila.getString("direccion") + "',"
-                    + "'" + fila.getString("comuna") + "',"
-                    + "'" + fila.getString("region") + "',"
-                    + fila.getInt("codigopostal") + ","
-                    + "'" + fila.getString("email") + "',"
-                    + fila.getInt("montoaprobado") + ","
-                    + fila.getInt("fono1") + ","
-                    + fila.getInt("fono2") + ","
-                    + fila.getInt("fono3") + ","
-                    + "'" + rutero.getString("nomarchivo") + "',"
-                    + "'INS',"
-                    + idusuario + ","
-                    + ruteroid.getInt("idrutero") + ")";
-            Conexion c = new Conexion();
-            c.abrir();
-            c.ejecutar(query);
-            c.cerrar();
+        int cont = 0;
+        for (int i = 1; i < filas.length; i++) {
+            String[] fila = filas[i].split(";");
+            if (procesarFila(filas[i])) {
+                String query = "CALL SP_INS_FILA_RUTERO("
+                        + idcampana + ","
+                        + fila[0] + ","
+                        + "'" + fila[1] + "',"
+                        + "'" + fila[2] + "',"
+                        + "'" + fila[3] + "',"
+                        + "'" + fila[4] + "',"
+                        + "'" + fila[5] + "',"
+                        + "'" + fila[6] + "',"
+                        + "'" + fila[7] + "',"
+                        + "'" + fila[8] + "',"
+                        + fila[9] + ","
+                        + "'" + fila[10] + "',"
+                        + fila[11] + ","
+                        + fila[12] + ","
+                        + fila[13] + ","
+                        + fila[14] + ","
+                        + "'" + nomarchivo + "',"
+                        + "'INS',"
+                        + idusuario + ","
+                        + ruteroid.getInt("idrutero") + ")";
+                Conexion c = new Conexion();
+                c.abrir();
+                c.ejecutar(query);
+                c.cerrar();
+                cont ++;
+                System.out.println("Ingresados: " + cont);
+            }
+
         }
 
         salida.put("estado", "ok");
@@ -132,7 +137,7 @@ public class RuteroController extends HttpServlet {
         return salida;
     }
 
-    private JSONObject delRutero(JSONObject rutero, int idusuario) {
+    private JSONObject delRutero(String contenido, int idusuario, int idcampana, String nomarchivo) {
         JSONObject ruteroid = getIdNewRutero();
         JSONObject salida = new JSONObject();
         if (ruteroid.getInt("idrutero") == 0) {
@@ -140,14 +145,14 @@ public class RuteroController extends HttpServlet {
             salida.put("mensaje", "No se puede obtener el ID de Rutero");
             return salida;
         }
-        int idcampana = rutero.getInt("idcampana");
+        /*
         Iterator i = rutero.getJSONArray("filas").iterator();
         while (i.hasNext()) {
             JSONObject fila = (JSONObject) i.next();
             String query = "CALL SP_DEL_FILA_RUTERO("
                     + idcampana + ","
                     + fila.getInt("rutcliente") + ","
-                    + "'" + rutero.getString("nomarchivo") + "',"
+                    + "'" + nomarchivo + "',"
                     + "'DEL',"
                     + idusuario + ","
                     + ruteroid.getInt("idrutero") + ")";
@@ -156,6 +161,7 @@ public class RuteroController extends HttpServlet {
             c.ejecutar(query);
             c.cerrar();
         }
+        */
         salida.put("estado", "ok");
         return salida;
     }
@@ -211,10 +217,9 @@ public class RuteroController extends HttpServlet {
         salida.put("filasMalas", filasMalas);
         salida.put("filasProcesadas", filasProcesadas);
         salida.put("estado", "ok");
-        System.out.println(salida);
         return salida;
     }
-    
+
     private JSONObject procesaContenidoRuteroEliminacion(JSONObject entrada) {
         //Generar archivo con el contenido--------------------------------------
         String RUTA_DEFAULT = "RUTERO.csv"; // [EN DURO] !!!! Corregir. Parametrizar en .properties 
@@ -327,7 +332,7 @@ public class RuteroController extends HttpServlet {
 
         return true;
     }
-    
+
     private boolean procesarFilaEliminacion(String fila) {
 
         //System.out.println(campos.length);
