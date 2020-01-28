@@ -4,11 +4,11 @@ import clases.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import javax.servlet.ServletException;
@@ -27,6 +27,7 @@ public class UploadServlet extends HttpServlet {
     private static final int MAX_REQUEST_SIZE = 1024 * 1024 * 100; // 100MB
     private static final String RUTA_PROPERTIES = System.getenv("PANEL_PROPERTIES");
     private static String RUTA_RUTEROS = "";
+    private static String RUTA_LOGS_RUTEROS = "";
     private static String TIPOOPERACION = "";
     private static String IDCAMPANA = "";
 
@@ -37,8 +38,9 @@ public class UploadServlet extends HttpServlet {
         Properties prop = new Properties();
         prop.load(inStream);
         RUTA_RUTEROS = prop.getProperty("dir.ruteros.proceso.linux");
+        RUTA_LOGS_RUTEROS = prop.getProperty("dir.ruteros.logs.linux");
         //----------------------------------------------------------------------
-        
+
         PrintWriter out = response.getWriter();
         response.setContentType("text/html; charset=UTF-8");
 
@@ -56,30 +58,26 @@ public class UploadServlet extends HttpServlet {
                 List<FileItem> images = upload.parseRequest(request);
                 if (images != null && images.size() > 0) {
                     for (FileItem image : images) {
-                        if (image.isFormField()) {
-                            //Rescatar el resto de los parámetros
-                            String name = image.getFieldName();
-                            String value = image.getString();
-                            if(name.equals("idcampana")){
-                                IDCAMPANA = value;
-                            }
-                            if(name.equals("tipooperacion")){
-                                TIPOOPERACION = value;
-                            }
-                        } else {
+                        if (!image.isFormField()) {
                             String filePath = uploadPath + File.separator + image.getName();
                             File storeFile = new File(filePath);
+                            if (storeFile.exists() && storeFile.isFile()) {
+                                JSONObject salida = new JSONObject();
+                                salida.put("estado", "error");
+                                salida.put("mensaje", "El archivo que intenta ingresar ya existe (" + image.getName() + "). Debe ingresar uno distinto.");
+                                out.print(salida);
+                                return;
+                            }
                             image.write(storeFile);
                             HttpSession session = request.getSession();
                             session.setAttribute("nombreArchivo", uploadPath + File.separator + image.getName());
                             System.out.println("Ruta guardada en sesion: " + session.getAttribute("nombreArchivo"));
+                            File logCarga = new File(RUTA_LOGS_RUTEROS + File.separator + image.getName() + ".log");
+                            FileWriter fr = new FileWriter(logCarga, true);
+                            fr.write("Inicio proceso de carga");
+                            fr.close();
                             out.print(procesarContenidoRutero(storeFile));
                         }
-                    }
-                    System.out.println("idcampana: " + IDCAMPANA);
-                    System.out.println("tipooperacion: " + TIPOOPERACION);
-                    if(IDCAMPANA.equals("") || TIPOOPERACION.equals("")){
-                        System.out.println("No se pudieron capturar los parámetros de entrada.");
                     }
                 } else {
                     out.print("Ho hay archivos");
@@ -115,7 +113,7 @@ public class UploadServlet extends HttpServlet {
             String linea;
             while ((linea = reader.readLine()) != null) {
                 if (cont > 0) {//Saltar cabecera
-                    if (procesarFila(linea, cont)) {
+                    if (procesarFila(linea, cont, archivo.getName())) {
                         filasBuenas++;
                     } else {
                         filasMalas++;
@@ -141,13 +139,19 @@ public class UploadServlet extends HttpServlet {
         return salida;
     }
 
-    private boolean procesarFila(String fila, int fil) {
+    private boolean procesarFila(String fila, int fil, String nomarchivo) {
+        File logCarga = new File(RUTA_LOGS_RUTEROS + File.separator + nomarchivo + ".log");
+
         //[VALIDACIONES]--------------------------------------------------------
         try {
             String[] campos = fila.split(";");
+            FileWriter fr = new FileWriter(logCarga, true);
+
             //Validar Largo --------------------------------------------------------
             if (campos.length < 19) {
                 System.out.println("[Fila: " + fil + "] Largo invalido");
+                fr.write("[Fila: " + fil + "] Largo invalido" + System.getProperty("line.separator"));
+                fr.close();
                 return false;
             }
             //Validar rut numérico------------------------------------------------
@@ -155,11 +159,15 @@ public class UploadServlet extends HttpServlet {
                 int rut = Integer.parseInt(campos[0]);
             } catch (NumberFormatException ex) {
                 System.out.println("[Fila: " + fil + "] Caracter inválido en rut.");
+                fr.write("[Fila: " + fil + "] Caracter inválido en rut." + System.getProperty("line.separator"));
+                fr.close();
                 return false;
             }
             //valida largo campo rut -----------------------------------------------
             if (campos[0].trim().length() < 7 || campos[0].trim().length() > 8) {
                 System.out.println("[Fila: " + fil + "] Largo de rut invalido. Largo encontrado: " + campos[0].length());
+                fr.write("[Fila: " + fil + "] Largo de rut invalido. Largo encontrado: " + campos[0].length() + System.getProperty("line.separator"));
+                fr.close();
                 return false;
             }
             //Valida campo rut numérico --------------------------------------------
@@ -167,21 +175,29 @@ public class UploadServlet extends HttpServlet {
                 int rut = Integer.parseInt(campos[0]);
             } catch (NumberFormatException ex) {
                 System.out.println("[Fila: " + fil + "]Rut no numérico");
+                fr.write("[Fila: " + fil + "]Rut no numérico" + System.getProperty("line.separator"));
+                fr.close();
                 return false;
             }
             //Valida dv ------------------------------------------------------------
             if (!new modelo.Util().validarRut(campos[0].concat(campos[1]))) {
                 System.out.println("[Fila: " + fil + "] Rut inválido");
+                fr.write("[Fila: " + fil + "] Rut inválido" + System.getProperty("line.separator"));
+                fr.close();
                 return false;
             }
             //Validar largo campo nombres ------------------------------------------
             if (campos[2].length() < 2) {
                 System.out.println("[Fila: " + fil + "] Largo de nombres < 2");
+                fr.write("[Fila: " + fil + "] Largo de nombres < 2");
+                fr.close();
                 return false;
             }
             //Validar largo campo apellidos ----------------------------------------
             if (campos[3].length() < 2) {
                 System.out.println("[Fila: " + fil + "] Largo de apellidos < 2");
+                fr.write("[Fila: " + fil + "] Largo de apellidos < 2" + System.getProperty("line.separator"));
+                fr.close();
                 return false;
             }
             //validar fono1 numérico -------------------------------------------
@@ -189,6 +205,8 @@ public class UploadServlet extends HttpServlet {
                 Integer.parseInt(campos[12]);
             } catch (NumberFormatException ex) {
                 System.out.println("[Fila: " + fil + "] fono1 no numérico");
+                fr.write("[Fila: " + fil + "] fono1 no numérico" + System.getProperty("line.separator"));
+                fr.close();
                 return false;
             }
             //validar fono2 numérico -------------------------------------------
@@ -196,6 +214,8 @@ public class UploadServlet extends HttpServlet {
                 Integer.parseInt(campos[13]);
             } catch (NumberFormatException ex) {
                 System.out.println("[Fila: " + fil + "] fono2 no numérico");
+                fr.write("[Fila: " + fil + "] fono2 no numérico" + System.getProperty("line.separator"));
+                fr.close();
                 return false;
             }
             //validar fono3 numérico -------------------------------------------
@@ -203,19 +223,27 @@ public class UploadServlet extends HttpServlet {
                 Integer.parseInt(campos[14]);
             } catch (NumberFormatException ex) {
                 System.out.println("[Fila: " + fil + "] fono3 no numérico");
+                fr.write("[Fila: " + fil + "] fono3 no numérico" + System.getProperty("line.separator"));
+                fr.close();
                 return false;
             }
             //Validar largo de fono1 -----------------------------------------------
             if ((campos[12]).trim().length() != 9) {
                 System.out.println("[Fila: " + fil + "] Largo de fono1 debe ser de 9");
+                fr.write("[Fila: " + fil + "] Largo de fono1 debe ser de 9" + System.getProperty("line.separator"));
+                fr.close();
             }
             //Validar largo de fono2 -----------------------------------------------
             if ((campos[13]).trim().length() != 9) {
                 System.out.println("[Fila: " + fil + "] Largo de fono2 debe ser de 9");
+                fr.write("[Fila: " + fil + "] Largo de fono2 debe ser de 9" + System.getProperty("line.separator"));
+                fr.close();
             }
             //Validar largo de fono3 -----------------------------------------------
             if ((campos[14]).trim().length() != 9) {
                 System.out.println("[Fila: " + fil + "] Largo de fono3 debe ser de 9");
+                fr.write("[Fila: " + fil + "] Largo de fono3 debe ser de 9" + System.getProperty("line.separator"));
+                fr.close();
             }
         } catch (Exception ex) {
             System.out.println("[Último contador: " + fil + "] Error al validar la fila:");
