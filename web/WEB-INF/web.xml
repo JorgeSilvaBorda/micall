@@ -40,6 +40,10 @@
         <servlet-name>TipoCampanaController</servlet-name>
         <servlet-class>controlador.TipoCampanaController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>UploadServlet</servlet-name>
+        <servlet-class>controlador.UploadServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>EmpresaController</servlet-name>
         <url-pattern>/EmpresaController</url-pattern>
@@ -79,6 +83,10 @@
     <servlet-mapping>
         <servlet-name>TipoCampanaController</servlet-name>
         <url-pattern>/TipoCampanaController</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UploadServlet</servlet-name>
+        <url-pattern>/UploadServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -1,0 +1,208 @@
+package controlador;
+
+import clases.json.JSONObject;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.Properties;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+
+public class UploadServlet extends HttpServlet {
+
+    private static final int MEMORY_THRESHOLD = 1024 * 1024 * 3;  // 3MB
+    private static final int MAX_FILE_SIZE = 1024 * 1024 * 100; // 100MB
+    private static final int MAX_REQUEST_SIZE = 1024 * 1024 * 100; // 100MB
+    private static final String RUTA_PROPERTIES = System.getenv("PANEL_PROPERTIES");
+    private static String RUTA_RUTEROS = "";
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Parametrización ruta de archivos-------------------------------------
+        InputStream inStream = new FileInputStream(RUTA_PROPERTIES);
+        Properties prop = new Properties();
+        prop.load(inStream);
+        RUTA_RUTEROS = prop.getProperty("dir.ruteros.proceso.linux");
+        //----------------------------------------------------------------------
+
+        PrintWriter out = response.getWriter();
+        response.setContentType("text/html; charset=UTF-8");
+
+        if (ServletFileUpload.isMultipartContent(request)) {
+
+            DiskFileItemFactory factory = new DiskFileItemFactory();
+            factory.setSizeThreshold(MEMORY_THRESHOLD);
+            File repository = new File(System.getProperty("java.io.tmpdir"));
+            factory.setRepository(repository);
+            ServletFileUpload upload = new ServletFileUpload(factory);
+            upload.setFileSizeMax(MAX_FILE_SIZE);
+            upload.setSizeMax(MAX_REQUEST_SIZE);
+            String uploadPath = RUTA_RUTEROS;
+            try {
+                List<FileItem> images = upload.parseRequest(request);
+                if (images != null && images.size() > 0) {
+                    for (FileItem image : images) {
+                        if (!image.isFormField()) {
+                            String filePath = uploadPath + File.separator + image.getName();
+                            File storeFile = new File(filePath);
+                            image.write(storeFile);
+                            HttpSession session = request.getSession();
+                            session.setAttribute("nombreArchivo", uploadPath + File.separator + image.getName());
+                            System.out.println("Ruta guardada en sesion: " + session.getAttribute("nombreArchivo"));
+                            out.print(procesarContenidoRutero(storeFile));
+                        }
+                    }
+                } else {
+                    out.print("Ho hay archivos");
+                }
+            } catch (Exception e) {
+                JSONObject salida = new JSONObject();
+                salida.put("estado", "error");
+                salida.put("mensaje", "Consultar log de Java. No se pudo cargar el archivo.");
+                out.print(salida);
+                System.out.println("Error al cargar el archivo.");
+                System.out.println(e);
+            }
+        } else {
+            JSONObject salida = new JSONObject();
+            salida.put("estado", "error");
+            salida.put("mensaje", "Consultar log de Java. No se pudo cargar el archivo.");
+            System.out.println("Error. Tipo de contenido en formulario HTML no corresponde con: enctype='multipart/form-data'");
+            System.out.println("No se puede rescatar el archivo del formulario.");
+        }
+    }
+
+    private JSONObject procesarContenidoRutero(File archivo) {
+        int cont = 0;
+        int filasBuenas = 0;
+        int filasMalas = 0;
+        int filasProcesadas = 0;
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(archivo), "UTF-8"));
+
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                if (cont > 0) {//Saltar cabecera
+                    if (procesarFila(linea, cont)) {
+                        filasBuenas++;
+                    } else {
+                        filasMalas++;
+                    }
+                    filasProcesadas++;
+                }
+                cont++;
+            }
+        } catch (IOException ex) {
+            JSONObject salida = new JSONObject();
+            salida.put("filasBuenas", filasBuenas);
+            salida.put("filasMalas", filasMalas);
+            salida.put("filasProcesadas", filasProcesadas);
+            salida.put("estado", "error");
+            return salida;
+        }
+
+        JSONObject salida = new JSONObject();
+        salida.put("filasBuenas", filasBuenas);
+        salida.put("filasMalas", filasMalas);
+        salida.put("filasProcesadas", filasProcesadas);
+        salida.put("estado", "ok");
+        return salida;
+    }
+
+    private boolean procesarFila(String fila, int fil) {
+        //[VALIDACIONES]--------------------------------------------------------
+        try {
+            String[] campos = fila.split(";");
+            //Validar Largo --------------------------------------------------------
+            if (campos.length < 19) {
+                System.out.println("[Fila: " + fil + "] Largo invalido");
+                return false;
+            }
+            //Validar rut numérico------------------------------------------------
+            try {
+                int rut = Integer.parseInt(campos[0]);
+            } catch (NumberFormatException ex) {
+                System.out.println("[Fila: " + fil + "] Caracter inválido en rut.");
+                return false;
+            }
+            //valida largo campo rut -----------------------------------------------
+            if (campos[0].trim().length() < 7 || campos[0].trim().length() > 8) {
+                System.out.println("[Fila: " + fil + "] Largo de rut invalido. Largo encontrado: " + campos[0].length());
+                return false;
+            }
+            //Valida campo rut numérico --------------------------------------------
+            try {
+                int rut = Integer.parseInt(campos[0]);
+            } catch (NumberFormatException ex) {
+                System.out.println("[Fila: " + fil + "]Rut no numérico");
+                return false;
+            }
+            //Valida dv ------------------------------------------------------------
+            if (!new modelo.Util().validarRut(campos[0].concat(campos[1]))) {
+                System.out.println("[Fila: " + fil + "] Rut inválido");
+                return false;
+            }
+            //Validar largo campo nombres ------------------------------------------
+            if (campos[2].length() < 2) {
+                System.out.println("[Fila: " + fil + "] Largo de nombres < 2");
+                return false;
+            }
+            //Validar largo campo apellidos ----------------------------------------
+            if (campos[3].length() < 2) {
+                System.out.println("[Fila: " + fil + "] Largo de apellidos < 2");
+                return false;
+            }
+            //validar fono1 numérico -------------------------------------------
+            try {
+                Integer.parseInt(campos[12]);
+            } catch (NumberFormatException ex) {
+                System.out.println("[Fila: " + fil + "] fono1 no numérico");
+                return false;
+            }
+            //validar fono2 numérico -------------------------------------------
+            try {
+                Integer.parseInt(campos[13]);
+            } catch (NumberFormatException ex) {
+                System.out.println("[Fila: " + fil + "] fono2 no numérico");
+                return false;
+            }
+            //validar fono3 numérico -------------------------------------------
+            try {
+                Integer.parseInt(campos[14]);
+            } catch (NumberFormatException ex) {
+                System.out.println("[Fila: " + fil + "] fono3 no numérico");
+                return false;
+            }
+            //Validar largo de fono1 -----------------------------------------------
+            if ((campos[12]).trim().length() != 9) {
+                System.out.println("[Fila: " + fil + "] Largo de fono1 debe ser de 9");
+            }
+            //Validar largo de fono2 -----------------------------------------------
+            if ((campos[13]).trim().length() != 9) {
+                System.out.println("[Fila: " + fil + "] Largo de fono2 debe ser de 9");
+            }
+            //Validar largo de fono3 -----------------------------------------------
+            if ((campos[14]).trim().length() != 9) {
+                System.out.println("[Fila: " + fil + "] Largo de fono3 debe ser de 9");
+            }
+        } catch (Exception ex) {
+            System.out.println("[Último contador: " + fil + "] Error al validar la fila:");
+            System.out.println(ex);
+            return false;
+        }
+
+        return true;
+    }
+}

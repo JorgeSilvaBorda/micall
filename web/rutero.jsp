@@ -14,148 +14,159 @@
                 cargaSelectCampana();
                 traerRuterosEmpresa();
                 $('#select-campana').val('0');
+                $('#upload-form').submit(function (event) {
+                    var arch = $('#archivo');
+                    var nomarchivo = arch[0].files[0].name;
+                    
+                    if(!(nomarchivo.indexOf(" ") === -1)){//Si hay espacios en el nombre, rechazar.
+                        alert("El nombre del archivo cargado no puede contener espacios.");
+                        $('#archivo').val('');
+                        return false;
+                    }
+                    
+                    if(nomarchivo.length < 5){//Nombre de archivo no puede ser menor a 5, Ej: '1.csv'
+                        alert("Nombre de archivo incorrecto.");
+                        $('#archivo').val('');
+                        return false;
+                    }
+                    
+                    if((nomarchivo.substring(nomarchivo.length - 4, nomarchivo.length) !== '.csv')){ //Nombre de archivo debe finalizar como '.csv'
+                        alert("El archivo debe contener extensión '.csv'");
+                        $('#archivo').val('');
+                        return false;
+                    }
+                    
+                    mostrarModalCarga();
+                    event.preventDefault();
+                    var form = $("#upload-form")[0];
+                    var data = new FormData(form);
+
+                    $.ajax({
+                        url: "UploadServlet",
+                        type: "post",
+                        data: data,
+                        contentType: false,
+                        encType: "multipart/form-data",
+                        cache: false,
+                        processData: false,
+                        success: function (response) {
+                            ocultarModalCarga();
+                            console.log(response);
+                            var obj = JSON.parse(response);
+                            if (obj.estado === 'ok') {
+                                //armarRespuesta(obj);
+                                if (parseInt(obj.filasMalas) > 0) {
+                                    if (confirm("El rutero ingresado contiene " + obj.filasMalas + " registros malos, que no serán ingresados. Está seguro que desea continuar?")) {
+                                        //RUTERO CON MAS DE 0 FILAS MALAS ----------------------
+                                        var datos = {
+                                            idcampana: $('#select-campana').val(),
+                                            tipooperacion: $('#select-tipo').val(),
+                                            tipo: 'ins-rutero'
+                                        };
+                                        $.ajax({
+                                            url: "RuteroController",
+                                            type: "post",
+                                            data: {
+                                                datos: JSON.stringify(datos)
+                                            },
+                                            success: function (response) {
+                                                console.log(response);
+                                                var obj = JSON.parse(response);
+                                                if (obj.estado === 'ok') {
+                                                    ocultarModalCarga();
+                                                    alert("Rutero ingresado correctamente, ver cantidad de errores abajo.");
+                                                    traerRuterosEmpresa();
+                                                }
+                                                ocultarModalCarga();
+                                            },
+                                            error: function (a, b, c) {
+                                                console.log(a);
+                                                console.log(b);
+                                                console.log(c);
+                                                ocultarModalCarga();
+                                            }
+                                        });
+                                        ocultarModalCarga();
+                                        limpiar();
+                                    } else {
+                                        //NO SE INGRESA RUTERO CON MAS DE 0 FILAS MALAS --------------
+                                        ocultarModalCarga();
+                                        
+                                        alert("Abajo se muestra el detalle de la cantidad de registros procesados. No se han ingresado.");
+                                    }
+                                } else {
+                                    //RUTERO CON 0 FILAS MALAS-------------------
+                                    var datos = {
+                                        idcampana: $('#select-campana').val(),
+                                        tipooperacion: $('#select-tipo').val(),
+                                        tipo: 'ins-rutero'
+                                    };
+                                    $.ajax({
+                                        url: "RuteroController",
+                                        type: "post",
+                                        data: {
+                                            datos: JSON.stringify(datos)
+                                        },
+                                        success: function (response) {
+                                            ocultarModalCarga();
+                                            limpiar();
+                                            console.log(response);
+                                            alert("Rutero ingresado correctamente");
+                                            traerRuterosEmpresa();
+
+                                        },
+                                        error: function (a, b, c) {
+                                            ocultarModalCarga();
+                                            console.log(a);
+                                            console.log(b);
+                                            console.log(c);
+                                        }
+                                    });
+                                }
+                                armarRespuesta(obj);
+                                limpiar();
+                            }
+                        },
+
+                        error: function (a, b, c) {
+                            console.log(a);
+                            console.log(b);
+                            console.log(c);
+                            ocultarModalCarga();
+                        }
+
+                    });
+                    //ocultarModalCarga();
+                });
+                //ocultarModalCarga();
             });
-            var MENSAJES = [];
-            var ERRORES = 0;
-            var CANTIDAD = 0;
-            var RUTERO = null;
-            var NOMARCHIVO = "";
-            var CONTENIDO_EN_PROCESO = "";
-            document.getElementById('archivo').onchange = function () {
-                NOMARCHIVO = "";
-                CANTIDAD = 0;
-                ERRORES = 0;
-                var contenido;
-                if (TIPOOP === 'ingreso') {
-                    var cont = 1;
-                    var file = this.files[0];
 
-                    NOMARCHIVO = file;
-                    var reader = new FileReader();
-                    reader.onload = function () {
-                        ERRORES = 0;
-                        MENSAJES = [];
-                        var lineas = this.result.split("\n");
-                        contenido = this.result;
-                        var rutero = {
-                            nomarchivo: NOMARCHIVO.name,
-                            idcampana: $('#select-campana').val(),
-                            registros: 0,
-                            filas: []
-                        };
-                        RUTERO = rutero;
-                        var da = {
-                            tipo: 'valida-ins-rutero',
-                            contenido: contenido
-                        };
+            function ocultarModalCarga() {
+                $('#modal-carga').modal('hide');
+                $('body').removeClass('modal-open');
+                $('.modal-backdrop').remove();
+            }
 
-                        $.ajax({
-                            url: 'RuteroController',
-                            type: 'post',
-                            data: {
-                                datos: JSON.stringify(da)
-                            },
-                            success: function (resp) {
-                                var obj = JSON.parse(resp);
-                                if (obj.estado === "ok") {
-                                    if(parseInt(obj.filasBuenas) > 0){
-                                        $('#btnInsert').removeAttr("disabled");
-                                        CONTENIDO_EN_PROCESO = contenido;
-                                    }else{
-                                        $('#btnInsert').attr("disabled", "disabled");
-                                        CONTENIDO_EN_PROCESO = "";
-                                    }
-                                    armarTablaResultados(obj);
-                                } else {
-                                    console.log("Problemas en rutero de inserción");
-                                }
-                            },
-                            error: function (a, b, c) {
-                                console.log("Error:");
-                                console.log(a);
-                                console.log(b);
-                                console.log(c);
-                            }
-                        });
-                    };
-                    reader.readAsText(file, 'UTF-8');
-                } else if (TIPOOP === 'eliminacion') {
-                    var cont = 1;
-                    var file = this.files[0];
+            function mostrarModalCarga() {
+                $('#modal-carga').modal('show');
+            }
 
-                    NOMARCHIVO = file;
-                    var reader = new FileReader();
-                    reader.onload = function () {
-                        ERRORES = 0;
-                        MENSAJES = [];
-                        var lineas = this.result.split("\n");
-                        contenido = this.result;
-                        var rutero = {
-                            nomarchivo: NOMARCHIVO.name,
-                            idcampana: $('#select-campana').val(),
-                            registros: 0,
-                            filas: []
-                        };
-                        RUTERO = rutero;
-                        var da = {
-                            tipo: 'valida-del-rutero',
-                            contenido: contenido
-                        };
-
-                        $.ajax({
-                            url: 'RuteroController',
-                            type: 'post',
-                            data: {
-                                datos: JSON.stringify(da)
-                            },
-                            success: function (resp) {
-                                var obj = JSON.parse(resp);
-                                if (obj.estado === "ok") {
-                                    if(parseInt(obj.filasBuenas) > 0){
-                                        $('#btnInsert').removeAttr("disabled");
-                                        CONTENIDO_EN_PROCESO = contenido;
-                                    }else{
-                                        $('#btnInsert').attr("disabled", "disabled");
-                                        CONTENIDO_EN_PROCESO = "";
-                                    }
-                                    armarTablaResultados(obj);
-                                } else {
-                                    console.log("Problemas en rutero eliminación");
-                                }
-                            },
-                            error: function (a, b, c) {
-                                console.log("Error:");
-                                console.log(a);
-                                console.log(b);
-                                console.log(c);
-                            }
-                        });
-                    };
-                    reader.readAsText(file, 'UTF-8');
-                } else if (TIPOOP === null) {
-                    alert("Debe seleccionar el tipo de operación para la carga del rutero.");
-                }
-            };
-
-            function armarTablaResultados(resultados) {
-                ERRORES = parseInt(resultados.filasMalas);
-                CANTIDAD = parseInt(resultados.filasBuenas);
+            function armarRespuesta(obj) {
                 var tab = "<table id='tab-rutero' class='table table-sm small table-striped table-condensed table-hover'>";
                 tab += "<tbody>";
-
                 tab += "<tr>";
-                tab += "<td style='font-weight: bold; text-transform: uppercase;'>Registros Procesados</td>";
-                tab += "<td>" + resultados.filasProcesadas + "</td>";
+                tab += "<td style='font-weight: bold;'>Registros Procesados</td>";
+                tab += "<td>" + formatMiles(obj.filasProcesadas) + "</td>";
                 tab += "</tr>";
 
                 tab += "<tr>";
-                tab += "<td style='font-weight: bold; text-transform: uppercase;'>Registros correctos</td>";
-                tab += "<td>" + resultados.filasBuenas + "</td>";
+                tab += "<td style='font-weight: bold;'>Registros Buenos</td>";
+                tab += "<td>" + formatMiles(obj.filasBuenas) + "</td>";
                 tab += "</tr>";
 
                 tab += "<tr>";
-                tab += "<td style='font-weight: bold; text-transform: uppercase;'>Registros con errores</td>";
-                tab += "<td>" + resultados.filasMalas + "</td>";
+                tab += "<td style='font-weight: bold;'>Registros Malos</td>";
+                tab += "<td>" + formatMiles(obj.filasMalas) + "</td>";
                 tab += "</tr>";
 
                 tab += "</tbody></table>";
@@ -181,83 +192,14 @@
                             $('#contenido-ruteros').html(obj.tabla);
                             $('#tabla-ruteros-empresa').DataTable(OPCIONES_DATATABLES);
                         }
-                    }
-                });
-            }
-
-            function mostrarErrores() {
-                var texto = "<table style='border: none; border-collapse: collapse;'><tbody>";
-                for (var i = 0; i < MENSAJES.length; i++) {
-                    for (var j = 0; j < MENSAJES[i].length; j++) {
-                        console.log(MENSAJES[i][j]);
-                        texto += "<tr><td>" + MENSAJES[i][j] + "</td></tr>";
-                    }
-                }
-                texto += "</tbody></table>";
-                $('#cuerpo-modal-errores').html(texto);
-                $('#modal-errores').modal();
-            }
-
-            function insert() {
-                var modo = "";
-                if ($('#select-tipo').val() === '1') {
-                    modo = 'ins-rutero';
-                } else if ($('#select-tipo').val() === '2') {
-                    modo = 'del-rutero';
-                }
-                if (validarInsert()) {
-                    var idusuario = '<% out.print(session.getAttribute("idusuario")); %>';
-                    if (ERRORES > 0) {
-                        if (confirm('El rutero cargado presenta errores. Está seguro de que desea cargar únicamente los registros buenos?')) {
-                            var detalle = {
-                                url: 'RuteroController',
-                                datos: {
-                                    tipo: modo,
-                                    nomarchivo: NOMARCHIVO.name,
-                                    idusuario: parseInt(idusuario),
-                                    idcampana: $('#select-campana').val(),
-                                    contenido: CONTENIDO_EN_PROCESO
-                                }
-                            };
-                            insertar(detalle, function (obj) {
-                                traerRuterosEmpresa();
-                                limpiar();
-                            });
-
-                        }
-                    } else {
-                        var detalle = {
-                            url: 'RuteroController',
-                            datos: {
-                                tipo: modo,
-                                idusuario: parseInt(idusuario),
-                                idcampana: $('#select-campana').val(),
-                                contenido: CONTENIDO_EN_PROCESO
-                            }
-                        };
-                        insertar(detalle, function (obj) {
-                            traerRuterosEmpresa();
-                            limpiar();
+                        $('#modal-carga').modal({
+                            show: false
                         });
                     }
-                }
-            }
-
-            function validarInsert() {
-                if ($('#select-tipo').val() === '0') {
-                    alert('Debe seleccionar una operación de carga de rutero. Ingreso o eliminación.');
-                    return false;
-                }
-                if ($('#select-campana').val() === '0' || $('#select-campana').val() === 0) {
-                    alert('Debe seleccionar una campaña para cargar el rutero.');
-                    return false;
-                }
-
-                if (CANTIDAD === 0) {
-                    alert('No existen registros para insertar');
-                    return false;
-                }
-                return true;
+                });
+                $('#modal-carga').modal({
+                    show: false
+                });
             }
 
             function cargaSelectCampana() {
@@ -274,16 +216,10 @@
             }
 
             function limpiar() {
-                $('#tabla-rutero').html('');
+                //$('#tabla-rutero').html('');
                 $('#select-campana').val('0');
                 $('#archivo').val('');
                 $('#select-tipo').val('0');
-                MENSAJES = [];
-                ERRORES = 0;
-                CANTIDAD = 0;
-                RUTERO = null;
-                NOMARCHIVO = "";
-                CONTENIDO_EN_PROCESO = "";
             }
 
             function habilitarCarga() {
@@ -298,28 +234,30 @@
                     $('#archivo').attr("disabled", "disabled");
                 }
             }
+
         </script>
         <!-- The Modal -->
-        <div class="modal" id="modal-errores">
+        <div class="modal" id="modal-carga">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
 
                     <!-- Modal Header -->
                     <div class="modal-header">
-                        <h4 class="modal-title">Informe de errores</h4>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Analizando archivo...</h4>
+                        <!-- button type="button" class="close" data-dismiss="modal">&times;</button-->
                     </div>
 
                     <!-- Modal body -->
-                    <div id="cuerpo-modal-errores" class="modal-body">
-
+                    <div id="cuerpo-modal-carga" class="modal-body">
+                        <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="sr-only">Leyendo...</span>
+                        </div>
                     </div>
 
                     <!-- Modal footer -->
-                    <div class="modal-footer">
+                    <!--div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                    </div>
-
+                    </div-->
                 </div>
             </div>
         </div>
@@ -335,15 +273,16 @@
             </div>
             <div class="row">
                 <div class="col-sm-4">
-                    <form>
+                    <form id="upload-form" action="UploadServlet" enctype="multipart/form-data" method="post">
+                        <input type="hidden" name="operacion" id="operacion" value="procesar-archivo" />
                         <div class="form-group small">
                             <label for="select-campana">Campaña</label>
-                            <select  id="select-campana" class="form-control form-control-sm" >
+                            <select  id="select-campana" name="select-campana" class="form-control form-control-sm" >
                             </select>
                         </div>
                         <div class="form-group small">
                             <label for="select-tipo">Operación</label>
-                            <select onchange="habilitarCarga();" id="select-tipo" class="form-control form-control-sm" >
+                            <select onchange="habilitarCarga();" id="select-tipo" name="select-tipo" class="form-control form-control-sm" >
                                 <option value='0'>Seleccione</option>
                                 <option value='1'>Ingreso</option>
                                 <option value='2'>Eliminación</option>
@@ -351,12 +290,12 @@
                         </div>
                         <div class="form-group-small">
                             <label for="archivo">Archivo rutero</label>
-                            <input type="file" disabled="disabled" class="form-control form-control-sm" id="archivo" />
+                            <input type="file" disabled="disabled" class="form-control form-control-sm" id="archivo" name="archivo" />
                         </div>
 
                         <br />
                         <div id='creacion' class="form-group small">
-                            <button id="btnInsert" onclick="insert();" type="button" class="btn btn-primary btn-sm">Ingresar</button>
+                            <input id="btnInsert" type="submit" class="btn btn-primary btn-sm" />
                             <button onclick='limpiar();' type="button" class="btn btn-default btn-sm float-right">Limpiar</button>
                         </div>
                     </form>
