@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import javax.servlet.ServletException;
@@ -26,6 +27,8 @@ public class UploadServlet extends HttpServlet {
     private static final int MAX_REQUEST_SIZE = 1024 * 1024 * 100; // 100MB
     private static final String RUTA_PROPERTIES = System.getenv("PANEL_PROPERTIES");
     private static String RUTA_RUTEROS = "";
+    private static String TIPOOPERACION = "";
+    private static String IDCAMPANA = "";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -35,7 +38,7 @@ public class UploadServlet extends HttpServlet {
         prop.load(inStream);
         RUTA_RUTEROS = prop.getProperty("dir.ruteros.proceso.linux");
         //----------------------------------------------------------------------
-
+        
         PrintWriter out = response.getWriter();
         response.setContentType("text/html; charset=UTF-8");
 
@@ -53,7 +56,17 @@ public class UploadServlet extends HttpServlet {
                 List<FileItem> images = upload.parseRequest(request);
                 if (images != null && images.size() > 0) {
                     for (FileItem image : images) {
-                        if (!image.isFormField()) {
+                        if (image.isFormField()) {
+                            //Rescatar el resto de los parámetros
+                            String name = image.getFieldName();
+                            String value = image.getString();
+                            if(name.equals("idcampana")){
+                                IDCAMPANA = value;
+                            }
+                            if(name.equals("tipooperacion")){
+                                TIPOOPERACION = value;
+                            }
+                        } else {
                             String filePath = uploadPath + File.separator + image.getName();
                             File storeFile = new File(filePath);
                             image.write(storeFile);
@@ -63,19 +76,26 @@ public class UploadServlet extends HttpServlet {
                             out.print(procesarContenidoRutero(storeFile));
                         }
                     }
+                    System.out.println("idcampana: " + IDCAMPANA);
+                    System.out.println("tipooperacion: " + TIPOOPERACION);
+                    if(IDCAMPANA.equals("") || TIPOOPERACION.equals("")){
+                        System.out.println("No se pudieron capturar los parámetros de entrada.");
+                    }
                 } else {
                     out.print("Ho hay archivos");
                 }
-            } catch (Exception e) {
+            } catch (Exception ex) {
+                request.getSession().removeAttribute("nombreArchivo");
                 JSONObject salida = new JSONObject();
                 salida.put("estado", "error");
                 salida.put("mensaje", "Consultar log de Java. No se pudo cargar el archivo.");
                 out.print(salida);
                 System.out.println("Error al cargar el archivo.");
-                System.out.println(e);
+                System.out.println(ex);
             }
         } else {
             JSONObject salida = new JSONObject();
+            request.getSession().removeAttribute("nombreArchivo");
             salida.put("estado", "error");
             salida.put("mensaje", "Consultar log de Java. No se pudo cargar el archivo.");
             System.out.println("Error. Tipo de contenido en formulario HTML no corresponde con: enctype='multipart/form-data'");
