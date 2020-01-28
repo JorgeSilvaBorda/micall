@@ -73,7 +73,7 @@ public class UploadServlet extends HttpServlet {
                             session.setAttribute("nombreArchivo", uploadPath + File.separator + image.getName());
                             System.out.println("Ruta guardada en sesion: " + session.getAttribute("nombreArchivo"));
                             File logCarga = new File(RUTA_LOGS_RUTEROS + File.separator + image.getName() + ".log");
-                            FileWriter fr = new FileWriter(logCarga, true);
+                            FileWriter fr = new FileWriter(logCarga);
                             fr.write("Inicio proceso de carga");
                             fr.close();
                             out.print(procesarContenidoRutero(storeFile));

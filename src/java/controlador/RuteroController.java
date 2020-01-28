@@ -81,6 +81,7 @@ public class RuteroController extends HttpServlet {
                 }
             } catch (IOException ex) {
                 salida.put("estado", "error");
+                salida.put("estado", "No se pudo ingresar el rutero");
             }
 
         }

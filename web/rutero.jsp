@@ -76,6 +76,10 @@
                                                     ocultarModalCarga();
                                                     alert("Rutero ingresado correctamente, ver cantidad de errores abajo.");
                                                     traerRuterosEmpresa();
+                                                }else if(obj.estado === 'error'){
+                                                    ocultarModalCarga();
+                                                    alert(obj.mensaje);
+                                                    traerRuterosEmpresa();
                                                 }
                                                 ocultarModalCarga();
                                             },
@@ -108,6 +112,9 @@
                                             datos: JSON.stringify(datos)
                                         },
                                         success: function (response) {
+                                            if(JSON.parse(response).estado === 'error'){
+                                                alert(JSON.parse(response).mensaje);
+                                            }
                                             ocultarModalCarga();
                                             limpiar();
                                             console.log(response);
