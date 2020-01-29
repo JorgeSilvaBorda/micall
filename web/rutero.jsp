@@ -1,4 +1,7 @@
 <%@include file="headjava.jsp" %>
+<%
+    session.removeAttribute("nombreArchivo"); //Limpiar el nombre del archivo en caso de que haya sido usado anteriormente
+%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -92,7 +95,7 @@
                                             }
                                         });
                                         //ocultarModalCarga();
-                                        
+
                                         limpiar();
                                     } else {
                                         //NO SE INGRESA RUTERO CON MAS DE 0 FILAS MALAS --------------
@@ -114,13 +117,14 @@
                                             datos: JSON.stringify(datos)
                                         },
                                         success: function (response) {
-                                            if (JSON.parse(response).estado === 'error') {
-                                                alert(JSON.parse(response).mensaje);
+                                            var obj = JSON.parse(response);
+                                            if (obj.estado === 'error') {
+                                                alert(obj.mensaje);
                                                 ocultarModalCarga();
                                                 return false;
                                             } else {
                                                 console.log(obj);
-                                                alert(obj.mensaje);
+                                                alert("Rutero ingresado correctamente.");
                                                 ocultarModalCarga();
                                                 limpiar();
                                                 return false;
@@ -240,6 +244,7 @@
                         if (obj.estado === 'ok') {
                             $('.dataTable').DataTable().destroy();
                             $('#contenido-ruteros').html(obj.tabla);
+                            OPCIONES_DATATABLES.order = [[0, "desc"]];
                             $('#tabla-ruteros-empresa').DataTable(OPCIONES_DATATABLES);
                         }
                         $('#modal-carga').modal({
