@@ -129,6 +129,7 @@ public class UploadServlet extends HttpServlet {
             salida.put("filasMalas", filasMalas);
             salida.put("filasProcesadas", filasProcesadas);
             salida.put("estado", "error");
+            salida.put("mensaje", ex);
             return salida;
         }
 
