@@ -3,7 +3,9 @@ package controlador;
 import clases.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Properties;
 import javax.servlet.http.HttpSession;
 import modelo.Conexion;
 
@@ -25,10 +28,7 @@ public class RuteroController extends HttpServlet {
     private static final int MAX_FILE_SIZE = 1024 * 1024 * 100; // 40MB
     private static final int MAX_REQUEST_SIZE = 1024 * 1024 * 100; // 50MB
     private static final String RUTA_PROPERTIES = System.getenv("PANEL_PROPERTIES");
-    private static String RUTA_RUTEROS = "";
-
-    //private static final String UPLOAD_SUCCESS = "Dosya Yüklendi";
-    //private static final String NO_FILE = "Lütfen Resim Seçin";
+    private static String RUTA_LOGS_RUTEROS = "";
     private static final long serialVersionUID = 205242440643911308L;
 
     @Override
@@ -37,6 +37,10 @@ public class RuteroController extends HttpServlet {
         response.setContentType("text/html; charset=UTF-8");
         JSONObject entrada = new JSONObject(request.getParameter("datos"));
         HttpSession session = request.getSession();
+        InputStream inStream = new FileInputStream(RUTA_PROPERTIES);
+        Properties prop = new Properties();
+        prop.load(inStream);
+        RUTA_LOGS_RUTEROS = prop.getProperty("dir.ruteros.logs.linux");
         switch (entrada.getString("tipo")) {
             case "ins-rutero":
                 out.print(insRutero(Integer.parseInt(session.getAttribute("idusuario").toString()), entrada.getInt("idcampana"), entrada.getInt("tipooperacion"), request));

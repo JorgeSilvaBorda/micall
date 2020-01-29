@@ -17,25 +17,25 @@
                 $('#upload-form').submit(function (event) {
                     var arch = $('#archivo');
                     var nomarchivo = arch[0].files[0].name;
-                    
-                    if(!(nomarchivo.indexOf(" ") === -1)){//Si hay espacios en el nombre, rechazar.
+
+                    if (!(nomarchivo.indexOf(" ") === -1)) {//Si hay espacios en el nombre, rechazar.
                         alert("El nombre del archivo cargado no puede contener espacios.");
                         $('#archivo').val('');
                         return false;
                     }
-                    
-                    if(nomarchivo.length < 5){//Nombre de archivo no puede ser menor a 5, Ej: '1.csv'
+
+                    if (nomarchivo.length < 5) {//Nombre de archivo no puede ser menor a 5, Ej: '1.csv'
                         alert("Nombre de archivo incorrecto.");
                         $('#archivo').val('');
                         return false;
                     }
-                    
-                    if((nomarchivo.substring(nomarchivo.length - 4, nomarchivo.length) !== '.csv')){ //Nombre de archivo debe finalizar como '.csv'
+
+                    if ((nomarchivo.substring(nomarchivo.length - 4, nomarchivo.length) !== '.csv')) { //Nombre de archivo debe finalizar como '.csv'
                         alert("El archivo debe contener extensión '.csv'");
                         $('#archivo').val('');
                         return false;
                     }
-                    
+
                     mostrarModalCarga();
                     event.preventDefault();
                     var form = $("#upload-form")[0];
@@ -50,7 +50,7 @@
                         cache: false,
                         processData: false,
                         success: function (response) {
-                            ocultarModalCarga();
+                            //ocultarModalCarga();
                             console.log(response);
                             var obj = JSON.parse(response);
                             if (obj.estado === 'ok') {
@@ -58,6 +58,7 @@
                                 if (parseInt(obj.filasMalas) > 0) {
                                     if (confirm("El rutero ingresado contiene " + obj.filasMalas + " registros malos, que no serán ingresados. Está seguro que desea continuar?")) {
                                         //RUTERO CON MAS DE 0 FILAS MALAS ----------------------
+                                        $('#titulo-modal').html("Ingresando rutero. Por favor espere...");
                                         var datos = {
                                             idcampana: $('#select-campana').val(),
                                             tipooperacion: $('#select-tipo').val(),
@@ -76,12 +77,12 @@
                                                     ocultarModalCarga();
                                                     alert("Rutero ingresado correctamente, ver cantidad de errores abajo.");
                                                     traerRuterosEmpresa();
-                                                }else if(obj.estado === 'error'){
+                                                } else if (obj.estado === 'error') {
                                                     ocultarModalCarga();
                                                     alert(obj.mensaje);
                                                     traerRuterosEmpresa();
                                                 }
-                                                ocultarModalCarga();
+                                                //ocultarModalCarga();
                                             },
                                             error: function (a, b, c) {
                                                 console.log(a);
@@ -90,16 +91,17 @@
                                                 ocultarModalCarga();
                                             }
                                         });
-                                        ocultarModalCarga();
+                                        //ocultarModalCarga();
+                                        
                                         limpiar();
                                     } else {
                                         //NO SE INGRESA RUTERO CON MAS DE 0 FILAS MALAS --------------
                                         ocultarModalCarga();
-                                        
                                         alert("Abajo se muestra el detalle de la cantidad de registros procesados. No se han ingresado.");
                                     }
                                 } else {
                                     //RUTERO CON 0 FILAS MALAS-------------------
+                                    $('#titulo-modal').html("Ingresando rutero. Por favor espere...");
                                     var datos = {
                                         idcampana: $('#select-campana').val(),
                                         tipooperacion: $('#select-tipo').val(),
@@ -112,8 +114,16 @@
                                             datos: JSON.stringify(datos)
                                         },
                                         success: function (response) {
-                                            if(JSON.parse(response).estado === 'error'){
+                                            if (JSON.parse(response).estado === 'error') {
                                                 alert(JSON.parse(response).mensaje);
+                                                ocultarModalCarga();
+                                                return false;
+                                            } else {
+                                                console.log(obj);
+                                                alert(obj.mensaje);
+                                                ocultarModalCarga();
+                                                limpiar();
+                                                return false;
                                             }
                                             ocultarModalCarga();
                                             limpiar();
@@ -132,6 +142,11 @@
                                 }
                                 armarRespuesta(obj);
                                 limpiar();
+                            } else {
+                                console.log(obj);
+                                alert(obj.mensaje);
+                                ocultarModalCarga();
+                                limpiar();
                             }
                         },
 
@@ -147,6 +162,34 @@
                 });
                 //ocultarModalCarga();
             });
+
+            function traerLog(nomarchivo) {
+                /*
+                 var datos = {
+                 tipo: 'descargar-log',
+                 nomarchivo: nomarchivo
+                 };
+                 
+                 $.ajax({
+                 type: 'post',
+                 url: 'DownloadServlet',
+                 data:{
+                 datos: JSON.stringify(datos)
+                 },
+                 success: function(resp){
+                 var obj = JSON.parse(resp);
+                 if(obj.estado === 'ok'){
+                 
+                 }
+                 },
+                 error: function(a, b, c){
+                 console.log(a);
+                 console.log(b);
+                 console.log(c);
+                 }
+                 });
+                 */
+            }
 
             function ocultarModalCarga() {
                 $('#modal-carga').modal('hide');
@@ -250,7 +293,7 @@
 
                     <!-- Modal Header -->
                     <div class="modal-header">
-                        <h4 class="modal-title">Analizando archivo...</h4>
+                        <h4 class="modal-title" id="titulo-modal">Analizando archivo...</h4>
                         <!-- button type="button" class="close" data-dismiss="modal">&times;</button-->
                     </div>
 

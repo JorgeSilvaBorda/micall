@@ -40,7 +40,7 @@ public class UploadServlet extends HttpServlet {
         RUTA_RUTEROS = prop.getProperty("dir.ruteros.proceso.linux");
         RUTA_LOGS_RUTEROS = prop.getProperty("dir.ruteros.logs.linux");
         //----------------------------------------------------------------------
-
+        request.getSession().removeAttribute("nombreArchivo");
         PrintWriter out = response.getWriter();
         response.setContentType("text/html; charset=UTF-8");
 
@@ -65,13 +65,14 @@ public class UploadServlet extends HttpServlet {
                                 JSONObject salida = new JSONObject();
                                 salida.put("estado", "error");
                                 salida.put("mensaje", "El archivo que intenta ingresar ya existe (" + image.getName() + "). Debe ingresar uno distinto.");
+                                request.getSession().removeAttribute("nombreArchivo");
                                 out.print(salida);
                                 return;
                             }
                             image.write(storeFile);
-                            HttpSession session = request.getSession();
-                            session.setAttribute("nombreArchivo", uploadPath + File.separator + image.getName());
-                            System.out.println("Ruta guardada en sesion: " + session.getAttribute("nombreArchivo"));
+                            request.getSession().removeAttribute("nombreArchivo");
+                            request.getSession().setAttribute("nombreArchivo", uploadPath + File.separator + image.getName());
+                            System.out.println("Ruta guardada en sesion: " + request.getSession().getAttribute("nombreArchivo"));
                             File logCarga = new File(RUTA_LOGS_RUTEROS + File.separator + image.getName() + ".log");
                             FileWriter fr = new FileWriter(logCarga);
                             fr.write("Inicio proceso de carga");
