@@ -1,10 +1,11 @@
 var CAMPANAS = [];
 $(document).ready(function () {
     cargarIni();
+    
     var OPCIONES_EXCEL = [
         {
             extend: 'excelHtml5',
-            title: 'MiCall-Resultante-Mes-' + formatFecha(new Date())
+            title: ''
         }
     ];
     OPCIONES_DATATABLES.buttons = OPCIONES_EXCEL;

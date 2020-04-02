@@ -528,6 +528,7 @@ public class ReportesController extends HttpServlet {
     private JSONObject resultante(int idcampana) {
         JSONObject salida = new JSONObject();
         String query = "CALL SP_GET_REPORTE_RESULTANTE_2(" + idcampana + ")";
+        System.out.println(query);
         Conexion c = new Conexion();
         c.abrir();
         ResultSet rs = c.ejecutarQuery(query);

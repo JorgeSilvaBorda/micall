@@ -72,7 +72,7 @@ function armarTabla(obj) {
         var OPCIONES_EXCEL = [
             {
                 extend: 'excelHtml5',
-                title: 'MiCall-Ejecutivos-Mes-' + formatFecha(new Date())
+                title: ''
             }
         ];
         OPCIONES_DATATABLES.buttons = OPCIONES_EXCEL;
