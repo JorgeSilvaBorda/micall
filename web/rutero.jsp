@@ -28,7 +28,7 @@
                     }
 
                     if (nomarchivo.length < 5) {//Nombre de archivo no puede ser menor a 5, Ej: '1.csv'
-                        alert("Nombre de archivo incorrecto.");
+                        alert("Nombre de archivo incorrecto. El nombre no puede contener menos de 5 caracteres. Ej.: '1.csv'");
                         $('#archivo').val('');
                         return false;
                     }
