@@ -549,7 +549,7 @@ public class ReportesController extends HttpServlet {
                 if (rs.getInt("uniqueid") > 0) {
                     cuerpo += "<tr>";
                     cuerpo += "<td>" + rs.getInt("uniqueid") + "</td>";
-                    cuerpo += "<td>" + modelo.Util.formatRut(rs.getString("vendor_lead_code")) + "</td>";
+                    cuerpo += "<td>" + rs.getString("vendor_lead_code") + "</td>";
                     cuerpo += "<td>" + rs.getInt("phone_number") + "</td>";
                     cuerpo += "<td>" + rs.getString("status_name") + "</td>";
                     //cuerpo += "<td>" + rs.getString("SEQUENCE") + (!rs.getString("comments").equals("") ? ">" + rs.getString("comments") : "") + "</td>";

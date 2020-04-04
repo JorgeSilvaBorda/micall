@@ -12,7 +12,7 @@ function cargarIni() {
 }
 
 function cargarSelectCampana(callback) {
-    var datos = {tipo: 'select-campanas-new'};
+    var datos = {tipo: 'select-campanas-vta'};
     $.ajax({
         url: 'CampanaController',
         type: 'post',

@@ -1,6 +1,5 @@
 <%@include file="headjava.jsp" %>
-<%
-    session.removeAttribute("nombreArchivo"); //Limpiar el nombre del archivo en caso de que haya sido usado anteriormente
+<%    session.removeAttribute("nombreArchivo"); //Limpiar el nombre del archivo en caso de que haya sido usado anteriormente
 %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -12,6 +11,7 @@
     <body>
         <script type="text/javascript">
             var TIPOOP = null;
+            var FILAS_TOTALES = 0;
             $(document).ready(function () {
                 OPCIONES_DATATABLES.buttons = [];
                 cargaSelectCampana();
@@ -39,6 +39,7 @@
                         return false;
                     }
 
+                    $('#titulo-modal').html("Analizando archivo...");
                     mostrarModalCarga();
                     event.preventDefault();
                     var form = $("#upload-form")[0];
@@ -53,16 +54,20 @@
                         cache: false,
                         processData: false,
                         success: function (response) {
+                            FILAS_TOTALES = 0;
                             //ocultarModalCarga();
                             console.log(response);
                             var obj = JSON.parse(response);
                             if (obj.estado === 'ok') {
+                                FILAS_TOTALES = obj.filasTotales;
                                 //armarRespuesta(obj);
                                 if (parseInt(obj.filasMalas) > 0) {
                                     if (confirm("El rutero ingresado contiene " + obj.filasMalas + " registros malos, que no serán ingresados. Está seguro que desea continuar?")) {
                                         //RUTERO CON MAS DE 0 FILAS MALAS ----------------------
                                         $('#titulo-modal').html("Ingresando rutero. Por favor espere...");
+
                                         var datos = {
+                                            idrutero: obj.idrutero,
                                             idcampana: $('#select-campana').val(),
                                             tipooperacion: $('#select-tipo').val(),
                                             tipo: 'ins-rutero'
@@ -78,8 +83,8 @@
                                                 var obj = JSON.parse(response);
                                                 if (obj.estado === 'ok') {
                                                     ocultarModalCarga();
-                                                    alert("Rutero ingresado correctamente, ver cantidad de errores abajo.");
                                                     traerRuterosEmpresa();
+                                                    alert("Rutero ingresado correctamente, ver cantidad de errores abajo.");
                                                 } else if (obj.estado === 'error') {
                                                     ocultarModalCarga();
                                                     alert(obj.mensaje);
@@ -95,17 +100,21 @@
                                             }
                                         });
                                         //ocultarModalCarga();
-
                                         limpiar();
                                     } else {
                                         //NO SE INGRESA RUTERO CON MAS DE 0 FILAS MALAS --------------
+                                        //Eliminar archivo analizado----------------------------------
+                                        deleteArchivoProceso(nomarchivo);
                                         ocultarModalCarga();
+                                        traerRuterosEmpresa();
                                         alert("Abajo se muestra el detalle de la cantidad de registros procesados. No se han ingresado.");
                                     }
                                 } else {
                                     //RUTERO CON 0 FILAS MALAS-------------------
                                     $('#titulo-modal').html("Ingresando rutero. Por favor espere...");
+
                                     var datos = {
+                                        idrutero: obj.idrutero,
                                         idcampana: $('#select-campana').val(),
                                         tipooperacion: $('#select-tipo').val(),
                                         tipo: 'ins-rutero'
@@ -121,6 +130,7 @@
                                             if (obj.estado === 'error') {
                                                 alert(obj.mensaje);
                                                 ocultarModalCarga();
+                                                traerRuterosEmpresa();
                                                 return false;
                                             } else {
                                                 console.log(obj);
@@ -133,8 +143,6 @@
                                             limpiar();
                                             console.log(response);
                                             alert("Rutero ingresado correctamente");
-                                            traerRuterosEmpresa();
-
                                         },
                                         error: function (a, b, c) {
                                             ocultarModalCarga();
@@ -167,33 +175,68 @@
                 //ocultarModalCarga();
             });
 
-            function traerLog(nomarchivo) {
-                /*
-                 var datos = {
-                 tipo: 'descargar-log',
-                 nomarchivo: nomarchivo
-                 };
-                 
-                 $.ajax({
-                 type: 'post',
-                 url: 'DownloadServlet',
-                 data:{
-                 datos: JSON.stringify(datos)
-                 },
-                 success: function(resp){
-                 var obj = JSON.parse(resp);
-                 if(obj.estado === 'ok'){
-                 
-                 }
-                 },
-                 error: function(a, b, c){
-                 console.log(a);
-                 console.log(b);
-                 console.log(c);
-                 }
-                 });
-                 */
+            function getIdNewRutero() {
+                var datos = {
+                    tipo: 'get-new-idrutero'
+                };
+                $.ajax({
+                    url: 'RuteroController',
+                    type: 'post',
+                    data: {
+                        datos: JSON.stringify(datos)
+                    },
+                    success: function (resp) {
+                        var obj = JSON.parse(resp);
+                        if (obj.estado === 'ok') {
+
+                        }
+                    },
+                    error: function (a, b, c) {
+                        console.log(a);
+                        console.log(b);
+                        console.log(c);
+                    }
+                });
             }
+
+            function traerLog(nomarchivo) {
+                jQuery.download = function (url, key, data) {
+                    // Build a form
+                    var form = $('<form></form>').attr('action', 'DownloadServlet').attr('method', 'post');
+                    // Add the one key/value
+                    form.append($("<input></input>").attr('type', 'hidden').attr('name', 'nomarchivo').attr('value', nomarchivo));
+                    //send request
+                    form.appendTo('body').submit().remove();
+                };
+
+                $.download();
+            }
+
+            function deleteArchivoProceso(nombre) {
+                var dat = {
+                    tipo: 'del-archivo-proceso',
+                    nomarchivo: nombre
+                };
+                $.ajax({
+                    type: 'post',
+                    url: 'RuteroController',
+                    data: {
+                        datos: JSON.stringify(dat)
+                    },
+                    success: function (resp) {
+                        var obj = JSON.parse(resp);
+                        if (obj.estado === 'ok') {
+                            console.log(obj.mensaje);
+                        }
+                    },
+                    error: function (a, b, c) {
+                        console.log(a);
+                        console.log(b);
+                        console.log(c);
+                    }
+                });
+            }
+
 
             function ocultarModalCarga() {
                 $('#modal-carga').modal('hide');
@@ -228,6 +271,8 @@
             }
 
             function traerRuterosEmpresa() {
+                //Insertar icono de carga para la espera
+                $('#contenido-ruteros').html("<div class='spinner-border' style='width: 2rem; height: 2rem; text-align: center;' role='status'><span class='sr-only'>Buscando Ruteros...</span></div><label>Buscando Ruteros...</label>");
                 var datos = {
                     tipo: 'traer-ruteros-empresa',
                     rutempresa: '<% out.print(session.getAttribute("rutempresa")); %>'
@@ -275,6 +320,7 @@
                 $('#select-campana').val('0');
                 $('#archivo').val('');
                 $('#select-tipo').val('0');
+                FILAS_TOTALES = 0;
             }
 
             function habilitarCarga() {
@@ -353,14 +399,14 @@
                             <input id="btnInsert" type="submit" class="btn btn-primary btn-sm" />
                             <button onclick='limpiar();' type="button" class="btn btn-default btn-sm float-right">Limpiar</button>
                         </div>
+                        <div class="form-group-small">
+                            <div id="tabla-rutero" class="col-sm-12">
+
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <div class="col-sm-8" id="contenido-ruteros">
-
-                </div>
-            </div>
-            <div class="row">
-                <div id="tabla-rutero" class="col-sm-4">
 
                 </div>
             </div>

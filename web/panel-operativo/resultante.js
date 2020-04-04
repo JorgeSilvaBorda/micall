@@ -75,6 +75,7 @@ function armarTabla(obj) {
     $('.dataTable').DataTable().destroy();
     if(parseInt(obj.filas) > 0){
         $('#cuerpo-resultante').html(obj.cuerpo);
+        OPCIONES_DATATABLES.order = [[5, "desc"]];
         $('#tabla-resultante').DataTable(OPCIONES_DATATABLES);
     }
 }

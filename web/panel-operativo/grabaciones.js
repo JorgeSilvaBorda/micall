@@ -68,6 +68,7 @@ function cargarTabla(callback) {
 
 function armarTabla(obj) {
     OPCIONES_DATATABLES.buttons = [];
+    
 
     if (parseInt(obj.registros) > 0) {
         var OPCIONES_EXCEL = [
@@ -80,5 +81,6 @@ function armarTabla(obj) {
     }
     $('.dataTable').DataTable().destroy();
     $('#cuerpo-grabaciones').html(obj.cuerpo);
+    OPCIONES_DATATABLES.order = [[6, "desc"]];
     $('#tabla-grabaciones').DataTable(OPCIONES_DATATABLES);
 }
