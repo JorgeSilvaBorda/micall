@@ -593,7 +593,8 @@ public class ReportesController extends HttpServlet {
                 cuerpo += "<td>" + rs.getString("ESTADOLLAMADO") + "</td>";
                 cuerpo += "<td>" + rs.getDate("FECHAHORAINI") + "</td>";
                 cuerpo += "<td>" + rs.getString("USER") + "</td>";
-                String enlace = "<a href='" + rs.getString("location") + "' download>Descargar</a>";
+                //String enlace = "<a href='" + rs.getString("location") + "' download>Descargar</a>";
+                String enlace = "<audio style='max-height: 20px; max-width:350px;' src='" + rs.getString("location") + "' type='audio/wav' controls></audio>";
                 cuerpo += "<td>" + enlace + "</td>";
                 cuerpo += "</tr>";
                 registros ++;
