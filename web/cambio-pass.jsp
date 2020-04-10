@@ -4,7 +4,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <meta name="viewport" content="initial-scale=1">
     </head>
     <body>
         <script type="text/javascript">
@@ -34,6 +34,7 @@
                             if (obj.estado === 'ok') {
                                 alert('Contraseña cambiada exitosamente.');
                                 limpiar();
+                                window.location.href = 'http://localhost:8080/micall/index.jsp';
                             } else if (obj.estado === 'error') {
                                 alert(obj.mensaje);
                             }

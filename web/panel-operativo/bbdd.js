@@ -112,7 +112,7 @@ function armarTabla(obj) {
 function reemplazarConcepto(concepto) {
     switch (concepto) {
         case "RUTCARGADOS":
-            return "BBDD - Cargados";
+            return "Rut Únicos";
             break;
         case "RUTLLAMADOS":
             return "Recorrido Por Rut";
@@ -137,6 +137,9 @@ function reemplazarConcepto(concepto) {
             break;
         case "EFECTIVIDADBBDD":
             return "Efectividad/BBDD";
+            break;
+        case "REGISTROSTOTALES":
+            return "Registros Totales";
             break;
         default:
             return concepto;

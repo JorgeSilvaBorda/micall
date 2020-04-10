@@ -528,6 +528,7 @@ public class ReportesController extends HttpServlet {
     private JSONObject resultante(int idcampana) {
         JSONObject salida = new JSONObject();
         String query = "CALL SP_GET_REPORTE_RESULTANTE_2(" + idcampana + ")";
+        System.out.println(query);
         Conexion c = new Conexion();
         c.abrir();
         ResultSet rs = c.ejecutarQuery(query);
@@ -548,7 +549,7 @@ public class ReportesController extends HttpServlet {
                 if (rs.getInt("uniqueid") > 0) {
                     cuerpo += "<tr>";
                     cuerpo += "<td>" + rs.getInt("uniqueid") + "</td>";
-                    cuerpo += "<td>" + modelo.Util.formatRut(rs.getString("vendor_lead_code")) + "</td>";
+                    cuerpo += "<td>" + rs.getString("vendor_lead_code") + "</td>";
                     cuerpo += "<td>" + rs.getInt("phone_number") + "</td>";
                     cuerpo += "<td>" + rs.getString("status_name") + "</td>";
                     //cuerpo += "<td>" + rs.getString("SEQUENCE") + (!rs.getString("comments").equals("") ? ">" + rs.getString("comments") : "") + "</td>";
@@ -580,6 +581,7 @@ public class ReportesController extends HttpServlet {
         c.abrir();
         ResultSet rs = c.ejecutarQuery(query);
         String cuerpo = "";
+        int registros = 0;
         try {
             while (rs.next()) {
                 cuerpo += "<tr>";
@@ -591,11 +593,14 @@ public class ReportesController extends HttpServlet {
                 cuerpo += "<td>" + rs.getString("ESTADOLLAMADO") + "</td>";
                 cuerpo += "<td>" + rs.getDate("FECHAHORAINI") + "</td>";
                 cuerpo += "<td>" + rs.getString("USER") + "</td>";
-                String enlace = "<a href='" + rs.getString("location") + "' download>Descargar</a>";
+                //String enlace = "<a href='" + rs.getString("location") + "' download>Descargar</a>";
+                String enlace = "<audio style='max-height: 20px; max-width:350px;' src='" + rs.getString("location") + "' type='audio/wav' controls></audio>";
                 cuerpo += "<td>" + enlace + "</td>";
                 cuerpo += "</tr>";
+                registros ++;
             }
             salida.put("estado", "ok");
+            salida.put("registros", registros);
             salida.put("cuerpo", cuerpo);
         } catch (JSONException | SQLException ex) {
             salida.put("estado", "error");
@@ -613,6 +618,7 @@ public class ReportesController extends HttpServlet {
         ResultSet rs = c.ejecutarQuery(query);
         String cuerpo = "";
         DecimalFormat format = new DecimalFormat("###,###,###.##");
+        int registros = 0;
         try {
             while (rs.next()) {
                 cuerpo += "<tr>";
@@ -638,8 +644,11 @@ public class ReportesController extends HttpServlet {
                 cuerpo += "<td>" + format.format(rs.getDouble("PRODUCTIVIDAD")) + "%</td>";
 
                 cuerpo += "</tr>";
+                
+                registros ++;
             }
             salida.put("estado", "ok");
+            salida.put("registros", registros);
             salida.put("cuerpo", cuerpo);
         } catch (JSONException | SQLException ex) {
             salida.put("estado", "error");

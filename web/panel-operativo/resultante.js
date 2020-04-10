@@ -1,10 +1,11 @@
 var CAMPANAS = [];
 $(document).ready(function () {
     cargarIni();
+    
     var OPCIONES_EXCEL = [
         {
             extend: 'excelHtml5',
-            title: 'MiCall-Resultante-Mes-' + formatFecha(new Date())
+            title: ''
         }
     ];
     OPCIONES_DATATABLES.buttons = OPCIONES_EXCEL;
@@ -74,6 +75,7 @@ function armarTabla(obj) {
     $('.dataTable').DataTable().destroy();
     if(parseInt(obj.filas) > 0){
         $('#cuerpo-resultante').html(obj.cuerpo);
+        OPCIONES_DATATABLES.order = [[5, "desc"]];
         $('#tabla-resultante').DataTable(OPCIONES_DATATABLES);
     }
 }

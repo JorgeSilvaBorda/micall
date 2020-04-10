@@ -47,7 +47,7 @@
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group small">
-                        <button onclick="buscar();" id="btnBuscar" type="button" class="btn btn-success btn-sm">Buscar</button>
+                        <button onclick="buscarEjecutivos();" id="btnBuscar" type="button" class="btn btn-success btn-sm">Buscar</button>
                     </div>
                 </div>
             </div>
